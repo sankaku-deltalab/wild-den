@@ -73,6 +73,11 @@ export type BookProps = {
  */
 export interface BookSource {
   /**
+   * Get source id.
+   */
+  getSourceId(): SourceId;
+
+  /**
    * Scan all target files.
    */
   scanAllFiles(): Promise<Result<Record<BookIdStr, BookFileProps>, "offline">>;
