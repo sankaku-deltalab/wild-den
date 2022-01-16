@@ -118,7 +118,7 @@ export interface BookCacheRepository {
   /**
    * Get All `BookProps`.
    */
-  getAllBookProps(): Record<BookIdStr, BookFileProps>;
+  getAllBookProps(): Record<BookIdStr, BookProps>;
 
   /**
    * Get one `BookProps`.
