@@ -96,7 +96,10 @@ export interface BookSource {
   ): Promise<Result<BookFileThumbnail | undefined, "offline" | "not exists">>;
 }
 
-export interface BookCache {
+/**
+ * Contain caches of books.
+ */
+export interface BookCacheRepository {
   /**
    * Delete all cache.
    */
