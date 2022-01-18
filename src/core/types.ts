@@ -89,7 +89,7 @@ export interface BookSource {
    */
   loadBlob(
     fileId: FileId
-  ): Promise<Result<BookFileBlob | undefined, "offline" | "not exists">>;
+  ): Promise<Result<BookFileBlob, "offline" | "not exists">>;
 
   /**
    * Load book thumbnail.
@@ -98,7 +98,7 @@ export interface BookSource {
    */
   loadThumbnail(
     fileId: FileId
-  ): Promise<Result<BookFileThumbnail | undefined, "offline" | "not exists">>;
+  ): Promise<Result<BookFileThumbnail, "offline" | "not exists">>;
 }
 
 /**
