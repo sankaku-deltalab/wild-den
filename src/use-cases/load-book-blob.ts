@@ -1,7 +1,16 @@
 import { Result, Ok, Err } from "ts-results";
-import { BookId, BookFileBlob, BookSource, BookCacheRepository } from "../core";
+import {
+  BookId,
+  BookProps,
+  BookFileBlob,
+  BookSource,
+  BookCacheRepository,
+} from "../core";
+import { DateUtil } from "../util";
 
 export class LoadBookBlob {
+  constructor(private readonly date: DateUtil) {}
+
   async run(
     sources: BookSource[],
     cache: BookCacheRepository,
@@ -19,6 +28,18 @@ export class LoadBookBlob {
     if (loadedBlob.err) return loadedBlob;
 
     cache.setBlob(loadedBlob.val);
+
+    this.updateBookProps(cache, id);
+
     return new Ok(loadedBlob.val);
+  }
+
+  private updateBookProps(cache: BookCacheRepository, id: BookId): void {
+    const props = cache.getBookProps(id);
+    if (props.err) return;
+    const updatedProps: BookProps = Object.assign({}, props.val, {
+      lastLoadedDate: this.date.now(),
+    });
+    cache.setBookProps(updatedProps);
   }
 }
