@@ -22,6 +22,7 @@ export class ScanBooks {
     const newBooks = mapObj(loadedFiles.val, (k, v) => fileToBookProps(now, v));
     const cachedBooks = cache.getAllBookProps();
     const books = updateBooksProps(newBooks, cachedBooks, source.getSourceId());
+    cache.resetSource(source, Object.values(books));
     return new Ok(books);
   }
 }
