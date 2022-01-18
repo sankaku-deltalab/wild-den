@@ -1,6 +1,8 @@
 import { Result, Ok, Err } from "ts-results";
-import { BookIdStr, BookCacheRepository } from "../core";
+import { BookId, BookCacheRepository } from "../core";
 
-export class DeleteBookThumbnailBlob {
-  run(cache: BookCacheRepository, id: BookIdStr): void {}
+export class DeleteBookBlobCache {
+  run(cache: BookCacheRepository, id: BookId): void {
+    cache.deleteBlob(id);
+  }
 }
