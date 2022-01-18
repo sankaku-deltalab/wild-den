@@ -29,17 +29,6 @@ export class LoadBookBlob {
 
     cache.setBlob(loadedBlob.val);
 
-    this.updateBookProps(cache, id);
-
     return new Ok(loadedBlob.val);
-  }
-
-  private updateBookProps(cache: BookCacheRepository, id: BookId): void {
-    const props = cache.getBookProps(id);
-    if (props.err) return;
-    const updatedProps: BookProps = Object.assign({}, props.val, {
-      lastLoadedDate: this.date.now(),
-    });
-    cache.setBookProps(updatedProps);
   }
 }
