@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterSlice from "./slices/counter-slice";
+import showcaseSlice from "./slices/showcase-slice";
 
 export const store = configureStore({
-  reducer: { counter: counterSlice },
+  reducer: { showcase: showcaseSlice },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
