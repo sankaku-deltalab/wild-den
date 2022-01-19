@@ -53,6 +53,7 @@ export const showcaseSlice = createSlice({
       .addCase(loadBlob.fulfilled, (state, action) => {
         if (action.payload.err) {
           // TODO: show error
+          state.status = "showing";
           return;
         }
         state.status = "reading";
