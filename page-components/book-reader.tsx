@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemButton, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   closeBook,
@@ -13,7 +13,7 @@ const BookReader: React.FC<{}> = () => {
     <>
       <div>reading...</div>
       <div>{readingBook.toString()}</div>
-      <Button onClick={() => dispatch(closeBook)}>Close</Button>
+      <Button onClick={() => dispatch(closeBook())}>Close</Button>
     </>
   );
 };
