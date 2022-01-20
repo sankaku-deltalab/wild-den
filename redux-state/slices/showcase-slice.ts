@@ -11,6 +11,7 @@ import {
   DateUtilImpl,
   BookId,
   bookIdToStr,
+  ScanBooks,
 } from "../../src";
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
@@ -20,6 +21,7 @@ const dateUtil = new DateUtilImpl();
 const cache = new BookCacheRepositoryMock();
 const getCachedBooks = new GetCachedBooks();
 const loadBookBlob = new LoadBookBlob(dateUtil);
+const scanBooksUC = new ScanBooks(dateUtil);
 
 type ShowcaseState = {
   cache: BookCacheRepository;
@@ -28,6 +30,7 @@ type ShowcaseState = {
   bookBlobs: Record<BookIdStr, BookFileBlob>;
   bookThumbnails: Record<BookIdStr, BookFileThumbnail>;
   status: "showing" | "blob loading" | "reading";
+  scanStatus: "not scanning" | "scanning";
   readingBookId?: BookId;
 };
 
@@ -38,6 +41,7 @@ const initialState: ShowcaseState = {
   bookBlobs: {},
   bookThumbnails: {},
   status: "showing",
+  scanStatus: "not scanning",
   readingBookId: undefined,
 };
 
@@ -58,6 +62,19 @@ export const showcaseSlice = createSlice({
         }
         state.status = "reading";
         state.readingBookId = action.payload.val.id;
+      })
+      .addCase(scanBooks.pending, (state, action) => {
+        // TODO: show pending
+        state.scanStatus = "scanning";
+      })
+      .addCase(scanBooks.fulfilled, (state, action) => {
+        if (action.payload.err) {
+          // TODO: show error
+          state.scanStatus = "not scanning";
+          return;
+        }
+        state.scanStatus = "not scanning";
+        state.bookProps = action.payload.val;
       });
   },
 });
@@ -67,6 +84,13 @@ export const loadBlob = createAsyncThunk<
   { id: BookId; sources: BookSource[]; cache: BookCacheRepository }
 >("showcase/loadBlob", async ({ sources, cache, id }) => {
   return await loadBookBlob.run(sources, cache, id);
+});
+
+export const scanBooks = createAsyncThunk<
+  Result<Record<BookIdStr, BookProps>, "offline">,
+  { source: BookSource; cache: BookCacheRepository }
+>("showcase/scanBooks", async ({ source, cache }) => {
+  return await scanBooksUC.run(source, cache);
 });
 
 export const selectReadingBook = (
