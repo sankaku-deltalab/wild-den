@@ -15,6 +15,7 @@ import {
 } from "../../src";
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
+import { BookSourceMock } from "../book-source-mock";
 import { Err, Ok, Result } from "ts-results";
 
 const dateUtil = new DateUtilImpl();
@@ -36,7 +37,7 @@ type ShowcaseState = {
 
 const initialState: ShowcaseState = {
   cache,
-  sources: [],
+  sources: [new BookSourceMock()],
   bookProps: getCachedBooks.run(cache),
   bookBlobs: {},
   bookThumbnails: {},
@@ -48,8 +49,13 @@ const initialState: ShowcaseState = {
 export const showcaseSlice = createSlice({
   name: "showcase",
   initialState,
-  reducers: {},
-  extraReducers(builder) {
+  reducers: {
+    closeBook: (state) => {
+      state.status = "showing";
+      state.readingBookId = undefined;
+    },
+  },
+  extraReducers: (builder) => {
     builder
       .addCase(loadBlob.pending, (state, action) => {
         state.status = "blob loading";
@@ -93,11 +99,14 @@ export const scanBooks = createAsyncThunk<
   return await scanBooksUC.run(source, cache);
 });
 
+export const { closeBook } = showcaseSlice.actions;
+
 export const selectReadingBook = (
   state: RootState
 ): Result<{ props: BookProps; blob: BookFileBlob }, "not reading"> => {
   const id = state.showcase.readingBookId;
-  if (id === undefined) return new Err("not reading");
+  if (id === undefined || state.showcase.status !== "reading")
+    return new Err("not reading");
   const idStr = bookIdToStr(id);
   return new Ok({
     props: state.showcase.bookProps[idStr],
