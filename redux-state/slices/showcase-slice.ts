@@ -48,8 +48,12 @@ const initialState: ShowcaseState = {
 export const showcaseSlice = createSlice({
   name: "showcase",
   initialState,
-  reducers: {},
-  extraReducers(builder) {
+  reducers: {
+    closeBook: (state) => {
+      state.status = "showing";
+    },
+  },
+  extraReducers: (builder) => {
     builder
       .addCase(loadBlob.pending, (state, action) => {
         state.status = "blob loading";
@@ -92,6 +96,8 @@ export const scanBooks = createAsyncThunk<
 >("showcase/scanBooks", async ({ source, cache }) => {
   return await scanBooksUC.run(source, cache);
 });
+
+export const { closeBook } = showcaseSlice.actions;
 
 export const selectReadingBook = (
   state: RootState
