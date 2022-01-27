@@ -12,7 +12,7 @@ const BookReader: React.FC<{}> = () => {
   return (
     <>
       <div>reading...</div>
-      <div>{readingBook.toString()}</div>
+      <div>{JSON.stringify(readingBook, null, 4)}</div>
       <Button onClick={() => dispatch(closeBook())}>Close</Button>
     </>
   );

@@ -1,6 +1,7 @@
 import { Err, Ok, Result } from "ts-results";
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { PublicClientApplication } from "@azure/msal-browser";
+import { Client } from "@microsoft/microsoft-graph-client";
 import {
   BookFileBlob,
   BookFileThumbnail,
@@ -18,7 +19,16 @@ import {
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
 import { BookSourceMock } from "../book-source-mock";
-import { msalConfig } from "./one-drive-source-info";
+import {
+  getMsGraphClient,
+  getMsalInstance,
+  msGraphScopes,
+  MsGraphClientWrapper,
+  MsGraphClientWrapperImpl,
+  OneDriveBookSource,
+} from "../../src/book-source";
+
+const dateUtil = new DateUtilImpl();
 
 // auth
 // https://www.npmjs.com/package/@azure/msal-browser
@@ -35,23 +45,48 @@ import { msalConfig } from "./one-drive-source-info";
 // const scanBooksUC = new ScanBooks(dateUtil);
 
 type OneDriveSourceState = {
-  pca: PublicClientApplication;
+  msalInstance: PublicClientApplication;
 };
 
 const initialState: OneDriveSourceState = {
-  pca: new PublicClientApplication(msalConfig),
+  msalInstance: getMsalInstance(),
 };
 
 export const oneDriveSourceSlice = createSlice({
   name: "oneDriveSource",
   initialState,
   reducers: {},
-  extraReducers: (builder) => {},
+  // extraReducers: (builder) => {},
 });
 
-export const {} = oneDriveSourceSlice.actions;
+// export const {} = oneDriveSourceSlice.actions;
 
 export default oneDriveSourceSlice.reducer;
 
-export const selectOneDrivePca = (state: RootState) =>
-  state.oneDriveSourceSlice.pca;
+export const selectOneDriveMsalInstance = (state: RootState) =>
+  state.oneDriveSourceSlice.msalInstance;
+
+export const selectOneDriveClient = (
+  state: RootState
+): Result<Client, "no account"> => {
+  const instance = state.oneDriveSourceSlice.msalInstance;
+  const accounts = instance.getAllAccounts();
+  if (accounts.length === 0) return new Err("no account");
+  return new Ok(getMsGraphClient(accounts[0], msGraphScopes, instance));
+};
+
+export const selectOneDriveClientWrapper = (
+  state: RootState
+): Result<MsGraphClientWrapper, "no account"> => {
+  const pureClient = selectOneDriveClient(state);
+  if (pureClient.err) return pureClient;
+  return new Ok(new MsGraphClientWrapperImpl(dateUtil, pureClient.val));
+};
+
+export const selectOneDriveSource = (
+  state: RootState
+): Result<BookSource, "no account"> => {
+  const client = selectOneDriveClientWrapper(state);
+  if (client.err) return client;
+  return new Ok(new OneDriveBookSource(client.val));
+};

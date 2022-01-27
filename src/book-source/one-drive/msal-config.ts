@@ -1,10 +1,16 @@
-import { Configuration } from "@azure/msal-browser";
+import type { Configuration } from "@azure/msal-browser";
 
-const clientId = "be4b9fc3-f0eb-4126-abd7-0377e8e3b216";
-const authority =
-  "https://login.microsoftonline.com/172f6cdd-ac32-4a65-a6a0-cd2a88acf58f";
-const redirectUri = "http://localhost:3000/";
-const postLogoutRedirectUri = "http://localhost:3000/";
+const clientId: string | undefined = process.env.NEXT_PUBLIC_MS_GRAPH_CLIENT_ID;
+const objectId: string | undefined = process.env.NEXT_PUBLIC_MS_GRAPH_OBJECT_ID;
+const tenantId: string | undefined = process.env.NEXT_PUBLIC_MS_GRAPH_TENANT_ID;
+
+if (!(clientId && objectId && tenantId)) {
+  throw Error("Wrong environment variables");
+}
+
+const authority = `https://login.microsoftonline.com/common`;
+const redirectUri = "http://localhost:3000/source/onedrive";
+const postLogoutRedirectUri = "http://localhost:3000/source/onedrive";
 
 export const msalConfig: Configuration = {
   auth: {
@@ -13,6 +19,7 @@ export const msalConfig: Configuration = {
     redirectUri, // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
     postLogoutRedirectUri, // Indicates the page to navigate after logout.
     navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
+    // knownAuthorities: [`login.microsoftonline.com/common/${tenantId}`],
   },
   cache: {
     cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
