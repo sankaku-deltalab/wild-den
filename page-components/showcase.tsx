@@ -5,7 +5,9 @@ import { scanBooks, loadBlob } from "../redux-state/slices/showcase-slice";
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const books = useAppSelector((state) => state.showcase.bookProps);
-  const sources = useAppSelector((state) => state.showcase.sources);
+  const sources = useAppSelector((state) =>
+    Object.values(state.showcase.sources)
+  );
   const cache = useAppSelector((state) => state.showcase.cache);
 
   return (

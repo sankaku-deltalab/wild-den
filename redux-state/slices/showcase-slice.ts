@@ -12,6 +12,7 @@ import {
   BookId,
   bookIdToStr,
   ScanBooks,
+  SourceId,
 } from "../../src";
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
@@ -26,7 +27,7 @@ const scanBooksUC = new ScanBooks(dateUtil);
 
 type ShowcaseState = {
   cache: BookCacheRepository;
-  sources: BookSource[];
+  sources: Record<SourceId, BookSource>;
   bookProps: Record<BookIdStr, BookProps>;
   bookBlobs: Record<BookIdStr, BookFileBlob>;
   bookThumbnails: Record<BookIdStr, BookFileThumbnail>;
@@ -37,7 +38,7 @@ type ShowcaseState = {
 
 const initialState: ShowcaseState = {
   cache,
-  sources: [new BookSourceMock()],
+  sources: { __mock_source__: new BookSourceMock() },
   bookProps: getCachedBooks.run(cache),
   bookBlobs: {},
   bookThumbnails: {},
@@ -54,6 +55,9 @@ export const showcaseSlice = createSlice({
       state.status = "showing";
       state.readingBookId = undefined;
     },
+    addSource: (state, action: PayloadAction<BookSource>) => {
+      state.sources[action.payload.getSourceId()] = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -67,6 +71,8 @@ export const showcaseSlice = createSlice({
           return;
         }
         state.status = "reading";
+        state.bookBlobs[bookIdToStr(action.payload.val.id)] =
+          action.payload.val;
         state.readingBookId = action.payload.val.id;
       })
       .addCase(scanBooks.pending, (state, action) => {
@@ -81,6 +87,10 @@ export const showcaseSlice = createSlice({
         }
         state.scanStatus = "not scanning";
         state.bookProps = action.payload.val;
+      })
+      .addCase(scanBooks.rejected, (state, action) => {
+        console.log("failed");
+        state.scanStatus = "not scanning";
       });
   },
 });
@@ -99,7 +109,7 @@ export const scanBooks = createAsyncThunk<
   return await scanBooksUC.run(source, cache);
 });
 
-export const { closeBook } = showcaseSlice.actions;
+export const { closeBook, addSource } = showcaseSlice.actions;
 
 export const selectReadingBook = (
   state: RootState

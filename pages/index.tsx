@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { useAppSelector } from "../redux-state/hooks";
 import Showcase from "../page-components/showcase";
 import BookReader from "../page-components/book-reader";
@@ -20,6 +21,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <Link href={"/source/onedrive"}>Go OneDrive edit</Link>
         {isReading ? <BookReader /> : <Showcase />}
       </main>
     </div>
