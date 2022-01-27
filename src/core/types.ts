@@ -1,4 +1,4 @@
-import { Result } from "ts-results";
+import { Result } from "../util";
 
 /** Id of book file. */
 export type FileId = string;

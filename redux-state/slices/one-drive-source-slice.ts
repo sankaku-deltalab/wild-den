@@ -1,4 +1,3 @@
-import { Err, Ok, Result } from "ts-results";
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { Client } from "@microsoft/microsoft-graph-client";
@@ -15,6 +14,9 @@ import {
   BookId,
   bookIdToStr,
   ScanBooks,
+  Result,
+  ok,
+  err,
 } from "../../src";
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
@@ -71,8 +73,8 @@ export const selectOneDriveClient = (
 ): Result<Client, "no account"> => {
   const instance = state.oneDriveSourceSlice.msalInstance;
   const accounts = instance.getAllAccounts();
-  if (accounts.length === 0) return new Err("no account");
-  return new Ok(getMsGraphClient(accounts[0], msGraphScopes, instance));
+  if (accounts.length === 0) return err("no account");
+  return ok(getMsGraphClient(accounts[0], msGraphScopes, instance));
 };
 
 export const selectOneDriveClientWrapper = (
@@ -80,7 +82,7 @@ export const selectOneDriveClientWrapper = (
 ): Result<MsGraphClientWrapper, "no account"> => {
   const pureClient = selectOneDriveClient(state);
   if (pureClient.err) return pureClient;
-  return new Ok(new MsGraphClientWrapperImpl(dateUtil, pureClient.val));
+  return ok(new MsGraphClientWrapperImpl(dateUtil, pureClient.val));
 };
 
 export const selectOneDriveSource = (
@@ -88,5 +90,5 @@ export const selectOneDriveSource = (
 ): Result<BookSource, "no account"> => {
   const client = selectOneDriveClientWrapper(state);
   if (client.err) return client;
-  return new Ok(new OneDriveBookSource(client.val));
+  return ok(new OneDriveBookSource(client.val));
 };

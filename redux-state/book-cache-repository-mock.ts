@@ -1,4 +1,3 @@
-import { Result, Ok, Err } from "ts-results";
 import {
   BookCacheRepository,
   BookSource,
@@ -9,6 +8,9 @@ import {
   BookFileBlob,
   bookIdToStr,
   filterObj,
+  Result,
+  ok,
+  err,
 } from "../src";
 
 export class BookCacheRepositoryMock implements BookCacheRepository {
@@ -43,9 +45,9 @@ export class BookCacheRepositoryMock implements BookCacheRepository {
   getBookProps(id: BookId): Result<BookProps, "not exists"> {
     const idStr = bookIdToStr(id);
     if (idStr in this.bookProps) {
-      return new Ok(this.bookProps[idStr]);
+      return ok(this.bookProps[idStr]);
     }
-    return new Err("not exists");
+    return err("not exists");
   }
 
   setBookProps(props: BookProps): void {
@@ -56,9 +58,9 @@ export class BookCacheRepositoryMock implements BookCacheRepository {
   getThumbnail(id: BookId): Result<BookFileThumbnail, "not exists"> {
     const idStr = bookIdToStr(id);
     if (idStr in this.bookThumbnails) {
-      return new Ok(this.bookThumbnails[idStr]);
+      return ok(this.bookThumbnails[idStr]);
     }
-    return new Err("not exists");
+    return err("not exists");
   }
 
   setThumbnail(thumbnail: BookFileThumbnail): void {
@@ -71,9 +73,9 @@ export class BookCacheRepositoryMock implements BookCacheRepository {
   getBlob(id: BookId): Result<BookFileBlob, "not exists"> {
     const idStr = bookIdToStr(id);
     if (idStr in this.bookBlobs) {
-      return new Ok(this.bookBlobs[idStr]);
+      return ok(this.bookBlobs[idStr]);
     }
-    return new Err("not exists");
+    return err("not exists");
   }
 
   setBlob(blob: BookFileBlob): void {
