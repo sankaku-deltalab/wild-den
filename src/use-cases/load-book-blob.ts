@@ -1,4 +1,3 @@
-import { Result, Ok, Err } from "ts-results";
 import {
   BookId,
   BookProps,
@@ -6,7 +5,7 @@ import {
   BookSource,
   BookCacheRepository,
 } from "../core";
-import { DateUtil } from "../util";
+import { DateUtil, Result, ok, err } from "../util";
 
 export class LoadBookBlob {
   constructor(private readonly date: DateUtil) {}
@@ -19,16 +18,16 @@ export class LoadBookBlob {
     Result<BookFileBlob, "offline" | "not exists" | "source not found">
   > {
     const cachedBlob = cache.getBlob(id);
-    if (cachedBlob.ok) return new Ok(cachedBlob.val);
+    if (cachedBlob.ok) return ok(cachedBlob.val);
 
     const source = sources.find((s) => s.getSourceId() == id.source);
-    if (!source) return new Err("source not found");
+    if (!source) return err("source not found");
 
     const loadedBlob = await source.loadBlob(id.file);
     if (loadedBlob.err) return loadedBlob;
 
     cache.setBlob(loadedBlob.val);
 
-    return new Ok(loadedBlob.val);
+    return ok(loadedBlob.val);
   }
 }

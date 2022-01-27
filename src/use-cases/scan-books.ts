@@ -1,4 +1,3 @@
-import { Result, Ok } from "ts-results";
 import {
   BookIdStr,
   BookProps,
@@ -7,7 +6,7 @@ import {
   fileToBookProps,
   updateBooksProps,
 } from "../core";
-import { mapObj, DateUtil } from "../util";
+import { mapObj, DateUtil, Result, ok } from "../util";
 
 export class ScanBooks {
   constructor(private readonly date: DateUtil) {}
@@ -23,6 +22,6 @@ export class ScanBooks {
     const cachedBooks = cache.getAllBookProps();
     const books = updateBooksProps(newBooks, cachedBooks, source.getSourceId());
     cache.resetSource(source, Object.values(books));
-    return new Ok(books);
+    return ok(books);
   }
 }

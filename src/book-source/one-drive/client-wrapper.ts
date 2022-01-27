@@ -1,7 +1,6 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import axios from "axios";
 import { Base64 } from "js-base64";
-import { Err, Ok, Result } from "ts-results";
 import {
   BookFileBlob,
   BookFileProps,
@@ -11,7 +10,7 @@ import {
   bookIdToStr,
   SourceId,
 } from "../../core";
-import { DateUtil } from "../../util";
+import { DateUtil, Result, ok, err } from "../../util";
 
 type DriveItem = DriveItemAsFolder | DriveItemAsFile;
 
@@ -155,7 +154,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   ): Promise<Result<BookFileThumbnail, "misc">> {
     const values = bookId.file.split("!");
     if (values.length !== 2) {
-      return new Err("misc");
+      return err("misc");
     }
     const driveId = values[0];
     const itemId = bookId.file;
@@ -164,11 +163,11 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       .get();
 
     const file = await axios.get(r.value.medium.url);
-    if (file.status !== 200) return new Err("misc");
+    if (file.status !== 200) return err("misc");
 
     const base64BookThumbnail = Base64.encode(file.data, true);
     const now = this.dateUtil.now();
-    return new Ok({
+    return ok({
       id: bookId,
       lastLoadedDate: now,
       type: "pdf",
@@ -185,7 +184,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       const values = bookId.file.split("!");
       if (values.length !== 2) {
         console.log("values error", values);
-        return new Err("misc");
+        return err("misc");
       }
       const driveId = values[0];
       const itemId = bookId.file;
@@ -194,11 +193,11 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
         .get();
 
       const file = await axios.get(r["@microsoft.graph.downloadUrl"]);
-      if (file.status !== 200) return new Err("misc");
+      if (file.status !== 200) return err("misc");
 
       const base64BookBlob = Base64.encode(file.data, true);
       const now = this.dateUtil.now();
-      return new Ok({
+      return ok({
         id: bookId,
         lastLoadedDate: now,
         type: "pdf",

@@ -1,4 +1,3 @@
-import { Result, Ok, Err } from "ts-results";
 import {
   BookSource,
   BookFileProps,
@@ -8,6 +7,9 @@ import {
   BookFileThumbnail,
   BookFileBlob,
   bookIdToStr,
+  Result,
+  ok,
+  err,
 } from "../src";
 
 export class BookSourceMock implements BookSource {
@@ -37,7 +39,8 @@ export class BookSourceMock implements BookSource {
         path: "book/lewis",
       },
     ];
-    return new Ok(Object.fromEntries(files.map((p) => [bookIdToStr(p.id), p])));
+    return ok(Object.fromEntries(files.map((p) => [bookIdToStr(p.id), p])));
+    return err("offline");
   }
 
   async loadBlob(
@@ -45,7 +48,7 @@ export class BookSourceMock implements BookSource {
   ): Promise<Result<BookFileBlob, "offline" | "not exists">> {
     const sourceId = this.getSourceId();
     if (fileId === "__mock_file_1") {
-      return new Ok({
+      return ok({
         id: { source: sourceId, file: "__mock_file_1" },
         lastLoadedDate: new Date().toISOString(),
         type: "pdf",
@@ -54,7 +57,7 @@ export class BookSourceMock implements BookSource {
       });
     }
     if (fileId === "__mock_file_2") {
-      return new Ok({
+      return ok({
         id: { source: sourceId, file: "__mock_file_2" },
         lastLoadedDate: new Date().toISOString(),
         type: "pdf",
@@ -63,7 +66,7 @@ export class BookSourceMock implements BookSource {
       });
     }
 
-    return new Err("not exists");
+    return err("not exists");
   }
 
   async loadThumbnail(
@@ -71,7 +74,7 @@ export class BookSourceMock implements BookSource {
   ): Promise<Result<BookFileThumbnail, "offline" | "not exists">> {
     const sourceId = this.getSourceId();
     if (fileId === "__mock_file_1") {
-      return new Ok({
+      return ok({
         id: { source: sourceId, file: "__mock_file_1" },
         lastLoadedDate: new Date().toISOString(),
         type: "pdf",
@@ -80,7 +83,7 @@ export class BookSourceMock implements BookSource {
       });
     }
     if (fileId === "__mock_file_2") {
-      return new Ok({
+      return ok({
         id: { source: sourceId, file: "__mock_file_2" },
         lastLoadedDate: new Date().toISOString(),
         type: "pdf",
@@ -89,6 +92,6 @@ export class BookSourceMock implements BookSource {
       });
     }
 
-    return new Err("not exists");
+    return err("not exists");
   }
 }

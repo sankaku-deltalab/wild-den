@@ -1,4 +1,3 @@
-import { Err, Ok, Result } from "ts-results";
 import { MsGraphClientWrapper } from ".";
 import {
   BookFileBlob,
@@ -9,7 +8,7 @@ import {
   FileId,
   BookSource,
 } from "../../core";
-import { DateUtil } from "../../util";
+import { DateUtil, Result, ok, err } from "../../util";
 
 export class OneDriveBookSource implements BookSource {
   constructor(private readonly client: MsGraphClientWrapper) {}
@@ -28,7 +27,7 @@ export class OneDriveBookSource implements BookSource {
     Result<Record<BookIdStr, BookFileProps>, "offline">
   > {
     const r = await this.client.getBookFiles(this.getSourceId());
-    return new Ok(r);
+    return ok(r);
   }
 
   /**
@@ -41,8 +40,8 @@ export class OneDriveBookSource implements BookSource {
   ): Promise<Result<BookFileBlob, "offline" | "not exists">> {
     const bookId = { source: this.getSourceId(), file: fileId };
     const r = await this.client.downloadBookBlob(bookId);
-    if (r.err) return new Err("not exists");
-    return new Ok(r.val);
+    if (r.err) return err("not exists");
+    return ok(r.val);
   }
 
   /**
@@ -55,7 +54,7 @@ export class OneDriveBookSource implements BookSource {
   ): Promise<Result<BookFileThumbnail, "offline" | "not exists">> {
     const bookId = { source: this.getSourceId(), file: fileId };
     const r = await this.client.downloadBookThumbnail(bookId);
-    if (r.err) return new Err("not exists");
-    return new Ok(r.val);
+    if (r.err) return err("not exists");
+    return ok(r.val);
   }
 }

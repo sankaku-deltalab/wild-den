@@ -13,11 +13,13 @@ import {
   bookIdToStr,
   ScanBooks,
   SourceId,
+  Result,
+  ok,
+  err,
 } from "../../src";
 import type { RootState } from "../store";
 import { BookCacheRepositoryMock } from "../book-cache-repository-mock";
 import { BookSourceMock } from "../book-source-mock";
-import { Err, Ok, Result } from "ts-results";
 
 const dateUtil = new DateUtilImpl();
 const cache = new BookCacheRepositoryMock();
@@ -116,9 +118,9 @@ export const selectReadingBook = (
 ): Result<{ props: BookProps; blob: BookFileBlob }, "not reading"> => {
   const id = state.showcase.readingBookId;
   if (id === undefined || state.showcase.status !== "reading")
-    return new Err("not reading");
+    return err("not reading");
   const idStr = bookIdToStr(id);
-  return new Ok({
+  return ok({
     props: state.showcase.bookProps[idStr],
     blob: state.showcase.bookBlobs[idStr],
   });
