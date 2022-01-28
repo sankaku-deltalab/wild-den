@@ -1,6 +1,5 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import axios from "axios";
-import { Base64 } from "js-base64";
 import {
   BookFileBlob,
   BookFileProps,
@@ -113,6 +112,17 @@ const base64FileSize = (base64File: string) => {
   return base64File.length * (3 / 4) - sizeOffset;
 };
 
+const blobToBase64 = async (b: Blob): Promise<string> => {
+  return new Promise((resolve, _) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result !== "string") resolve("");
+      else resolve(reader.result);
+    };
+    reader.readAsDataURL(b);
+  });
+};
+
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   constructor(
     private readonly dateUtil: DateUtil,
@@ -162,10 +172,11 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       .api(`/drives/${driveId}/items/${itemId}`)
       .get();
 
-    const file = await axios.get(r.value.medium.url);
+    const file = await axios.get(r.value.medium.url, { responseType: "blob" });
+    console.log(file);
     if (file.status !== 200) return err("misc");
 
-    const base64BookThumbnail = Base64.encode(file.data, true);
+    const base64BookThumbnail = await blobToBase64(file.data);
     const now = this.dateUtil.now();
     return ok({
       id: bookId,
@@ -192,10 +203,13 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
         .api(`/drives/${driveId}/items/${itemId}`)
         .get();
 
-      const file = await axios.get(r["@microsoft.graph.downloadUrl"]);
+      const file = await axios.get(r["@microsoft.graph.downloadUrl"], {
+        responseType: "blob",
+      });
+      console.log(file);
       if (file.status !== 200) return err("misc");
 
-      const base64BookBlob = Base64.encode(file.data, true);
+      const base64BookBlob = await blobToBase64(file.data);
       const now = this.dateUtil.now();
       return ok({
         id: bookId,

@@ -19,16 +19,17 @@
     "@reduxjs/toolkit": "^1.7.1",
     "axios": "^0.25.0",
     "isomorphic-fetch": "^3.0.0",
-    "js-base64": "^3.7.2",
     "next": "^12.0.9",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-pdf": "^5.7.0",
     "react-redux": "^7.2.6",
     "redux": "^4.1.2"
   },
   "devDependencies": {
     "@types/node": "17.0.8",
     "@types/react": "17.0.38",
+    "@types/react-pdf": "^5.0.9",
     "eslint": "8.6.0",
     "eslint-config-next": "12.0.8",
     "prettier": "^2.5.1",
