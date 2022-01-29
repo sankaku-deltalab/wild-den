@@ -173,7 +173,6 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       .get();
 
     const file = await axios.get(r.value.medium.url, { responseType: "blob" });
-    console.log(file);
     if (file.status !== 200) return err("misc");
 
     const base64BookThumbnail = await blobToBase64(file.data);
@@ -190,11 +189,9 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   async downloadBookBlob(
     bookId: BookId
   ): Promise<Result<BookFileBlob, "misc">> {
-    console.log("downloadBookBlob");
     try {
       const values = bookId.file.split("!");
       if (values.length !== 2) {
-        console.log("values error", values);
         return err("misc");
       }
       const driveId = values[0];
@@ -206,7 +203,6 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       const file = await axios.get(r["@microsoft.graph.downloadUrl"], {
         responseType: "blob",
       });
-      console.log(file);
       if (file.status !== 200) return err("misc");
 
       const base64BookBlob = await blobToBase64(file.data);
@@ -219,7 +215,6 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
         blob: base64BookBlob,
       });
     } catch (e) {
-      console.log("er");
       console.log(e);
       throw e;
     }
