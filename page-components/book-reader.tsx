@@ -23,18 +23,20 @@ const BookReader: React.FC<{}> = () => {
 
   const file = readingBook.err ? "" : `${readingBook.val.blob.blob}`;
 
-  const pdfBlob = readingBook.err ? "" : readingBook.val.blob.blob;
+  const pdfProps = readingBook.err ? "" : readingBook.val.props;
   return (
     <>
       <div>reading...</div>
-      <div>{pdfBlob}</div>
-      <div>{JSON.stringify(readingBook, null, 4)}</div>
-      <Button onClick={() => dispatch(closeBook())}>Close</Button>
+      <div>{JSON.stringify(pdfProps, null, 4)}</div>
       <div>
         <Document
           file={file}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(e) => console.log(e)}
+          options={{
+            cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`, // TODO: ローカルファイルに依存するようにする
+            cMapPacked: true,
+          }}
         >
           <Page pageNumber={pageNumber} />
         </Document>
@@ -44,10 +46,11 @@ const BookReader: React.FC<{}> = () => {
         <Button onClick={() => setPageNumber((v) => Math.min(v + 1, numPages))}>
           Next page
         </Button>
-        <Button onClick={() => setPageNumber((v) => Math.max(v - 1, 0))}>
+        <Button onClick={() => setPageNumber((v) => Math.max(v - 1, 1))}>
           Prev page
         </Button>
       </div>
+      <Button onClick={() => dispatch(closeBook())}>Close</Button>
     </>
   );
 };
