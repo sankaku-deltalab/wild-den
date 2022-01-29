@@ -12,10 +12,8 @@ import { Button, TextareaAutosize } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../redux-state/hooks";
 import {
   selectOneDriveMsalInstance,
-  selectOneDriveClientWrapper,
   selectOneDriveSource,
 } from "../../redux-state/slices/one-drive-source-slice";
-import { addSource } from "../../redux-state/slices/showcase-slice";
 import { msGraphScopes } from "../../src/book-source";
 
 const redirectLoginRequest = { scopes: msGraphScopes };
@@ -53,7 +51,6 @@ const IdTokenContent = () => {
 const Content = () => {
   const dispatch = useAppDispatch();
   const msalInstance = useAppSelector(selectOneDriveMsalInstance);
-  const clientWrapperResult = useAppSelector(selectOneDriveClientWrapper);
   const oneDriveSource = useAppSelector(selectOneDriveSource);
   const [clientRequestCommand, setClientRequestCommand] = useState("");
   const [clientResponse, setClientResponse] = useState({});
@@ -62,23 +59,20 @@ const Content = () => {
     command: string,
     type: "get" | "post"
   ): Promise<void> => {
-    console.log(`run: ${command}`);
-    const client = clientWrapperResult.ok ? clientWrapperResult.val : undefined;
-    if (!client) {
-      console.log(`no client`);
-      return;
-    }
-    if (type === "get") {
-      const r = await client.getBookFiles("one-drive-test");
-      console.log(r);
-      setClientResponse(r);
-    }
+    // console.log(`run: ${command}`);
+    // const client = clientWrapperResult.ok ? clientWrapperResult.val : undefined;
+    // if (!client) {
+    //   console.log(`no client`);
+    //   return;
+    // }
+    // if (type === "get") {
+    //   const r = await client.getBookFiles("one-drive-test");
+    //   console.log(r);
+    //   setClientResponse(r);
+    // }
   };
 
-  const handleAddSource = async (): Promise<void> => {
-    if (oneDriveSource.err) return;
-    dispatch(addSource(oneDriveSource.val));
-  };
+  const handleAddSource = async (): Promise<void> => {};
 
   return (
     <MsalProvider instance={msalInstance}>

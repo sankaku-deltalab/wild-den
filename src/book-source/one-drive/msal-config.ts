@@ -9,8 +9,8 @@ if (!(clientId && objectId && tenantId)) {
 }
 
 const authority = `https://login.microsoftonline.com/common`;
-const redirectUri = "http://localhost:3000/source/onedrive";
-const postLogoutRedirectUri = "http://localhost:3000/source/onedrive";
+const redirectUri = "http://localhost:3000/";
+const postLogoutRedirectUri = "http://localhost:3000/";
 
 export const msalConfig: Configuration = {
   auth: {
