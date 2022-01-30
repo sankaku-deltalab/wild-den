@@ -11,9 +11,13 @@ import { msalInstance } from "./injection";
 
 const dateUtil = new DateUtilImpl();
 
-type OneDriveSourceState = {};
+type OneDriveSourceState = {
+  ignoreFolderNames: string[];
+};
 
-const initialState: OneDriveSourceState = {};
+const initialState: OneDriveSourceState = {
+  ignoreFolderNames: [".git", "music", "audio"],
+};
 
 export const oneDriveSourceSlice = createSlice({
   name: "oneDriveSource",
@@ -34,6 +38,10 @@ export const selectOneDriveSource = (
   const accounts = instance.getAllAccounts();
   if (accounts.length === 0) return err("no account");
   const pureClient = getMsGraphClient(accounts[0], msGraphScopes, instance);
-  const client = new MsGraphClientWrapperImpl(dateUtil, pureClient);
+  const client = new MsGraphClientWrapperImpl(
+    dateUtil,
+    pureClient,
+    state.oneDriveSource.ignoreFolderNames
+  );
   return ok(new OneDriveBookSource(client));
 };

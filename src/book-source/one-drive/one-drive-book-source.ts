@@ -27,7 +27,8 @@ export class OneDriveBookSource implements BookSource {
     Result<Record<BookIdStr, BookFileProps>, "offline">
   > {
     const r = await this.client.getBookFiles(this.getSourceId());
-    return ok(r);
+    if (r.err) return err("offline");
+    return r;
   }
 
   /**

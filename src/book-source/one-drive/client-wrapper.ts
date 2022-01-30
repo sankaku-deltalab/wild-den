@@ -1,5 +1,4 @@
 import { Client } from "@microsoft/microsoft-graph-client";
-import axios from "axios";
 import {
   BookFileBlob,
   BookFileProps,
@@ -10,91 +9,21 @@ import {
   SourceId,
 } from "../../core";
 import { DateUtil, Result, ok, err } from "../../util";
-
-type DriveItem = DriveItemAsFolder | DriveItemAsFile;
-
-type DriveItemCore = {
-  createdDateTime: string;
-  eTag: string;
-  id: string;
-  lastModifiedDateTime: string;
-  name: string;
-  webUrl: string;
-  cTag: string;
-  size: number;
-  parentReference: {
-    driveId: string;
-    driveType: string;
-    id: string;
-    path: string;
-  };
-  fileSystemInfo: {
-    createdDateTime: string;
-    lastModifiedDateTime: string;
-  };
-  shared?: {
-    owner: {
-      user: {
-        displayName: string;
-        id: string;
-      };
-    };
-  };
-};
-
-type DriveItemAsFolder = DriveItemCore & {
-  folder: {
-    childCount: number;
-  };
-};
-
-type DriveItemAsFile = DriveItemCore & {
-  "@microsoft.graph.downloadUrl": string;
-  file: {
-    mimeType: string;
-    hashes: {
-      quickXorHash: string;
-    };
-  };
-};
-
-type SearchResult = {
-  "@odata.context"?: string;
-  "@odata.nextLink"?: string;
-  value: DriveItem[];
-};
-
-type ThumbnailsResult = {
-  "@odata.context"?: string;
-  value: {
-    id: string;
-    large: ThumbnailItem;
-    medium: ThumbnailItem;
-    small: ThumbnailItem;
-  };
-};
-
-type ThumbnailItem = {
-  height: number;
-  width: number;
-  url: string;
-};
+import {
+  scanAllItems,
+  downloadItemAsDataUri,
+  downloadThumbnailAsDataUri,
+} from "./client-util";
 
 export interface MsGraphClientWrapper {
-  getBookFiles(sourceId: SourceId): Promise<Record<BookIdStr, BookFileProps>>;
+  getBookFiles(
+    sourceId: SourceId
+  ): Promise<Result<Record<BookIdStr, BookFileProps>>>;
 
-  downloadBookThumbnail(
-    bookId: BookId
-  ): Promise<Result<BookFileThumbnail, "misc">>;
+  downloadBookThumbnail(bookId: BookId): Promise<Result<BookFileThumbnail>>;
 
-  downloadBookBlob(bookId: BookId): Promise<Result<BookFileBlob, "misc">>;
+  downloadBookBlob(bookId: BookId): Promise<Result<BookFileBlob>>;
 }
-
-const percentDecodePath = (path: string) =>
-  path
-    .split("/")
-    .map((v) => decodeURIComponent(v))
-    .join("/");
 
 const trimOneDrivePath = (path: string) => {
   const splittedPath = path.split("/").map((v) => decodeURIComponent(v));
@@ -112,111 +41,81 @@ const base64FileSize = (base64File: string) => {
   return base64File.length * (3 / 4) - sizeOffset;
 };
 
-const blobToBase64 = async (b: Blob): Promise<string> => {
-  return new Promise((resolve, _) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result !== "string") resolve("");
-      else resolve(reader.result);
-    };
-    reader.readAsDataURL(b);
-  });
-};
-
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
+  private readonly ignoreFolderNames: ReadonlySet<string>;
+
   constructor(
     private readonly dateUtil: DateUtil,
-    private readonly client: Client
-  ) {}
+    private readonly client: Client,
+    ignoreFolderNames: string[]
+  ) {
+    this.ignoreFolderNames = new Set(
+      ignoreFolderNames.map((s) => s.toLowerCase())
+    );
+  }
 
   async getBookFiles(
     sourceId: SourceId
-  ): Promise<Record<BookIdStr, BookFileProps>> {
-    // NOTE: https://docs.microsoft.com/en-us/graph/api/driveitem-search?view=graph-rest-1.0&tabs=http
-    const items: DriveItem[] = [];
-    let r: SearchResult = await this.client
-      .api("/me/drive/search(q='pdf or epub')")
-      .get();
-    items.push(...r.value);
-    while (r["@odata.nextLink"]) {
-      r = await this.client.api(r["@odata.nextLink"]).get();
-      r.value;
-      items.push(...r.value);
-    }
+  ): Promise<Result<Record<BookIdStr, BookFileProps>>> {
+    const items = await scanAllItems(this.client, this.ignoreFolderNames);
+    if (items.err) return items;
 
-    return Object.fromEntries(
-      items
-        .filter((v) => "file" in v && v.file.mimeType === "application/pdf")
-        .map((v) => [
-          bookIdToStr({ source: sourceId, file: v.id }),
-          {
-            id: { source: sourceId, file: v.id },
-            type: "pdf",
-            title: v.name,
-            path: trimOneDrivePath(v.parentReference.path),
-          },
-        ])
-    );
+    const data: [BookIdStr, BookFileProps][] = items.val
+      .filter((v) => "file" in v && v.file.mimeType === "application/pdf")
+      .map((v) => [
+        bookIdToStr({ source: sourceId, file: v.id }),
+        {
+          id: { source: sourceId, file: v.id },
+          type: "pdf",
+          title: v.name,
+          path: trimOneDrivePath(
+            v.parentReference ? v.parentReference.path : ""
+          ),
+        },
+      ]);
+
+    return ok(Object.fromEntries(data));
   }
 
   async downloadBookThumbnail(
     bookId: BookId
-  ): Promise<Result<BookFileThumbnail, "misc">> {
+  ): Promise<Result<BookFileThumbnail>> {
     const values = bookId.file.split("!");
     if (values.length !== 2) {
       return err("misc");
     }
     const driveId = values[0];
     const itemId = bookId.file;
-    const r: ThumbnailsResult = await this.client
-      .api(`/drives/${driveId}/items/${itemId}`)
-      .get();
+    const r = await downloadThumbnailAsDataUri(this.client, driveId, itemId);
+    if (r.err) return r;
 
-    const file = await axios.get(r.value.medium.url, { responseType: "blob" });
-    if (file.status !== 200) return err("misc");
-
-    const base64BookThumbnail = await blobToBase64(file.data);
     const now = this.dateUtil.now();
     return ok({
       id: bookId,
       lastLoadedDate: now,
       type: "pdf",
-      fileSizeByte: base64FileSize(base64BookThumbnail),
-      blob: base64BookThumbnail,
+      fileSizeByte: base64FileSize(r.val),
+      blob: r.val,
     });
   }
 
-  async downloadBookBlob(
-    bookId: BookId
-  ): Promise<Result<BookFileBlob, "misc">> {
-    try {
-      const values = bookId.file.split("!");
-      if (values.length !== 2) {
-        return err("misc");
-      }
-      const driveId = values[0];
-      const itemId = bookId.file;
-      const r: DriveItemAsFile = await this.client
-        .api(`/drives/${driveId}/items/${itemId}`)
-        .get();
-
-      const file = await axios.get(r["@microsoft.graph.downloadUrl"], {
-        responseType: "blob",
-      });
-      if (file.status !== 200) return err("misc");
-
-      const base64BookBlob = await blobToBase64(file.data);
-      const now = this.dateUtil.now();
-      return ok({
-        id: bookId,
-        lastLoadedDate: now,
-        type: "pdf",
-        fileSizeByte: r.size,
-        blob: base64BookBlob,
-      });
-    } catch (e) {
-      console.log(e);
-      throw e;
+  async downloadBookBlob(bookId: BookId): Promise<Result<BookFileBlob>> {
+    const values = bookId.file.split("!");
+    if (values.length !== 2) {
+      return err("misc");
     }
+    const driveId = values[0];
+    const itemId = bookId.file;
+    const r = await downloadItemAsDataUri(this.client, driveId, itemId);
+    if (r.err) return r;
+
+    const now = this.dateUtil.now();
+    return ok({
+      id: bookId,
+      lastLoadedDate: now,
+      type: "pdf",
+      fileSizeByte: base64FileSize(r.val),
+      blob: r.val,
+    });
   }
 }
