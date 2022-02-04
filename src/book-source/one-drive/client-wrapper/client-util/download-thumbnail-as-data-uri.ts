@@ -1,5 +1,5 @@
-import { Client } from "@microsoft/microsoft-graph-client";
-import { Result, err } from "../../../util";
+import { Result, err } from "../../../../util";
+import { MsGraphClientType } from "../../../../use-cases/one-drive/types";
 
 type ThumbnailsResult = {
   "@odata.context"?: string;
@@ -18,9 +18,9 @@ type ThumbnailItem = {
 };
 
 export const downloadThumbnailAsDataUri = async (
-  client: Client,
+  client: MsGraphClientType,
   driveId: string,
   itemId: string
-): Promise<Result<string, unknown>> => {
-  return err("not implemented");
+): Promise<Result<string, "offline" | "not exists">> => {
+  return err("not exists");
 };

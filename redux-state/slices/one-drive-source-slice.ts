@@ -1,22 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { BookSource, DateUtilImpl, Result, ok, err } from "../../src";
 import type { RootState } from "../store";
+import { getMsGraphClient, msGraphScopes } from "../../src/book-source";
 import {
-  getMsGraphClient,
-  msGraphScopes,
-  MsGraphClientWrapperImpl,
-  OneDriveBookSource,
-} from "../../src/book-source";
-import { msalInstance } from "./injection";
+  getOneDriveBookSource,
+  oneDriveLoginIdGetter,
+  msalInstance,
+} from "./injection";
 
 const dateUtil = new DateUtilImpl();
 
 type OneDriveSourceState = {
-  ignoreFolderNames: string[];
+  folderNameFilter: string[];
 };
 
 const initialState: OneDriveSourceState = {
-  ignoreFolderNames: [".git", "music", "audio"],
+  folderNameFilter: [".git", "music", "audio"],
 };
 
 export const oneDriveSourceSlice = createSlice({
@@ -37,11 +36,11 @@ export const selectOneDriveSource = (
   const instance = selectOneDriveMsalInstance(state);
   const accounts = instance.getAllAccounts();
   if (accounts.length === 0) return err("no account");
-  const pureClient = getMsGraphClient(accounts[0], msGraphScopes, instance);
-  const client = new MsGraphClientWrapperImpl(
-    dateUtil,
-    pureClient,
-    state.oneDriveSource.ignoreFolderNames
+  const client = getMsGraphClient(accounts[0], msGraphScopes, instance);
+  const bookSource = getOneDriveBookSource.run(
+    { ignoreFolderNames: ["."], scanFolderRoots: [] },
+    client,
+    oneDriveLoginIdGetter
   );
-  return ok(new OneDriveBookSource(client));
+  return ok(bookSource);
 };

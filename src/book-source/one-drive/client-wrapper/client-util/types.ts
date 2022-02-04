@@ -54,18 +54,8 @@ export type DriveItemAsFile = DriveItemCore & {
   };
 };
 
-export type ThumbnailsResult = {
+export type FolderChildrenResult = {
   "@odata.context"?: string;
-  value: {
-    id: string;
-    large: ThumbnailItem;
-    medium: ThumbnailItem;
-    small: ThumbnailItem;
-  };
-};
-
-export type ThumbnailItem = {
-  height: number;
-  width: number;
-  url: string;
+  "@odata.nextLink"?: string;
+  value: DriveItem[];
 };
