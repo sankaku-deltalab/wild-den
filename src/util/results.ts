@@ -1,7 +1,7 @@
 // clone of ts-result and https://imhoff.blog/posts/using-results-in-typescript
 // ts-result is usable but not serializable
 
-export type Result<T, E = Error> =
+export type Result<T, E> =
   | { ok: true; err: false; val: T }
   | { ok: false; err: true; val: E };
 
@@ -16,6 +16,14 @@ export const err = <E>(error: E): Result<never, E> => ({
   err: true,
   val: error,
 });
+
+export const isOk = <T>(
+  r: Result<T, unknown>
+): r is { ok: true; err: false; val: T } => r.ok;
+
+export const isErr = <E>(
+  r: Result<unknown, E>
+): r is { ok: false; err: true; val: E } => r.err;
 
 export const unwrap = <T>(result: Result<T, unknown>): T => {
   if (result.err) {
