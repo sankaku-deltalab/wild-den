@@ -42,5 +42,3 @@ export const unwrapOr = <T>(result: Result<T, unknown>, optional: T): T => {
   }
   return result.val;
 };
-
-export type PromiseResult<T, E> = Promise<Result<T, E>>;

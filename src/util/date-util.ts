@@ -1,9 +1,12 @@
+/** Date time as IOSString. */
+export type DateTime = string;
+
 export interface DateUtil {
-  now(): string;
+  now(): DateTime;
 }
 
 export class DateUtilImpl implements DateUtil {
-  now(): string {
+  now(): DateTime {
     return new Date().toISOString();
   }
 }
