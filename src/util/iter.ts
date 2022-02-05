@@ -1,13 +1,3 @@
-export interface DateUtil {
-  now(): string;
-}
-
-export class DateUtilImpl implements DateUtil {
-  now(): string {
-    return new Date().toISOString();
-  }
-}
-
 export const filterObj = <V>(
   obj: Record<string, V>,
   filter: (key: string, value: V) => boolean
