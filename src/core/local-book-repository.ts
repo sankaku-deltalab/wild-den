@@ -9,7 +9,8 @@ import {
   BookRecord,
 } from "./core-types";
 
-export type ItemLoadError = "not exists";
+export type LocalRepositoryConnectionError = "connection failed";
+export type LocalItemLoadError = "not exists";
 
 /**
  * Contain caches of books data and binary.
@@ -19,7 +20,7 @@ export interface LocalBookRepository {
   /**
    * Delete all cache.
    */
-  clean(): Promise<Result<never, never>>;
+  clean(): Promise<Result<void, LocalRepositoryConnectionError>>;
 
   /**
    * Reset book props of single source.
@@ -30,33 +31,43 @@ export interface LocalBookRepository {
   resetBookPropsOfSource(
     sourceId: SourceId,
     allProps: BookProps[]
-  ): Promise<Result<never, never>>;
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
 
-  loadAllBookProps(): Promise<Result<BookRecord<BookProps>, never>>;
-  loadBookProps(id: BookId): Promise<Result<BookProps, ItemLoadError>>;
-  storeBookProps(props: BookProps): Promise<Result<never, never>>;
+  loadAllBookProps(): Promise<
+    Result<BookRecord<BookProps>, LocalRepositoryConnectionError>
+  >;
+  loadBookProps(id: BookId): Promise<Result<BookProps, LocalItemLoadError>>;
+  storeAllBookProps(
+    props: BookRecord<BookProps>
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
 
-  loadAllContentProps(): Promise<Result<BookRecord<BookContentProps>, never>>;
+  loadAllContentProps(): Promise<
+    Result<BookRecord<BookContentProps>, LocalRepositoryConnectionError>
+  >;
   loadContentProps(
     id: BookId
-  ): Promise<Result<BookContentProps, ItemLoadError>>;
-  loadContentData(id: BookId): Promise<Result<DataUri, ItemLoadError>>;
+  ): Promise<Result<BookContentProps, LocalItemLoadError>>;
+  loadContentData(id: BookId): Promise<Result<DataUri, LocalItemLoadError>>;
   storeContent(
     props: BookContentProps,
     data: DataUri
-  ): Promise<Result<never, never>>;
-  deleteContent(id: BookId): void;
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
+  deleteContent(
+    id: BookId
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
 
   loadAllThumbnailProps(): Promise<
-    Result<BookRecord<BookThumbnailProps>, never>
+    Result<BookRecord<BookThumbnailProps>, LocalRepositoryConnectionError>
   >;
   loadThumbnailProps(
     id: BookId
-  ): Promise<Result<BookThumbnailProps, ItemLoadError>>;
-  loadThumbnailData(id: BookId): Promise<Result<DataUri, ItemLoadError>>;
+  ): Promise<Result<BookThumbnailProps, LocalItemLoadError>>;
+  loadThumbnailData(id: BookId): Promise<Result<DataUri, LocalItemLoadError>>;
   storeThumbnail(
     props: BookThumbnailProps,
     data: DataUri
-  ): Promise<Result<never, never>>;
-  deleteThumbnail(id: BookId): void;
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
+  deleteThumbnail(
+    id: BookId
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
 }

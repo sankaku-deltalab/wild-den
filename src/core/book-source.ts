@@ -10,13 +10,15 @@ import {
   BookRecord,
   DirectoryId,
   ScanTargetDirectory,
+  BookContentProps,
+  BookThumbnailProps,
 } from "./core-types";
 
 /**
  * Interface of cloud storage like OneDrive, Dropbox and misc.
  * Download file and file props.
  */
-export interface BookSource<DirId extends DirectoryId> {
+export interface BookSource<DirId extends DirectoryId = {}> {
   getSourceId(): SourceId;
 
   /**
@@ -29,8 +31,12 @@ export interface BookSource<DirId extends DirectoryId> {
    * Load file content.
    *
    * @param fileId Target file id.
+   * @param loadProgressCallback Emit download progress.
    */
-  loadContent(fileId: FileId): Promise<Result<FileContent, OnlineItemError>>;
+  loadContent(
+    fileId: FileId,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<FileContent, OnlineItemError>>;
 
   /**
    * Load file thumbnail.
@@ -45,7 +51,7 @@ export interface BookSource<DirId extends DirectoryId> {
    * Load Top directories.
    */
   loadTopDirectories(): Promise<
-    Result<ScanTargetDirectory<DirId>, OnlineItemError>
+    Result<ScanTargetDirectory<DirId>, CommonOnlineError>
   >;
 
   /**
@@ -85,4 +91,42 @@ export type FileThumbnail = {
   fileSizeByte: number;
   lastModifiedDate: DateTime;
   dataUri: DataUri;
+};
+
+export type LoadProgressCallback = (
+  elapsedByte: number,
+  totalByte: number
+) => unknown;
+
+export const fileContentToBookContent = (
+  fileContent: FileContent,
+  now: DateTime
+): { props: BookContentProps; data: DataUri } => {
+  const props: BookContentProps = {
+    id: fileContent.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileContent.lastModifiedDate,
+    type: fileContent.type,
+    fileSizeByte: fileContent.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileContent.dataUri,
+  };
+};
+
+export const fileThumbnailToBookThumbnail = (
+  fileThumbnail: FileThumbnail,
+  now: DateTime
+): { props: BookThumbnailProps; data: DataUri } => {
+  const props: BookThumbnailProps = {
+    id: fileThumbnail.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileThumbnail.lastModifiedDate,
+    fileSizeByte: fileThumbnail.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileThumbnail.dataUri,
+  };
 };
