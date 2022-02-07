@@ -1,14 +1,17 @@
-import { Result, err } from "../../../../util";
-import { MsGraphClientType } from "../../../../use-cases/one-drive/types";
+import { CommonOnlineError } from "../../../../core";
+import { Result, err } from "../../../../results";
+import type {
+  DriveItem,
+  MsGraphClientType,
+} from "../../interface-adapter/types";
 import { getFolderChildrenRaw } from "./get-folder-children-raw";
-import { DriveItem } from "./types";
 
 const sharedChildrenAPi = (): string => "/me/drive/sharedWithMe";
 
 export const getTopSharedItems = async (
   client: MsGraphClientType,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], "offline">> => {
+): Promise<Result<DriveItem[], CommonOnlineError>> => {
   const r = await getFolderChildrenRaw(
     client,
     sharedChildrenAPi(),

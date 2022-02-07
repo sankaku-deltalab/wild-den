@@ -1,6 +1,9 @@
-import { Result } from "../../../../util";
-import { MsGraphClientType } from "../../../../use-cases/one-drive/types";
-import type { DriveItem } from "./types";
+import { OnlineItemError } from "../../../../core";
+import { Result } from "../../../../results";
+import type {
+  DriveItem,
+  MsGraphClientType,
+} from "../../interface-adapter/types";
 import { getFolderChildrenRaw } from "./get-folder-children-raw";
 
 const folderChildrenApi = (driveId: string, itemId: string): string =>
@@ -11,7 +14,7 @@ export const getFolderChildren = async (
   driveId: string,
   itemId: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], "offline" | "not exists">> => {
+): Promise<Result<DriveItem[], OnlineItemError>> => {
   return await getFolderChildrenRaw(
     client,
     folderChildrenApi(driveId, itemId),

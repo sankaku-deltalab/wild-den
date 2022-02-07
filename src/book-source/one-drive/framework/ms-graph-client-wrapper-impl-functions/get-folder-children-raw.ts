@@ -1,12 +1,16 @@
-import { Result, ok, err } from "../../../../util";
-import { MsGraphClientType } from "../../../../use-cases/one-drive/types";
-import type { DriveItem, FolderChildrenResult } from "./types";
+import { OnlineItemError } from "../../../../core";
+import { Result, ok, err } from "../../../../results";
+import type {
+  DriveItem,
+  FolderChildrenResult,
+  MsGraphClientType,
+} from "../../interface-adapter/types";
 
 export const getFolderChildrenRaw = async (
   client: MsGraphClientType,
   initialAPi: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], "offline" | "not exists">> => {
+): Promise<Result<DriveItem[], OnlineItemError>> => {
   const values: DriveItem[] = [];
   let scanApi = initialAPi;
   try {

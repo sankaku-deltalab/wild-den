@@ -51,7 +51,7 @@ export interface BookSource<DirId extends DirectoryId = {}> {
    * Load Top directories.
    */
   loadTopDirectories(): Promise<
-    Result<ScanTargetDirectory<DirId>, CommonOnlineError>
+    Result<ScanTargetDirectory<DirId>[], CommonOnlineError>
   >;
 
   /**
@@ -61,7 +61,11 @@ export interface BookSource<DirId extends DirectoryId = {}> {
    */
   loadChildrenDirectories(
     parentDirId: DirId
-  ): Promise<Result<ScanTargetDirectory<DirId>, OnlineItemError>>;
+  ): Promise<Result<ScanTargetDirectory<DirId>[], OnlineItemError>>;
+
+  getDirectoryDisplayPath(
+    dirId: DirId
+  ): Promise<Result<string, OnlineItemError>>;
 }
 
 /** File props from `BookSource`. */

@@ -17,7 +17,7 @@ export const getMsGraphClient = (
 ) => {
   const options: AuthCodeMSALBrowserAuthenticationProviderOptions = {
     account: account,
-    interactionType: InteractionType.Redirect,
+    interactionType: InteractionType.Popup,
     scopes,
   };
 

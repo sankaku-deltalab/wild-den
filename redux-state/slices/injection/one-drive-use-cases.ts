@@ -3,8 +3,8 @@ import {
   GetFolderChildrenFolder,
   GetOneDriveBookSource,
   OneDriveLoginIdGetter,
-} from "../../../src/use-cases/one-drive";
-import { injectTokens as it } from "../../../src/use-cases/one-drive/injectTokens";
+} from "../../../src/use-cases/book-sources/one-drive";
+import { injectTokens as it } from "../../../src/use-cases/book-sources/one-drive/injectTokens";
 
 export const getOneDriveFolderChildrenFolder: GetFolderChildrenFolder =
   container.resolve(it.GetFolderChildrenFolder);
