@@ -1,11 +1,6 @@
 import { Result, ok } from "../../results";
-import {
-  BookProps,
-  BookRecord,
-  CommonOnlineError,
-  OnlineBookDataRepository,
-  SourceId,
-} from "../../core";
+import { BookProps, BookRecord, CommonOnlineError, SourceId } from "../../core";
+import { OnlineBookDataRepository } from "../../core/interfaces";
 import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import { MsGraphClientWrapper } from "./interfaces";

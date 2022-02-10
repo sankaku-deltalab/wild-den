@@ -1,5 +1,5 @@
 import { BookProps } from "./core-types";
-import { FileProps } from "./book-source";
+import { FileProps } from "./interfaces";
 
 export const filePropsToBookProps = (
   now: string,

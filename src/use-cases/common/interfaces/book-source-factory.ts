@@ -1,10 +1,6 @@
 import { Result } from "../../../results";
-import {
-  BookSource,
-  OnlineSourceError,
-  SourceId,
-  SourceIdStr,
-} from "../../../core";
+import { OnlineSourceError, SourceId, SourceIdStr } from "../../../core";
+import { BookSource } from "../../../core/interfaces";
 
 /**
  * Deal book sources of one cloud storage.

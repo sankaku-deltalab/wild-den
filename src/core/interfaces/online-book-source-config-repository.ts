@@ -1,7 +1,7 @@
-import { Result } from "../results";
-import { DateTime } from "../util";
-import { CommonOnlineError } from "./common-error";
-import { SourceId, DirectoryId, ScanTargetDirectory } from "./core-types";
+import { Result } from "../../results";
+import { DateTime } from "../../util";
+import { CommonOnlineError } from "../common-error";
+import { SourceId, DirectoryId, ScanTargetDirectory } from "../core-types";
 
 export type BookSourceConfig<DirId extends DirectoryId> = {
   lastModifiedDate: DateTime;

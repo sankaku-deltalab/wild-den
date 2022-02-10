@@ -2,7 +2,6 @@ import { inject, injectable, singleton } from "tsyringe";
 import { Result, ok, err, isOk } from "../../results";
 import { injectTokens as it } from "../../inject-tokens";
 import {
-  BookSource,
   OnlineSourceError,
   SourceId,
   SourceIdStr,
@@ -10,6 +9,7 @@ import {
   sourceIdToStr,
   sourceNotAvailableError,
 } from "../../core";
+import { BookSource } from "../../core/interfaces";
 import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import {

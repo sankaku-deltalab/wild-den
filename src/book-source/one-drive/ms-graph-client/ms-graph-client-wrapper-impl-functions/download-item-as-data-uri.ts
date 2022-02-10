@@ -1,5 +1,6 @@
 import ky from "ky";
-import { DataUri, LoadProgressCallback } from "../../../../core";
+import { DataUri } from "../../../../core";
+import { LoadProgressCallback } from "../../../../core/interfaces";
 import { Result, ok, err } from "../../../../results";
 import {
   OneDriveItemError,

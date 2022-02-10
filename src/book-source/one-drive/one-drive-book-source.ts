@@ -3,19 +3,21 @@ import {
   bookIdToStr,
   bookNotExistsInSourceError,
   BookRecord,
-  BookSource,
   CommonOnlineError,
-  FileContent,
   FileId,
-  FileProps,
-  FileThumbnail,
-  LoadProgressCallback,
   OnlineBookError,
-  OnlineBookSourceConfigRepository,
   ScanTargetDirectory,
   somethingWrongError,
   SourceId,
 } from "../../core";
+import {
+  BookSource,
+  FileContent,
+  FileProps,
+  FileThumbnail,
+  LoadProgressCallback,
+  OnlineBookSourceConfigRepository,
+} from "../../core/interfaces";
 import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import {

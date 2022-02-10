@@ -1,13 +1,12 @@
 import { inject, injectable, singleton } from "tsyringe";
 import {
   BookProps,
-  CommonOnlineError,
-  LocalBookRepository,
   LocalRepositoryConnectionError,
   bookIdToStr,
   BookRecord,
   OnlineSourceError,
 } from "../../core";
+import { LocalBookRepository } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";

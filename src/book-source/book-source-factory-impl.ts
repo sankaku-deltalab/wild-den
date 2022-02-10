@@ -1,11 +1,11 @@
 import { inject, injectable, singleton } from "tsyringe";
 import {
-  BookSource,
   OnlineSourceError,
   SourceId,
   SourceIdStr,
   sourceNotAvailableError,
 } from "../core";
+import { BookSource } from "../core/interfaces";
 import { injectTokens as it } from "../inject-tokens";
 import { err, Result } from "../results";
 import { BookSourceFactory } from "../use-cases/common/interfaces";

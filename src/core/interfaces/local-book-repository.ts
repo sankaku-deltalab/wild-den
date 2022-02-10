@@ -1,5 +1,8 @@
-import { LocalRepositoryBookError, LocalRepositoryConnectionError } from ".";
-import { Result } from "../results";
+import {
+  LocalRepositoryBookError,
+  LocalRepositoryConnectionError,
+} from "../common-error";
+import { Result } from "../../results";
 import {
   BookId,
   BookContentProps,
@@ -8,7 +11,7 @@ import {
   BookProps,
   DataUri,
   BookRecord,
-} from "./core-types";
+} from "../core-types";
 
 /**
  * Contain caches of books data and binary.

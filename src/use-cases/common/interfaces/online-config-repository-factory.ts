@@ -1,10 +1,6 @@
 import { Result } from "../../../results";
-import {
-  SourceId,
-  OnlineBookSourceConfigRepository,
-  DirectoryId,
-  OnlineSourceError,
-} from "../../../core";
+import { SourceId, DirectoryId, OnlineSourceError } from "../../../core";
+import { OnlineBookSourceConfigRepository } from "../../../core/interfaces";
 
 export interface OnlineConfigRepositoryFactory {
   getRepository<DirId extends DirectoryId>(

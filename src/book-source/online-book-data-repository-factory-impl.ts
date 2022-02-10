@@ -1,7 +1,8 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../inject-tokens";
 import { Result } from "../results";
-import { OnlineBookDataRepository, OnlineSourceError, SourceId } from "../core";
+import { OnlineSourceError, SourceId } from "../core";
+import { OnlineBookDataRepository } from "../core/interfaces";
 import { OnlineBookDataRepositoryFactory } from "../use-cases/common/interfaces";
 import { OneDriveOnlineBookDataRepositoryFactory } from "./interfaces";
 

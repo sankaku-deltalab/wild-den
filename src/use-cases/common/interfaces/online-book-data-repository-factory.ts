@@ -1,9 +1,6 @@
 import { Result } from "../../../results";
-import {
-  OnlineBookDataRepository,
-  OnlineSourceError,
-  SourceId,
-} from "../../../core";
+import { OnlineSourceError, SourceId } from "../../../core";
+import { OnlineBookDataRepository } from "../../../core/interfaces";
 
 export interface OnlineBookDataRepositoryFactory {
   getRepository(

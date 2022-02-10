@@ -1,9 +1,6 @@
 import { Result } from "../../../results";
-import {
-  CommonOnlineError,
-  DataUri,
-  LoadProgressCallback,
-} from "../../../core";
+import { CommonOnlineError, DataUri } from "../../../core";
+import { LoadProgressCallback } from "../../../core/interfaces";
 import type { DriveItem, MsGraphClientType, DriveItemAsFile } from "../types";
 import {
   downloadItemAsDataUri,

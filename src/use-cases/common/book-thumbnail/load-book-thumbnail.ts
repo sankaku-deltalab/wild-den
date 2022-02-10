@@ -2,20 +2,17 @@ import { inject, injectable, singleton } from "tsyringe";
 import { ok, err, Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
-  LocalRepositoryConnectionError,
   BookId,
   DataUri,
-  BookSource,
   OnlineBookError,
-  fileThumbnailToBookThumbnail,
   BookThumbnailProps,
-  BookNotExistsInLocalRepositoryError,
   LocalRepositoryBookError,
   bookNotExistsInSourceError,
 } from "../../../core";
+import { LocalBookRepository, BookSource } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import { DateTime, DateUtil } from "../../../util";
+import { FileThumbnail } from "../../../core/interfaces";
 
 type LoadBookThumbnailDataType = (
   id: BookId,
@@ -103,3 +100,19 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
     return ok(fileThumbnailToBookThumbnail(loadedThumbnail.val, now));
   }
 }
+
+const fileThumbnailToBookThumbnail = (
+  fileThumbnail: FileThumbnail,
+  now: DateTime
+): { props: BookThumbnailProps; data: DataUri } => {
+  const props: BookThumbnailProps = {
+    id: fileThumbnail.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileThumbnail.lastModifiedDate,
+    fileSizeByte: fileThumbnail.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileThumbnail.dataUri,
+  };
+};

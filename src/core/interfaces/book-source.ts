@@ -1,6 +1,6 @@
-import { DateTime } from "../util";
-import { Result } from "../results";
-import { CommonOnlineError, OnlineBookError } from "./common-error";
+import { DateTime } from "../../util";
+import { Result } from "../../results";
+import { CommonOnlineError, OnlineBookError } from "../common-error";
 import {
   SourceId,
   BookId,
@@ -12,7 +12,7 @@ import {
   ScanTargetDirectory,
   BookContentProps,
   BookThumbnailProps,
-} from "./core-types";
+} from "../core-types";
 
 /**
  * Interface of cloud storage like OneDrive, Dropbox and misc.
@@ -101,36 +101,3 @@ export type LoadProgressCallback = (
   elapsedByte: number,
   totalByte: number
 ) => unknown;
-
-export const fileContentToBookContent = (
-  fileContent: FileContent,
-  now: DateTime
-): { props: BookContentProps; data: DataUri } => {
-  const props: BookContentProps = {
-    id: fileContent.id,
-    loadedDate: now,
-    lastFileModifiedDate: fileContent.lastModifiedDate,
-    type: fileContent.type,
-    fileSizeByte: fileContent.fileSizeByte,
-  };
-  return {
-    props,
-    data: fileContent.dataUri,
-  };
-};
-
-export const fileThumbnailToBookThumbnail = (
-  fileThumbnail: FileThumbnail,
-  now: DateTime
-): { props: BookThumbnailProps; data: DataUri } => {
-  const props: BookThumbnailProps = {
-    id: fileThumbnail.id,
-    loadedDate: now,
-    lastFileModifiedDate: fileThumbnail.lastModifiedDate,
-    fileSizeByte: fileThumbnail.fileSizeByte,
-  };
-  return {
-    props,
-    data: fileThumbnail.dataUri,
-  };
-};

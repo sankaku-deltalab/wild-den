@@ -1,6 +1,6 @@
-import { Result } from "../results";
-import { CommonOnlineError } from "./common-error";
-import { SourceId, BookProps, BookRecord } from "./core-types";
+import { Result } from "../../results";
+import { CommonOnlineError } from "../common-error";
+import { SourceId, BookProps, BookRecord } from "../core-types";
 
 /**
  * Interface of cloud storage like OneDrive, Dropbox and misc.

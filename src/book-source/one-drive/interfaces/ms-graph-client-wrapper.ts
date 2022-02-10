@@ -1,8 +1,5 @@
-import {
-  CommonOnlineError,
-  DataUri,
-  LoadProgressCallback,
-} from "../../../core";
+import { CommonOnlineError, DataUri } from "../../../core";
+import { LoadProgressCallback } from "../../../core/interfaces";
 import { Result } from "../../../results";
 import { OneDriveItemError } from "../one-drive-error";
 import { DriveItem, DriveItemAsFile } from "../types";

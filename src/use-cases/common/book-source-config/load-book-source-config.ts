@@ -1,12 +1,8 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
-import {
-  BookSourceConfig,
-  DirectoryId,
-  SourceId,
-  OnlineSourceError,
-} from "../../../core";
+import { DirectoryId, SourceId, OnlineSourceError } from "../../../core";
+import { BookSourceConfig } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 import { OnlineConfigRepositoryFactory } from "../interfaces";
 

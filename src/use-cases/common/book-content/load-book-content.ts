@@ -2,21 +2,22 @@ import { inject, injectable, singleton } from "tsyringe";
 import { ok, err, Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
   LocalRepositoryConnectionError,
   BookId,
   DataUri,
-  BookSource,
   OnlineBookError,
-  fileContentToBookContent,
   BookContentProps,
-  BookNotExistsInLocalRepositoryError,
-  LoadProgressCallback,
   LocalRepositoryBookError,
   bookNotExistsInSourceError,
 } from "../../../core";
+import {
+  LocalBookRepository,
+  BookSource,
+  LoadProgressCallback,
+  FileContent,
+} from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import { DateTime, DateUtil } from "../../../util";
 
 type LoadBookContentDataType = (
   id: BookId,
@@ -111,3 +112,20 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
     return ok(fileContentToBookContent(loadedContent.val, now));
   }
 }
+
+const fileContentToBookContent = (
+  fileContent: FileContent,
+  now: DateTime
+): { props: BookContentProps; data: DataUri } => {
+  const props: BookContentProps = {
+    id: fileContent.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileContent.lastModifiedDate,
+    type: fileContent.type,
+    fileSizeByte: fileContent.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileContent.dataUri,
+  };
+};
