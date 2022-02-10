@@ -1,11 +1,3 @@
-import { Result } from "../../../results";
-import {
-  CommonOnlineError,
-  DataUri,
-  LoadProgressCallback,
-  OnlineBookError,
-} from "../../../core";
-
 export type MsGraphClientType = {
   api(api: string): GraphRequestType;
 };
@@ -13,38 +5,6 @@ export type MsGraphClientType = {
 export type GraphRequestType = {
   get<T>(): Promise<T>;
 };
-
-export interface MsGraphClientWrapper {
-  getItem(
-    driveId: string,
-    itemId: string
-  ): Promise<Result<DriveItem, OnlineBookError>>;
-
-  downloadItemAsDataUri(
-    driveId: string,
-    itemId: string,
-    loadProgressCallback: LoadProgressCallback
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>>;
-
-  downloadThumbnailAsDataUri(
-    driveId: string,
-    itemId: string
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>>;
-
-  getTopMyItems(
-    folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], CommonOnlineError>>;
-
-  getTopSharedItems(
-    folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], CommonOnlineError>>;
-
-  getFolderChildrenItems(
-    driveId: string,
-    itemId: string,
-    folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>>;
-}
 
 export type DriveItem = DriveItemAsFolder | DriveItemAsFile;
 

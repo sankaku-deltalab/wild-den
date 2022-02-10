@@ -1,9 +1,6 @@
-import { OnlineBookError } from "../../../../core";
 import { Result } from "../../../../results";
-import type {
-  DriveItem,
-  MsGraphClientType,
-} from "../../interface-adapter/types";
+import { OneDriveItemError } from "../../one-drive-error";
+import type { DriveItem, MsGraphClientType } from "../../types";
 import { getFolderChildrenRaw } from "./get-folder-children-raw";
 
 const folderChildrenApi = (driveId: string, itemId: string): string =>
@@ -14,7 +11,7 @@ export const getFolderChildren = async (
   driveId: string,
   itemId: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   return await getFolderChildrenRaw(
     client,
     folderChildrenApi(driveId, itemId),

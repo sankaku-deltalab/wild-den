@@ -1,6 +1,6 @@
 import { BookId, SourceId } from ".";
 
-type ErrorBase<Type extends string, Payload extends Object> = {
+export type ErrorBase<Type extends string, Payload extends Object> = {
   type: Type;
   payload: Payload;
 };
@@ -9,7 +9,8 @@ export type CommonOnlineError = OfflineError | NotLoggedInError;
 export type OnlineBookError =
   | OfflineError
   | NotLoggedInError
-  | BookNotExistsInSourceError;
+  | BookNotExistsInSourceError
+  | SomethingWrongError;
 
 export type OnlineSourceError =
   | OfflineError
@@ -77,4 +78,13 @@ export const bookNotExistsInLocalRepositoryError = (
 ): BookNotExistsInLocalRepositoryError => ({
   type: "book not in local repository",
   payload: { bookId },
+});
+
+export type SomethingWrongError = ErrorBase<
+  "something wrong",
+  { message: string }
+>;
+export const somethingWrongError = (message: string): SomethingWrongError => ({
+  type: "something wrong",
+  payload: { message },
 });

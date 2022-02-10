@@ -1,10 +1,12 @@
 import { AccountInfo } from "@azure/msal-browser";
-import { SourceId } from "../../../core";
-import type { MsGraphClientWrapper } from "../interface-adapter/types";
-import { MsGraphClientWrapperFactory } from "../interface-adapter/one-drive-book-source-factory-raw-impl";
+import { SourceIdStr, sourceIdToStr } from "../../../core";
 import { MsalInstanceType } from "../../../use-cases/book-sources/one-drive";
 import { MsGraphClientWrapperImpl } from "./ms-graph-client-wrapper-impl";
 import { getMsGraphClient } from "./get-ms-graph-client";
+import {
+  MsGraphClientWrapper,
+  MsGraphClientWrapperFactory,
+} from "../interfaces";
 
 const msGraphScopes = ["Files.Read.All", "Files.ReadWrite.AppFolder"];
 
@@ -13,11 +15,11 @@ export class MsGraphClientWrapperFactoryImpl
 {
   getClientWrappers(
     msalInstance: MsalInstanceType
-  ): Record<SourceId, MsGraphClientWrapper> {
+  ): Record<SourceIdStr, MsGraphClientWrapper> {
     const accounts = msalInstance.getAllAccounts();
     return Object.fromEntries(
       accounts.map((a) => [
-        a.homeAccountId,
+        sourceIdToStr({ sourceType: "OneDrive", id: a.homeAccountId }),
         this.getClientWrapper(a, msalInstance),
       ])
     );

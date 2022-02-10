@@ -1,22 +1,28 @@
-import { CommonOnlineError, OnlineBookError } from "../../../core";
+import {
+  CommonOnlineError,
+  DataUri,
+  LoadProgressCallback,
+} from "../../../core";
 import { Result } from "../../../results";
-import { DriveItem } from "./types";
+import { OneDriveItemError } from "../one-drive-error";
+import { DriveItem, DriveItemAsFile } from "../types";
 
 export interface MsGraphClientWrapper {
   getItem(
     driveId: string,
     itemId: string
-  ): Promise<Result<DriveItem, OnlineBookError>>;
+  ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   downloadItemAsDataUri(
     driveId: string,
-    itemId: string
-  ): Promise<Result<string, OnlineBookError>>;
+    itemId: string,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
 
   downloadThumbnailAsDataUri(
     driveId: string,
     itemId: string
-  ): Promise<Result<string, OnlineBookError>>;
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
 
   getTopMyItems(
     folderNameFilter: (name: string) => boolean
@@ -30,5 +36,5 @@ export interface MsGraphClientWrapper {
     driveId: string,
     itemId: string,
     folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>>;
+  ): Promise<Result<DriveItem[], OneDriveItemError>>;
 }

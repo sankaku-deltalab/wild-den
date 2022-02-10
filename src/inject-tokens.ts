@@ -10,4 +10,7 @@ export const injectTokens = {
   BookSourceFactory: "BookSourceFactory",
   OneDriveBookSourceFactory: "OneDriveBookSourceFactory",
   OnlineConfigRepositoryFactory: "OnlineConfigRepositoryFactory",
+  OneDriveOnlineBookDataRepository: "OneDriveOnlineBookDataRepository",
+  OneDriveOnlineConfigRepositoryFactory:
+    "OneDriveOnlineConfigRepositoryFactory",
 };

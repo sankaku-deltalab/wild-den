@@ -3,14 +3,8 @@ import {
   CommonOnlineError,
   DataUri,
   LoadProgressCallback,
-  OnlineBookError,
 } from "../../../core";
-import type {
-  DriveItem,
-  MsGraphClientWrapper,
-  MsGraphClientType,
-  DriveItemAsFile,
-} from "../interface-adapter/types";
+import type { DriveItem, MsGraphClientType, DriveItemAsFile } from "../types";
 import {
   downloadItemAsDataUri,
   downloadThumbnailAsDataUri,
@@ -19,6 +13,8 @@ import {
   getTopMyItems,
   getTopSharedItems,
 } from "./ms-graph-client-wrapper-impl-functions";
+import { OneDriveItemError } from "../one-drive-error";
+import { MsGraphClientWrapper } from "../interfaces";
 
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   constructor(private readonly client: MsGraphClientType) {}
@@ -26,7 +22,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   async getItem(
     driveId: string,
     itemId: string
-  ): Promise<Result<DriveItem, OnlineBookError>> {
+  ): Promise<Result<DriveItem, OneDriveItemError>> {
     return await getItem(this.client, driveId, itemId);
   }
 
@@ -34,7 +30,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     driveId: string,
     itemId: string,
     loadProgressCallback: LoadProgressCallback
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> {
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
     return await downloadItemAsDataUri(
       this.client,
       driveId,
@@ -46,7 +42,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   async downloadThumbnailAsDataUri(
     driveId: string,
     itemId: string
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> {
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
     return await downloadThumbnailAsDataUri(this.client, driveId, itemId);
   }
 
@@ -66,7 +62,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     driveId: string,
     itemId: string,
     folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>> {
+  ): Promise<Result<DriveItem[], OneDriveItemError>> {
     return await getFolderChildren(
       this.client,
       driveId,

@@ -1,8 +1,7 @@
-import { inject, injectable, singleton } from "tsyringe";
-import { Result, ok, err } from "../../../results";
+import { Result, ok, err } from "../../results";
 import {
   bookIdToStr,
-  BookProps,
+  bookNotExistsInSourceError,
   BookRecord,
   BookSource,
   CommonOnlineError,
@@ -11,99 +10,32 @@ import {
   FileProps,
   FileThumbnail,
   LoadProgressCallback,
-  OnlineBookDataRepository,
   OnlineBookError,
+  OnlineBookSourceConfigRepository,
   ScanTargetDirectory,
+  somethingWrongError,
   SourceId,
-} from "../../../core";
+} from "../../core";
+import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
+import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import {
-  GetOneDriveBookSourcesFactoryRaw,
-  MsalInstanceType,
-  OneDriveDirectoryId,
-  OneDriveConfig,
-  OneDriveConfigRepository,
-} from "../../../use-cases/book-sources/one-drive";
-import { injectTokens as it } from "../../../inject-tokens";
-import { MsGraphClientUtil } from "./ms-graph-client-util";
-import { MsGraphClientWrapper } from "./types";
-import { isFile, isFolder } from "./util";
-import { fileIdToDriveItemId } from "../framework/file-id-and-drive-item-id-converter";
+  epubMimeType,
+  isFile,
+  isFolder,
+  pdfMimeType,
+  rootDirectoryName,
+  rootSharedDirectoryName,
+} from "./util";
+import { fileIdToDriveItemId } from "./ms-graph-client/file-id-and-drive-item-id-converter";
+import { MsGraphClientWrapper } from "./interfaces";
+import { OneDriveItemNotExistsError } from "./one-drive-error";
 
-export interface MsGraphClientWrapperFactory {
-  getClientWrappers(
-    msalInstance: MsalInstanceType
-  ): Record<SourceId, MsGraphClientWrapper>;
-}
-
-const pdfMimeType = "application/pdf";
-const epubMimeType = "application/epub+zip";
-
-const rootDirectoryName = "root:";
-const rootSharedDirectoryName = "shared:";
-
-@singleton()
-@injectable()
-export class GetOneDriveBookSourcesFactoryRawImpl
-  implements GetOneDriveBookSourcesFactoryRaw
-{
-  constructor(
-    @inject(it.MsGraphClientWrapperFactory)
-    private readonly clientWrapperFactory: MsGraphClientWrapperFactory,
-    @inject(it.MsGraphClientUtil)
-    private readonly clientUtil: MsGraphClientUtil
-  ) {}
-
-  async getAvailableBookSources(
-    msalInstance: MsalInstanceType,
-    configRepository: OneDriveConfigRepository
-  ): Promise<
-    Record<
-      SourceId,
-      {
-        source: BookSource;
-        repository: OnlineBookDataRepository;
-      }
-    >
-  > {
-    const wrappers = this.clientWrapperFactory.getClientWrappers(msalInstance);
-
-    const sources: [
-      SourceId,
-      {
-        source: BookSource;
-        repository: OnlineBookDataRepository;
-      }
-    ][] = [];
-    const addSources = Object.entries(wrappers).map(async ([sid, wrapper]) => {
-      const config = await configRepository.loadConfig(sid);
-      if (config.err) return;
-      const source = new OneDriveBookSource(
-        sid,
-        wrapper,
-        this.clientUtil,
-        config.val
-      );
-      const repository: OnlineBookDataRepository = new OneDriveOnlineRepository(
-        sid,
-        wrapper,
-        this.clientUtil
-      );
-      sources.push([sid, { source, repository }]);
-    });
-    await Promise.all(addSources);
-    return Object.fromEntries(sources);
-  }
-}
-
-class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
+export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
   constructor(
     private readonly sourceId: SourceId,
     private readonly client: MsGraphClientWrapper,
     private readonly clientUtil: MsGraphClientUtil,
-    private readonly config: {
-      targetRootDirectories: ScanTargetDirectory<OneDriveDirectoryId>[];
-      ignoreFolderNames: string[];
-    }
+    private readonly configRepo: OnlineBookSourceConfigRepository<OneDriveDirectoryId>
   ) {}
 
   getSourceId(): SourceId {
@@ -117,8 +49,11 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
   async scanAllFiles(): Promise<
     Result<BookRecord<FileProps>, CommonOnlineError>
   > {
+    const config = await this.configRepo.loadConfig();
+    if (config.err) return config;
+
     const ignoreFolderNameSet = new Set(
-      this.config.ignoreFolderNames.map((s) => s.toLowerCase())
+      config.val.ignoreFolderNames.map((s) => s.toLowerCase())
     );
     const folderNameFilter = (name: string) => {
       if (name.startsWith(".")) return false;
@@ -127,7 +62,7 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
     };
 
     const scannedItemsNested = await Promise.all(
-      this.config.targetRootDirectories.map(async (d) => {
+      config.val.targetRootDirectories.map(async (d) => {
         const r = await this.clientUtil.scanItemsUnderFolder(
           this.client,
           d.directoryId,
@@ -185,13 +120,17 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
     loadProgressCallback: LoadProgressCallback
   ): Promise<Result<FileContent, OnlineBookError>> {
     const sourceId = this.sourceId;
+    const bookId = { source: sourceId, file: fileId };
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
     const item = await this.client.downloadItemAsDataUri(
       driveId,
       itemId,
       loadProgressCallback
     );
-    if (item.err) return item;
+    if (item.err) {
+      if (!isOneDriveItemError(item.val)) return err(item.val);
+      return err(bookNotExistsInSourceError(bookId));
+    }
     const [itemProps, dataUri] = item.val;
     const fileType =
       itemProps.file.mimeType === pdfMimeType
@@ -199,9 +138,9 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
         : itemProps.file.mimeType === epubMimeType
         ? "epub"
         : undefined;
-    if (fileType === undefined) return err("not exists");
+    if (fileType === undefined) return err(bookNotExistsInSourceError(bookId));
     return ok({
-      id: { source: sourceId, file: fileId },
+      id: bookId,
       type: fileType,
       fileSizeByte: itemProps.size,
       lastModifiedDate: itemProps.lastModifiedDateTime,
@@ -218,12 +157,16 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
     fileId: FileId
   ): Promise<Result<FileThumbnail, OnlineBookError>> {
     const sourceId = this.sourceId;
+    const bookId = { source: sourceId, file: fileId };
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
     const item = await this.client.downloadThumbnailAsDataUri(driveId, itemId);
-    if (item.err) return item;
+    if (item.err) {
+      if (!isOneDriveItemError(item.val)) return err(item.val);
+      return err(bookNotExistsInSourceError(bookId));
+    }
     const [itemProps, dataUri] = item.val;
     return ok({
-      id: { source: sourceId, file: fileId },
+      id: bookId,
       fileSizeByte: itemProps.size,
       lastModifiedDate: itemProps.lastModifiedDateTime,
       dataUri,
@@ -257,8 +200,11 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
   ): Promise<
     Result<ScanTargetDirectory<OneDriveDirectoryId>[], OnlineBookError>
   > {
+    const config = await this.configRepo.loadConfig();
+    if (config.err) return config;
+
     const ignoreFolderNameSet = new Set(
-      this.config.ignoreFolderNames.map((s) => s.toLowerCase())
+      config.val.ignoreFolderNames.map((s) => s.toLowerCase())
     );
     const folderNameFilter = (name: string) => {
       if (name.startsWith(".")) return false;
@@ -271,7 +217,10 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
       parentDirId,
       folderNameFilter
     );
-    if (children.err) return children;
+    if (children.err) {
+      if (!isOneDriveItemError(children.val)) return err(children.val);
+      return err(somethingWrongError("Bad directory id"));
+    }
     const childrenFolders = children.val.filter(isFolder);
     return ok(
       childrenFolders
@@ -297,46 +246,14 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
       return ok(rootSharedDirectoryName);
     }
     const r = await this.client.getItem(dirId.driveId, dirId.itemId);
-    if (r.err) return r;
+    if (r.err) {
+      if (!isOneDriveItemError(r.val)) return err(r.val);
+      return err(somethingWrongError("Bad directory id"));
+    }
     return ok(r.val.parentReference?.path ?? "");
   }
 }
 
-// TODO: impl this.
-export class OneDriveOnlineRepository
-  implements OnlineBookDataRepository<OneDriveDirectoryId>
-{
-  constructor(
-    private readonly sourceId: SourceId,
-    private readonly client: MsGraphClientWrapper,
-    private readonly clientUtil: MsGraphClientUtil
-  ) {}
-
-  getSourceId(): SourceId {
-    return this.sourceId;
-  }
-
-  async loadStoredBookProps(): Promise<
-    Result<BookRecord<BookProps>, CommonOnlineError>
-  > {
-    return ok({});
-  }
-
-  async storeBookProps(
-    props: BookRecord<BookProps>
-  ): Promise<Result<void, CommonOnlineError>> {
-    return ok(undefined);
-  }
-
-  async loadTargetDirectories(): Promise<
-    Result<OneDriveDirectoryId[], CommonOnlineError>
-  > {
-    return ok([]);
-  }
-
-  async storeTargetDirectories(
-    directories: OneDriveDirectoryId[]
-  ): Promise<Result<void, CommonOnlineError>> {
-    return ok(undefined);
-  }
-}
+const isOneDriveItemError = (v: {
+  type: string;
+}): v is OneDriveItemNotExistsError => v.type === "onedrive item not exists";

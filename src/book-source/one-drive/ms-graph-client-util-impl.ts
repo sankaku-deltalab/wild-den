@@ -1,23 +1,10 @@
 import { injectable, singleton } from "tsyringe";
-import { OnlineBookError } from "../../../core";
-import { Result, ok, isOk } from "../../../results";
-import { OneDriveDirectoryId } from "../../../use-cases/book-sources/one-drive";
-import { DriveItem, MsGraphClientWrapper } from "./types";
+import { Result, ok, isOk } from "../../results";
+import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
+import { MsGraphClientUtil, MsGraphClientWrapper } from "./interfaces";
+import { OneDriveItemError } from "./one-drive-error";
+import { DriveItem } from "./types";
 import { getDriveId, getItemId, isFolder } from "./util";
-
-export interface MsGraphClientUtil {
-  scanItemsUnderFolder(
-    client: MsGraphClientWrapper,
-    directoryId: OneDriveDirectoryId,
-    folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>>;
-
-  getFolderChildrenItems(
-    client: MsGraphClientWrapper,
-    directoryId: OneDriveDirectoryId,
-    folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>>;
-}
 
 @singleton()
 @injectable()
@@ -26,7 +13,7 @@ export class MsGraphClientUtilImpl implements MsGraphClientUtil {
     client: MsGraphClientWrapper,
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>> {
+  ): Promise<Result<DriveItem[], OneDriveItemError>> {
     if (directoryId.type === "topMyItems") {
       return scanTopMyItemsFolderTree(client, folderNameFilter);
     }
@@ -45,7 +32,7 @@ export class MsGraphClientUtilImpl implements MsGraphClientUtil {
     client: MsGraphClientWrapper,
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineBookError>> {
+  ): Promise<Result<DriveItem[], OneDriveItemError>> {
     if (directoryId.type === "topMyItems") {
       return client.getTopMyItems(folderNameFilter);
     }
@@ -63,7 +50,7 @@ export class MsGraphClientUtilImpl implements MsGraphClientUtil {
 const scanTopMyItemsFolderTree = async (
   client: MsGraphClientWrapper,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   const children = await client.getTopMyItems(folderNameFilter);
   if (children.err) return children;
 
@@ -73,7 +60,7 @@ const scanTopMyItemsFolderTree = async (
 const scanTopSharedFolderTree = async (
   client: MsGraphClientWrapper,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   const children = await client.getTopSharedItems(folderNameFilter);
   if (children.err) return children;
 
@@ -85,7 +72,7 @@ const scanFolderTree = async (
   driveId: string,
   itemId: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   const children = await client.getFolderChildrenItems(
     driveId,
     itemId,
@@ -100,12 +87,12 @@ const scanDriveItems = async (
   client: MsGraphClientWrapper,
   driveItems: DriveItem[],
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   const children = driveItems;
 
   const scanChild = async (
     v: DriveItem
-  ): Promise<Result<DriveItem[], OnlineBookError>> => {
+  ): Promise<Result<DriveItem[], OneDriveItemError>> => {
     if (!isFolder(v)) return ok([]);
     const r = await scanFolderTree(
       client,

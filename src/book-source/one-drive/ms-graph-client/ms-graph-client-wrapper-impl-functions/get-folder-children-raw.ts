@@ -1,16 +1,17 @@
-import { OnlineBookError } from "../../../../core";
+import { offlineError } from "../../../../core";
 import { Result, ok, err } from "../../../../results";
+import { OneDriveItemError } from "../../one-drive-error";
 import type {
   DriveItem,
   FolderChildrenResult,
   MsGraphClientType,
-} from "../../interface-adapter/types";
+} from "../../types";
 
 export const getFolderChildrenRaw = async (
   client: MsGraphClientType,
   initialAPi: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineBookError>> => {
+): Promise<Result<DriveItem[], OneDriveItemError>> => {
   const values: DriveItem[] = [];
   let scanApi = initialAPi;
   try {
@@ -22,7 +23,8 @@ export const getFolderChildrenRaw = async (
       scanApi = r["@odata.nextLink"];
     }
   } catch (e) {
-    return err("offline");
+    // TODO: check error type
+    return err(offlineError());
   }
   return ok(values.filter((v) => !("folder" in v && folderNameFilter(v.name))));
 };

@@ -35,3 +35,9 @@ export const getPath = (v: DriveItem): string => {
   if ("remoteItem" in v) return v.remoteItem!.parentReference.path;
   return "";
 };
+
+export const pdfMimeType = "application/pdf";
+export const epubMimeType = "application/epub+zip";
+
+export const rootDirectoryName = "root:";
+export const rootSharedDirectoryName = "shared:";
