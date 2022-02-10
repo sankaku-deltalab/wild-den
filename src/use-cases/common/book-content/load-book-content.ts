@@ -7,11 +7,13 @@ import {
   BookId,
   DataUri,
   BookSource,
-  OnlineItemError,
+  OnlineBookError,
   fileContentToBookContent,
   BookContentProps,
-  LocalItemLoadError,
+  BookNotExistsInLocalRepositoryError,
   LoadProgressCallback,
+  LocalRepositoryBookError,
+  bookNotExistsInSourceError,
 } from "../../../core";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateUtil } from "../../../util";
@@ -23,7 +25,7 @@ type LoadBookContentDataType = (
 ) => Promise<
   Result<
     { props: BookContentProps; data: DataUri },
-    OnlineItemError | LocalRepositoryConnectionError
+    OnlineBookError | LocalRepositoryBookError
   >
 >;
 
@@ -52,7 +54,7 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
   ): Promise<
     Result<
       { props: BookContentProps; data: DataUri },
-      OnlineItemError | LocalRepositoryConnectionError
+      OnlineBookError | LocalRepositoryConnectionError
     >
   > {
     const localLoad = await this.loadLocalContent(id);
@@ -77,7 +79,7 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
   private async loadLocalContent(
     id: BookId
   ): Promise<
-    Result<{ props: BookContentProps; data: DataUri }, LocalItemLoadError>
+    Result<{ props: BookContentProps; data: DataUri }, LocalRepositoryBookError>
   > {
     const [localContentProps, localContentData] = await Promise.all([
       this.localRepo.loadContentProps(id),
@@ -93,10 +95,10 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
     bookSources: BookSource[],
     loadProgressCallback: LoadProgressCallback
   ): Promise<
-    Result<{ props: BookContentProps; data: DataUri }, OnlineItemError>
+    Result<{ props: BookContentProps; data: DataUri }, OnlineBookError>
   > {
     const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err("not exists");
+    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
     const source = sources[0];
 
     const now = this.date.now();

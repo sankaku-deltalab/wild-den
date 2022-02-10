@@ -1,4 +1,4 @@
-import { OnlineItemError } from "../../../../core";
+import { OnlineBookError } from "../../../../core";
 import { Result } from "../../../../results";
 import type {
   DriveItem,
@@ -14,7 +14,7 @@ export const getFolderChildren = async (
   driveId: string,
   itemId: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineItemError>> => {
+): Promise<Result<DriveItem[], OnlineBookError>> => {
   return await getFolderChildrenRaw(
     client,
     folderChildrenApi(driveId, itemId),

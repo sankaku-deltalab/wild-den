@@ -5,14 +5,14 @@ import {
   LocalBookRepository,
   BookId,
   BookContentProps,
-  LocalItemLoadError,
+  LocalRepositoryBookError,
 } from "../../../core";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateUtil } from "../../../util";
 
 type LoadLocalBookContentPropsType = (
   id: BookId
-) => Promise<Result<BookContentProps, LocalItemLoadError>>;
+) => Promise<Result<BookContentProps, LocalRepositoryBookError>>;
 
 /**
  * Load book content props from local repository.

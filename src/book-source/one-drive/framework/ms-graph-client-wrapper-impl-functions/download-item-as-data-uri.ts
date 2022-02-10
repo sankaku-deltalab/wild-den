@@ -2,7 +2,7 @@ import ky from "ky";
 import {
   DataUri,
   LoadProgressCallback,
-  OnlineItemError,
+  OnlineBookError,
 } from "../../../../core";
 import { Result, ok, err } from "../../../../results";
 import type {
@@ -17,7 +17,7 @@ export const downloadItemAsDataUri = async (
   driveId: string,
   itemId: string,
   loadProgressCallback: LoadProgressCallback
-): Promise<Result<[DriveItemAsFile, DataUri], OnlineItemError>> => {
+): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> => {
   const item = await getItem(client, driveId, itemId);
   if (item.err) return item;
   if (!isFile(item.val)) return err("not exists");

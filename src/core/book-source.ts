@@ -1,6 +1,6 @@
 import { DateTime } from "../util";
 import { Result } from "../results";
-import { CommonOnlineError, OnlineItemError } from "./common-error-types";
+import { CommonOnlineError, OnlineBookError } from "./common-error";
 import {
   SourceId,
   BookId,
@@ -36,7 +36,7 @@ export interface BookSource<DirId extends DirectoryId = {}> {
   loadContent(
     fileId: FileId,
     loadProgressCallback: LoadProgressCallback
-  ): Promise<Result<FileContent, OnlineItemError>>;
+  ): Promise<Result<FileContent, OnlineBookError>>;
 
   /**
    * Load file thumbnail.
@@ -45,7 +45,7 @@ export interface BookSource<DirId extends DirectoryId = {}> {
    */
   loadThumbnail(
     fileId: FileId
-  ): Promise<Result<FileThumbnail, OnlineItemError>>;
+  ): Promise<Result<FileThumbnail, OnlineBookError>>;
 
   /**
    * Load Top directories.
@@ -61,11 +61,11 @@ export interface BookSource<DirId extends DirectoryId = {}> {
    */
   loadChildrenDirectories(
     parentDirId: DirId
-  ): Promise<Result<ScanTargetDirectory<DirId>[], OnlineItemError>>;
+  ): Promise<Result<ScanTargetDirectory<DirId>[], OnlineBookError>>;
 
   getDirectoryDisplayPath(
     dirId: DirId
-  ): Promise<Result<string, OnlineItemError>>;
+  ): Promise<Result<string, OnlineBookError>>;
 }
 
 /** File props from `BookSource`. */

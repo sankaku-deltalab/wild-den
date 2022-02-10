@@ -1,5 +1,5 @@
 import axios from "axios";
-import { OnlineItemError } from "../../../../core";
+import { OnlineBookError } from "../../../../core";
 import { Result, ok, err } from "../../../../results";
 import type {
   DriveItem,
@@ -14,7 +14,7 @@ export const getItem = async (
   client: MsGraphClientType,
   driveId: string,
   itemId: string
-): Promise<Result<DriveItem, OnlineItemError>> => {
+): Promise<Result<DriveItem, OnlineBookError>> => {
   const api = driveItemApi(driveId, itemId);
   const r: DriveItem = await client.api(api).get();
   return ok(r);

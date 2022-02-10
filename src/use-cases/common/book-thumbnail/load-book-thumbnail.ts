@@ -7,10 +7,12 @@ import {
   BookId,
   DataUri,
   BookSource,
-  OnlineItemError,
+  OnlineBookError,
   fileThumbnailToBookThumbnail,
   BookThumbnailProps,
-  LocalItemLoadError,
+  BookNotExistsInLocalRepositoryError,
+  LocalRepositoryBookError,
+  bookNotExistsInSourceError,
 } from "../../../core";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateUtil } from "../../../util";
@@ -21,7 +23,7 @@ type LoadBookThumbnailDataType = (
 ) => Promise<
   Result<
     { props: BookThumbnailProps; data: DataUri },
-    OnlineItemError | LocalRepositoryConnectionError
+    OnlineBookError | LocalRepositoryBookError
   >
 >;
 
@@ -49,7 +51,7 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
   ): Promise<
     Result<
       { props: BookThumbnailProps; data: DataUri },
-      OnlineItemError | LocalRepositoryConnectionError
+      OnlineBookError | LocalRepositoryBookError
     >
   > {
     const localLoad = await this.loadLocalThumbnail(id);
@@ -70,7 +72,10 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
   private async loadLocalThumbnail(
     id: BookId
   ): Promise<
-    Result<{ props: BookThumbnailProps; data: DataUri }, LocalItemLoadError>
+    Result<
+      { props: BookThumbnailProps; data: DataUri },
+      LocalRepositoryBookError
+    >
   > {
     const [localThumbnailProps, localThumbnailData] = await Promise.all([
       this.localRepo.loadThumbnailProps(id),
@@ -85,10 +90,10 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
     id: BookId,
     bookSources: BookSource[]
   ): Promise<
-    Result<{ props: BookThumbnailProps; data: DataUri }, OnlineItemError>
+    Result<{ props: BookThumbnailProps; data: DataUri }, OnlineBookError>
   > {
     const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err("not exists");
+    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
     const source = sources[0];
 
     const now = this.date.now();

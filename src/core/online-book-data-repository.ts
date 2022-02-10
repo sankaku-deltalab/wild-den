@@ -1,6 +1,6 @@
 import { Result } from "../results";
-import { CommonOnlineError } from "./common-error-types";
-import { SourceId, BookProps, BookRecord, DirectoryId } from "./core-types";
+import { CommonOnlineError } from "./common-error";
+import { SourceId, BookProps, BookRecord } from "./core-types";
 
 /**
  * Interface of cloud storage like OneDrive, Dropbox and misc.
@@ -8,16 +8,13 @@ import { SourceId, BookProps, BookRecord, DirectoryId } from "./core-types";
  *
  * Prerequisite: Multiple device not store props at the same time.
  */
-export interface OnlineBookDataRepository<DirId extends DirectoryId = {}> {
+export interface OnlineBookDataRepository {
   getSourceId(): SourceId;
 
-  loadBookProps(): Promise<Result<BookRecord<BookProps>, CommonOnlineError>>;
+  loadStoredBookProps(): Promise<
+    Result<BookRecord<BookProps>, CommonOnlineError>
+  >;
   storeBookProps(
     props: BookRecord<BookProps>
-  ): Promise<Result<void, CommonOnlineError>>;
-
-  loadTargetDirectories(): Promise<Result<DirId[], CommonOnlineError>>;
-  storeTargetDirectories(
-    directories: DirId[]
   ): Promise<Result<void, CommonOnlineError>>;
 }

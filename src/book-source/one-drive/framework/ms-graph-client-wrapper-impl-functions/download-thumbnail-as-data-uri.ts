@@ -1,4 +1,4 @@
-import { DataUri, OnlineItemError } from "../../../../core";
+import { DataUri, OnlineBookError } from "../../../../core";
 import { Result, err } from "../../../../results";
 import type {
   DriveItemAsFile,
@@ -25,7 +25,7 @@ export const downloadThumbnailAsDataUri = async (
   client: MsGraphClientType,
   driveId: string,
   itemId: string
-): Promise<Result<[DriveItemAsFile, DataUri], OnlineItemError>> => {
+): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> => {
   // TODO: impl this.
   return err("not exists");
 };

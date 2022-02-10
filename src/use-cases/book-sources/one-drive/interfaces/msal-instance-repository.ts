@@ -1,4 +1,4 @@
-import { MsalInstanceType } from "./types";
+import { MsalInstanceType } from "../types";
 
 export interface MsalInstanceRepository {
   get(): MsalInstanceType;

@@ -1,3 +1,4 @@
+import { LocalRepositoryBookError, LocalRepositoryConnectionError } from ".";
 import { Result } from "../results";
 import {
   BookId,
@@ -8,9 +9,6 @@ import {
   DataUri,
   BookRecord,
 } from "./core-types";
-
-export type LocalRepositoryConnectionError = "connection failed";
-export type LocalItemLoadError = "not exists";
 
 /**
  * Contain caches of books data and binary.
@@ -36,7 +34,9 @@ export interface LocalBookRepository {
   loadAllBookProps(): Promise<
     Result<BookRecord<BookProps>, LocalRepositoryConnectionError>
   >;
-  loadBookProps(id: BookId): Promise<Result<BookProps, LocalItemLoadError>>;
+  loadBookProps(
+    id: BookId
+  ): Promise<Result<BookProps, LocalRepositoryBookError>>;
   storeAllBookProps(
     props: BookRecord<BookProps>
   ): Promise<Result<void, LocalRepositoryConnectionError>>;
@@ -46,8 +46,10 @@ export interface LocalBookRepository {
   >;
   loadContentProps(
     id: BookId
-  ): Promise<Result<BookContentProps, LocalItemLoadError>>;
-  loadContentData(id: BookId): Promise<Result<DataUri, LocalItemLoadError>>;
+  ): Promise<Result<BookContentProps, LocalRepositoryBookError>>;
+  loadContentData(
+    id: BookId
+  ): Promise<Result<DataUri, LocalRepositoryBookError>>;
   storeContent(
     props: BookContentProps,
     data: DataUri
@@ -61,8 +63,10 @@ export interface LocalBookRepository {
   >;
   loadThumbnailProps(
     id: BookId
-  ): Promise<Result<BookThumbnailProps, LocalItemLoadError>>;
-  loadThumbnailData(id: BookId): Promise<Result<DataUri, LocalItemLoadError>>;
+  ): Promise<Result<BookThumbnailProps, LocalRepositoryBookError>>;
+  loadThumbnailData(
+    id: BookId
+  ): Promise<Result<DataUri, LocalRepositoryBookError>>;
   storeThumbnail(
     props: BookThumbnailProps,
     data: DataUri

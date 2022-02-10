@@ -3,7 +3,7 @@ import {
   CommonOnlineError,
   DataUri,
   LoadProgressCallback,
-  OnlineItemError,
+  OnlineBookError,
 } from "../../../core";
 import type {
   DriveItem,
@@ -26,7 +26,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   async getItem(
     driveId: string,
     itemId: string
-  ): Promise<Result<DriveItem, OnlineItemError>> {
+  ): Promise<Result<DriveItem, OnlineBookError>> {
     return await getItem(this.client, driveId, itemId);
   }
 
@@ -34,7 +34,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     driveId: string,
     itemId: string,
     loadProgressCallback: LoadProgressCallback
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineItemError>> {
+  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> {
     return await downloadItemAsDataUri(
       this.client,
       driveId,
@@ -46,7 +46,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   async downloadThumbnailAsDataUri(
     driveId: string,
     itemId: string
-  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineItemError>> {
+  ): Promise<Result<[DriveItemAsFile, DataUri], OnlineBookError>> {
     return await downloadThumbnailAsDataUri(this.client, driveId, itemId);
   }
 
@@ -66,7 +66,7 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     driveId: string,
     itemId: string,
     folderNameFilter: (name: string) => boolean
-  ): Promise<Result<DriveItem[], OnlineItemError>> {
+  ): Promise<Result<DriveItem[], OnlineBookError>> {
     return await getFolderChildren(
       this.client,
       driveId,

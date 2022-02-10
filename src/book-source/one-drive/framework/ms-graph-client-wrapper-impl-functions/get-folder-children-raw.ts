@@ -1,4 +1,4 @@
-import { OnlineItemError } from "../../../../core";
+import { OnlineBookError } from "../../../../core";
 import { Result, ok, err } from "../../../../results";
 import type {
   DriveItem,
@@ -10,7 +10,7 @@ export const getFolderChildrenRaw = async (
   client: MsGraphClientType,
   initialAPi: string,
   folderNameFilter: (name: string) => boolean
-): Promise<Result<DriveItem[], OnlineItemError>> => {
+): Promise<Result<DriveItem[], OnlineBookError>> => {
   const values: DriveItem[] = [];
   let scanApi = initialAPi;
   try {

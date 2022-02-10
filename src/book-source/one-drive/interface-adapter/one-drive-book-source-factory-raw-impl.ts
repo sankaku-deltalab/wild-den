@@ -12,7 +12,7 @@ import {
   FileThumbnail,
   LoadProgressCallback,
   OnlineBookDataRepository,
-  OnlineItemError,
+  OnlineBookError,
   ScanTargetDirectory,
   SourceId,
 } from "../../../core";
@@ -183,7 +183,7 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
   async loadContent(
     fileId: FileId,
     loadProgressCallback: LoadProgressCallback
-  ): Promise<Result<FileContent, OnlineItemError>> {
+  ): Promise<Result<FileContent, OnlineBookError>> {
     const sourceId = this.sourceId;
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
     const item = await this.client.downloadItemAsDataUri(
@@ -216,7 +216,7 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
    */
   async loadThumbnail(
     fileId: FileId
-  ): Promise<Result<FileThumbnail, OnlineItemError>> {
+  ): Promise<Result<FileThumbnail, OnlineBookError>> {
     const sourceId = this.sourceId;
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
     const item = await this.client.downloadThumbnailAsDataUri(driveId, itemId);
@@ -255,7 +255,7 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
   async loadChildrenDirectories(
     parentDirId: OneDriveDirectoryId
   ): Promise<
-    Result<ScanTargetDirectory<OneDriveDirectoryId>[], OnlineItemError>
+    Result<ScanTargetDirectory<OneDriveDirectoryId>[], OnlineBookError>
   > {
     const ignoreFolderNameSet = new Set(
       this.config.ignoreFolderNames.map((s) => s.toLowerCase())
@@ -289,7 +289,7 @@ class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
 
   async getDirectoryDisplayPath(
     dirId: OneDriveDirectoryId
-  ): Promise<Result<string, OnlineItemError>> {
+  ): Promise<Result<string, OnlineBookError>> {
     if (dirId.type === "topMyItems") {
       return ok(rootDirectoryName);
     }
@@ -316,7 +316,7 @@ export class OneDriveOnlineRepository
     return this.sourceId;
   }
 
-  async loadBookProps(): Promise<
+  async loadStoredBookProps(): Promise<
     Result<BookRecord<BookProps>, CommonOnlineError>
   > {
     return ok({});
