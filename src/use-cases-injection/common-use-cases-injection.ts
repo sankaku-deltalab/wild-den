@@ -16,8 +16,10 @@ import {
   LoadLocalBookPropsImpl,
   LoadLocalBookThumbnailProps,
   LoadLocalBookThumbnailPropsImpl,
-  ScanBooks,
-  ScanBooksImpl,
+  ScanBooksFromAvailableSources,
+  ScanBooksFromAvailableSourcesImpl,
+  ScanBooksFromSingleSource,
+  ScanBooksFromSingleSourceImpl,
   SyncBookProps,
   SyncBookPropsImpl,
   UpdateBookProps,
@@ -31,7 +33,10 @@ import {
 export const loadLocalBookProps: LoadLocalBookProps = container.resolve(
   LoadLocalBookPropsImpl
 );
-export const scanBooks: ScanBooks = container.resolve(ScanBooksImpl);
+export const scanBooksFromSingleSource: ScanBooksFromSingleSource =
+  container.resolve(ScanBooksFromSingleSourceImpl);
+export const scanBooksFromAvailableSources: ScanBooksFromAvailableSources =
+  container.resolve(ScanBooksFromAvailableSourcesImpl);
 export const scanBookProps: SyncBookProps =
   container.resolve(SyncBookPropsImpl);
 export const updateBookProps: UpdateBookProps =

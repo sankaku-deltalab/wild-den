@@ -7,7 +7,7 @@ import {
   SourceId,
 } from "../../core";
 import { LocalBookRepository } from "../../core/interfaces";
-import { Result, ok } from "../../results";
+import { Result, ok, isOk } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
@@ -15,10 +15,9 @@ import {
   BookSourceFactory,
   OnlineBookDataRepositoryFactory,
 } from "./interfaces";
+import { scanBookOnSingleSource } from ".";
 
-type ScanBookType = (
-  sourceId: SourceId
-) => Promise<
+type ScanBooksFromSingleSourceType = () => Promise<
   Result<
     BookRecord<BookProps>,
     OnlineSourceError | LocalRepositoryConnectionError
@@ -26,17 +25,20 @@ type ScanBookType = (
 >;
 
 /**
- * Scan books from book source and store them.
+ * Scan books from available all book sources and store them.
  *
  * 1. Scan books from book source.
  * 2. Update book props
  * 3. Store book props to local repository and online repository.
  */
-export interface ScanBooks extends FunctionClass<ScanBookType> {}
+export interface ScanBooksFromAvailableSources
+  extends FunctionClass<ScanBooksFromSingleSourceType> {}
 
 @singleton()
 @injectable()
-export class ScanBooksImpl implements ScanBooks {
+export class ScanBooksFromAvailableSourcesImpl
+  implements ScanBooksFromAvailableSources
+{
   constructor(
     @inject(it.DateUtil) private readonly date: DateUtil,
     @inject(it.LocalBookRepository)
@@ -47,29 +49,21 @@ export class ScanBooksImpl implements ScanBooks {
     private readonly bookSourceFactory: BookSourceFactory
   ) {}
 
-  async run(sourceId: SourceId) {
-    const [source, onlineDataRepo] = await Promise.all([
-      this.bookSourceFactory.getBookSource(sourceId),
-      this.onlineBookRepoFactory.getRepository(sourceId),
-    ]);
+  async run() {
+    const sources = await this.bookSourceFactory.getAllAvailableBookSources();
 
-    if (source.err) return source;
-    if (onlineDataRepo.err) return onlineDataRepo;
-
-    const [onlineFiles, localProps] = await Promise.all([
-      source.val.scanAllFiles(),
-      this.localRepo.loadAllBookProps(),
-    ]);
-    if (onlineFiles.err) return onlineFiles;
-    if (localProps.err) return localProps;
-
-    // TODO: merge file (impl at core)
-    const now = this.date.now();
-    const books = localProps.val;
-
-    const store = await onlineDataRepo.val.storeBookProps(books);
-    if (store.err) return store;
-
+    const booksArray = await Promise.all(
+      Object.values(sources).map((s) =>
+        scanBookOnSingleSource(
+          s,
+          this.date,
+          this.onlineBookRepoFactory,
+          this.localRepo
+        )
+      )
+    );
+    const booksArrayVal = booksArray.filter(isOk).map((v) => v.val);
+    const books: BookRecord<BookProps> = Object.assign({}, ...booksArrayVal);
     return ok(books);
   }
 }
