@@ -14,7 +14,7 @@ import { injectTokens as it } from "../../../inject-tokens";
 import { DateTime, DateUtil } from "../../../util";
 import { FileThumbnail } from "../../../core/interfaces";
 
-type LoadBookThumbnailDataType = (
+type LoadBookThumbnailType = (
   id: BookId,
   bookSources: BookSource[]
 ) => Promise<
@@ -29,12 +29,12 @@ type LoadBookThumbnailDataType = (
  * If thumbnail is exist in local, return it.
  * If thumbnail is not exist in local and exist in online, download it and store to local.
  */
-export interface LoadBookThumbnailData
-  extends FunctionClass<LoadBookThumbnailDataType> {}
+export interface LoadBookThumbnail
+  extends FunctionClass<LoadBookThumbnailType> {}
 
 @singleton()
 @injectable()
-export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
+export class LoadBookThumbnailImpl implements LoadBookThumbnail {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,

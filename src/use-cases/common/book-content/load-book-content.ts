@@ -19,7 +19,7 @@ import {
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateTime, DateUtil } from "../../../util";
 
-type LoadBookContentDataType = (
+type LoadBookContentType = (
   id: BookId,
   bookSources: BookSource[],
   loadProgressCallback?: LoadProgressCallback
@@ -35,12 +35,11 @@ type LoadBookContentDataType = (
  * If content is exist in local, return it.
  * If content is not exist in local and exist in online, download it and store to local.
  */
-export interface LoadBookContentData
-  extends FunctionClass<LoadBookContentDataType> {}
+export interface LoadBookContent extends FunctionClass<LoadBookContentType> {}
 
 @singleton()
 @injectable()
-export class LoadBookContentDataImpl implements LoadBookContentData {
+export class LoadBookContentImpl implements LoadBookContent {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
