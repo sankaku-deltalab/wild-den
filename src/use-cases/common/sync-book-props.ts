@@ -2,23 +2,23 @@ import { inject, injectable, singleton } from "tsyringe";
 import {
   BookIdStr,
   BookProps,
-  CommonOnlineError,
-  DirectoryId,
-  LocalBookRepository,
   LocalRepositoryConnectionError,
-  OnlineBookDataRepository,
+  OnlineSourceError,
+  SourceId,
 } from "../../core";
+import { LocalBookRepository } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
+import { OnlineBookDataRepositoryFactory } from "./interfaces";
 
 type SyncBookPropsType = (
-  onlineRepository: OnlineBookDataRepository<DirectoryId>
+  sourceId: SourceId
 ) => Promise<
   Result<
     Record<BookIdStr, BookProps>,
-    CommonOnlineError | LocalRepositoryConnectionError
+    OnlineSourceError | LocalRepositoryConnectionError
   >
 >;
 
@@ -37,13 +37,18 @@ export interface SyncBookProps extends FunctionClass<SyncBookPropsType> {}
 export class SyncBookPropsImpl implements SyncBookProps {
   constructor(
     @inject(it.DateUtil) private readonly date: DateUtil,
+    @inject(it.OnlineBookDataRepositoryFactory)
+    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
-  async run(onlineRepository: OnlineBookDataRepository<DirectoryId>) {
+  async run(sourceId: SourceId) {
+    const onlineRepo = await this.onlineBookRepoFactory.getRepository(sourceId);
+    if (onlineRepo.err) return onlineRepo;
+
     const [onlineProps, localProps] = await Promise.all([
-      onlineRepository.loadBookProps(),
+      onlineRepo.val.loadStoredBookProps(),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;

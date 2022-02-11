@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from "tsyringe";
 import { AccountInfo } from "@azure/msal-browser";
 import type { FunctionClass } from "../../../function-class";
 import { injectTokens as it } from "../../../inject-tokens";
-import { MsalInstanceRepository } from "./msal-instance-repository";
+import { MsalInstanceRepository } from "./interfaces/msal-instance-repository";
 
 type LoginToOneDriveType = () => Promise<AccountInfo[]>;
 

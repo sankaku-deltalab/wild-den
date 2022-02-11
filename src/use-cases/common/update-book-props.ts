@@ -1,27 +1,24 @@
 import { inject, injectable, singleton } from "tsyringe";
 import {
-  BookIdStr,
   BookProps,
-  BookSource,
-  CommonOnlineError,
-  LocalBookRepository,
   LocalRepositoryConnectionError,
-  OnlineBookDataRepository,
-  DirectoryId,
   bookIdToStr,
+  BookRecord,
+  OnlineSourceError,
 } from "../../core";
+import { LocalBookRepository } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
+import { OnlineBookDataRepositoryFactory } from "./interfaces";
 
 type UpdateBookPropsType = (
-  onlineRepository: OnlineBookDataRepository<DirectoryId>,
   newBookProps: BookProps
 ) => Promise<
   Result<
-    Record<BookIdStr, BookProps>,
-    CommonOnlineError | LocalRepositoryConnectionError
+    BookRecord<BookProps>,
+    OnlineSourceError | LocalRepositoryConnectionError
   >
 >;
 
@@ -35,20 +32,24 @@ export interface UpdateBookProps extends FunctionClass<UpdateBookPropsType> {}
 export class UpdateBookPropsImpl implements UpdateBookProps {
   constructor(
     @inject(it.DateUtil) private readonly date: DateUtil,
+    @inject(it.OnlineBookDataRepositoryFactory)
+    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
-  async run(
-    onlineRepository: OnlineBookDataRepository<DirectoryId>,
-    newBookProps: BookProps
-  ) {
+  async run(newBookProps: BookProps) {
+    const onlineRepository = await this.onlineBookRepoFactory.getRepository(
+      newBookProps.id.source
+    );
+    if (onlineRepository.err) return onlineRepository;
+
     const newBookPropsObj = {
       [bookIdToStr(newBookProps.id)]: newBookProps,
     };
 
     const [onlineProps, localProps] = await Promise.all([
-      onlineRepository.loadBookProps(),
+      onlineRepository.val.loadStoredBookProps(),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;
@@ -56,7 +57,7 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
 
     const updatedLocalProps = Object.assign({}, localProps, newBookPropsObj);
     const [r1, r2] = await Promise.all([
-      onlineRepository.storeBookProps(
+      onlineRepository.val.storeBookProps(
         Object.assign({}, onlineProps, newBookPropsObj)
       ),
       this.localRepo.storeAllBookProps(updatedLocalProps),

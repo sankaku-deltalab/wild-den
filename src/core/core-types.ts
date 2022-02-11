@@ -3,8 +3,13 @@ import { DateTime } from "../util";
 /** Id of book file. */
 export type FileId = string;
 
+export type SourceType = "OneDrive";
+
 /** Id of book source. */
-export type SourceId = string;
+export type SourceId = { sourceType: SourceType; id: string };
+
+/** Json encoded `SourceId`. */
+export type SourceIdStr = string;
 
 /** Id of book. */
 export type BookId = { source: SourceId; file: FileId };

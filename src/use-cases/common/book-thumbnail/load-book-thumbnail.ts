@@ -2,26 +2,25 @@ import { inject, injectable, singleton } from "tsyringe";
 import { ok, err, Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
-  LocalRepositoryConnectionError,
   BookId,
   DataUri,
-  BookSource,
-  OnlineItemError,
-  fileThumbnailToBookThumbnail,
+  OnlineBookError,
   BookThumbnailProps,
-  LocalItemLoadError,
+  LocalRepositoryBookError,
+  bookNotExistsInSourceError,
 } from "../../../core";
+import { LocalBookRepository, BookSource } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import { DateTime, DateUtil } from "../../../util";
+import { FileThumbnail } from "../../../core/interfaces";
 
-type LoadBookThumbnailDataType = (
+type LoadBookThumbnailType = (
   id: BookId,
   bookSources: BookSource[]
 ) => Promise<
   Result<
     { props: BookThumbnailProps; data: DataUri },
-    OnlineItemError | LocalRepositoryConnectionError
+    OnlineBookError | LocalRepositoryBookError
   >
 >;
 
@@ -30,12 +29,12 @@ type LoadBookThumbnailDataType = (
  * If thumbnail is exist in local, return it.
  * If thumbnail is not exist in local and exist in online, download it and store to local.
  */
-export interface LoadBookThumbnailData
-  extends FunctionClass<LoadBookThumbnailDataType> {}
+export interface LoadBookThumbnail
+  extends FunctionClass<LoadBookThumbnailType> {}
 
 @singleton()
 @injectable()
-export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
+export class LoadBookThumbnailImpl implements LoadBookThumbnail {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
@@ -49,7 +48,7 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
   ): Promise<
     Result<
       { props: BookThumbnailProps; data: DataUri },
-      OnlineItemError | LocalRepositoryConnectionError
+      OnlineBookError | LocalRepositoryBookError
     >
   > {
     const localLoad = await this.loadLocalThumbnail(id);
@@ -70,7 +69,10 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
   private async loadLocalThumbnail(
     id: BookId
   ): Promise<
-    Result<{ props: BookThumbnailProps; data: DataUri }, LocalItemLoadError>
+    Result<
+      { props: BookThumbnailProps; data: DataUri },
+      LocalRepositoryBookError
+    >
   > {
     const [localThumbnailProps, localThumbnailData] = await Promise.all([
       this.localRepo.loadThumbnailProps(id),
@@ -85,10 +87,10 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
     id: BookId,
     bookSources: BookSource[]
   ): Promise<
-    Result<{ props: BookThumbnailProps; data: DataUri }, OnlineItemError>
+    Result<{ props: BookThumbnailProps; data: DataUri }, OnlineBookError>
   > {
     const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err("not exists");
+    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
     const source = sources[0];
 
     const now = this.date.now();
@@ -98,3 +100,19 @@ export class LoadBookThumbnailDataImpl implements LoadBookThumbnailData {
     return ok(fileThumbnailToBookThumbnail(loadedThumbnail.val, now));
   }
 }
+
+const fileThumbnailToBookThumbnail = (
+  fileThumbnail: FileThumbnail,
+  now: DateTime
+): { props: BookThumbnailProps; data: DataUri } => {
+  const props: BookThumbnailProps = {
+    id: fileThumbnail.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileThumbnail.lastModifiedDate,
+    fileSizeByte: fileThumbnail.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileThumbnail.dataUri,
+  };
+};

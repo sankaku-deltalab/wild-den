@@ -2,17 +2,17 @@ import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
   BookId,
   BookContentProps,
-  LocalItemLoadError,
+  LocalRepositoryBookError,
 } from "../../../core";
+import { LocalBookRepository } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateUtil } from "../../../util";
 
 type LoadLocalBookContentPropsType = (
   id: BookId
-) => Promise<Result<BookContentProps, LocalItemLoadError>>;
+) => Promise<Result<BookContentProps, LocalRepositoryBookError>>;
 
 /**
  * Load book content props from local repository.

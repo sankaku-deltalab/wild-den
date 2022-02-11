@@ -2,28 +2,31 @@ import { inject, injectable, singleton } from "tsyringe";
 import { ok, err, Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
   LocalRepositoryConnectionError,
   BookId,
   DataUri,
-  BookSource,
-  OnlineItemError,
-  fileContentToBookContent,
+  OnlineBookError,
   BookContentProps,
-  LocalItemLoadError,
-  LoadProgressCallback,
+  LocalRepositoryBookError,
+  bookNotExistsInSourceError,
 } from "../../../core";
+import {
+  LocalBookRepository,
+  BookSource,
+  LoadProgressCallback,
+  FileContent,
+} from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import { DateTime, DateUtil } from "../../../util";
 
-type LoadBookContentDataType = (
+type LoadBookContentType = (
   id: BookId,
   bookSources: BookSource[],
   loadProgressCallback?: LoadProgressCallback
 ) => Promise<
   Result<
     { props: BookContentProps; data: DataUri },
-    OnlineItemError | LocalRepositoryConnectionError
+    OnlineBookError | LocalRepositoryBookError
   >
 >;
 
@@ -32,12 +35,11 @@ type LoadBookContentDataType = (
  * If content is exist in local, return it.
  * If content is not exist in local and exist in online, download it and store to local.
  */
-export interface LoadBookContentData
-  extends FunctionClass<LoadBookContentDataType> {}
+export interface LoadBookContent extends FunctionClass<LoadBookContentType> {}
 
 @singleton()
 @injectable()
-export class LoadBookContentDataImpl implements LoadBookContentData {
+export class LoadBookContentImpl implements LoadBookContent {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
@@ -52,7 +54,7 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
   ): Promise<
     Result<
       { props: BookContentProps; data: DataUri },
-      OnlineItemError | LocalRepositoryConnectionError
+      OnlineBookError | LocalRepositoryConnectionError
     >
   > {
     const localLoad = await this.loadLocalContent(id);
@@ -77,7 +79,7 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
   private async loadLocalContent(
     id: BookId
   ): Promise<
-    Result<{ props: BookContentProps; data: DataUri }, LocalItemLoadError>
+    Result<{ props: BookContentProps; data: DataUri }, LocalRepositoryBookError>
   > {
     const [localContentProps, localContentData] = await Promise.all([
       this.localRepo.loadContentProps(id),
@@ -93,10 +95,10 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
     bookSources: BookSource[],
     loadProgressCallback: LoadProgressCallback
   ): Promise<
-    Result<{ props: BookContentProps; data: DataUri }, OnlineItemError>
+    Result<{ props: BookContentProps; data: DataUri }, OnlineBookError>
   > {
     const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err("not exists");
+    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
     const source = sources[0];
 
     const now = this.date.now();
@@ -109,3 +111,20 @@ export class LoadBookContentDataImpl implements LoadBookContentData {
     return ok(fileContentToBookContent(loadedContent.val, now));
   }
 }
+
+const fileContentToBookContent = (
+  fileContent: FileContent,
+  now: DateTime
+): { props: BookContentProps; data: DataUri } => {
+  const props: BookContentProps = {
+    id: fileContent.id,
+    loadedDate: now,
+    lastFileModifiedDate: fileContent.lastModifiedDate,
+    type: fileContent.type,
+    fileSizeByte: fileContent.fileSizeByte,
+  };
+  return {
+    props,
+    data: fileContent.dataUri,
+  };
+};

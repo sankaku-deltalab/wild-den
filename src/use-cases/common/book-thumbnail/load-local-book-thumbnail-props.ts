@@ -2,17 +2,17 @@ import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import {
-  LocalBookRepository,
   BookId,
   BookThumbnailProps,
-  LocalItemLoadError,
+  LocalRepositoryBookError,
 } from "../../../core";
+import { LocalBookRepository } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateUtil } from "../../../util";
 
 type LoadLocalBookThumbnailPropsType = (
   id: BookId
-) => Promise<Result<BookThumbnailProps, LocalItemLoadError>>;
+) => Promise<Result<BookThumbnailProps, LocalRepositoryBookError>>;
 
 /**
  * Load book thumbnail props from local repository.
