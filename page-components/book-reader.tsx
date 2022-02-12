@@ -21,16 +21,16 @@ const BookReader: React.FC<{}> = () => {
     setNumPages(numPages);
   };
 
-  const file = readingBook.err ? "" : `${readingBook.val.blob.blob}`;
-
+  const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
   const pdfProps = readingBook.err ? "" : readingBook.val.props;
+
   return (
     <>
       <div>reading...</div>
       <div>{JSON.stringify(pdfProps, null, 4)}</div>
       <div>
         <Document
-          file={file}
+          file={fileDataUri}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(e) => console.log(e)}
           options={{
