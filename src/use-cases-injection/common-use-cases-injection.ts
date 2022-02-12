@@ -4,6 +4,8 @@ import {
   DeleteBookContentFromLocalImpl,
   DeleteBookThumbnailFromLocal,
   DeleteBookThumbnailFromLocalImpl,
+  GetAvailableSourceIds,
+  GetAvailableSourceIdsImpl,
   LoadBookContent,
   LoadBookContentImpl,
   LoadBookSourceConfig,
@@ -30,6 +32,9 @@ import {
   StoreBookSourceConfigImpl,
 } from "../use-cases/common/book-source-config/store-book-source-config";
 
+export const getAvailableSourceIds: GetAvailableSourceIds = container.resolve(
+  GetAvailableSourceIdsImpl
+);
 export const loadLocalBookProps: LoadLocalBookProps = container.resolve(
   LoadLocalBookPropsImpl
 );
