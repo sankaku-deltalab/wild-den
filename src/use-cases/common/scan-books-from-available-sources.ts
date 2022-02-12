@@ -4,7 +4,6 @@ import {
   BookRecord,
   LocalRepositoryConnectionError,
   OnlineSourceError,
-  SourceId,
 } from "../../core";
 import { LocalBookRepository } from "../../core/interfaces";
 import { Result, ok, isOk } from "../../results";
@@ -50,13 +49,14 @@ export class ScanBooksFromAvailableSourcesImpl
   ) {}
 
   async run() {
-    const sources = await this.bookSourceFactory.getAllAvailableBookSources();
+    const sources = await this.bookSourceFactory.getAllAvailableBookSourceIds();
 
     const booksArray = await Promise.all(
-      Object.values(sources).map((s) =>
+      sources.map((s) =>
         scanBookOnSingleSource(
           s,
           this.date,
+          this.bookSourceFactory,
           this.onlineBookRepoFactory,
           this.localRepo
         )

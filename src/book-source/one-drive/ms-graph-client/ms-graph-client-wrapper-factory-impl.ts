@@ -7,6 +7,7 @@ import {
   MsGraphClientWrapper,
   MsGraphClientWrapperFactory,
 } from "../interfaces";
+import { msalInstanceAccountToSourceId } from "../util";
 
 const msGraphScopes = ["Files.Read.All", "Files.ReadWrite.AppFolder"];
 
@@ -19,7 +20,7 @@ export class MsGraphClientWrapperFactoryImpl
     const accounts = msalInstance.getAllAccounts();
     return Object.fromEntries(
       accounts.map((a) => [
-        sourceIdToStr({ sourceType: "OneDrive", id: a.homeAccountId }),
+        sourceIdToStr(msalInstanceAccountToSourceId(a)),
         this.getClientWrapper(a, msalInstance),
       ])
     );

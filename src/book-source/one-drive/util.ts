@@ -1,3 +1,5 @@
+import type { AccountInfo } from "@azure/msal-browser";
+import { SourceId } from "../../core";
 import type { DriveItem, DriveItemAsFile, DriveItemAsFolder } from "./types";
 
 export const blobToBase64 = async (b: Blob): Promise<string> => {
@@ -35,6 +37,10 @@ export const getPath = (v: DriveItem): string => {
   if ("remoteItem" in v) return v.remoteItem!.parentReference.path;
   return "";
 };
+
+export const msalInstanceAccountToSourceId = (
+  account: AccountInfo
+): SourceId => ({ sourceType: "OneDrive", id: account.homeAccountId });
 
 export const pdfMimeType = "application/pdf";
 export const epubMimeType = "application/epub+zip";
