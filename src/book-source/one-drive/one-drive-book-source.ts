@@ -63,8 +63,12 @@ export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
       return true;
     };
 
+    const scanRootDirectories =
+      config.val.targetRootDirectories.length === 0
+        ? defaultScanRoot
+        : config.val.targetRootDirectories;
     const scannedItemsNested = await Promise.all(
-      config.val.targetRootDirectories.map(async (d) => {
+      scanRootDirectories.map(async (d) => {
         const r = await this.clientUtil.scanItemsUnderFolder(
           this.client,
           d.directoryId,
@@ -259,3 +263,18 @@ export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
 const isOneDriveItemError = (v: {
   type: string;
 }): v is OneDriveItemNotExistsError => v.type === "onedrive item not exists";
+
+const defaultScanRoot: ScanTargetDirectory<OneDriveDirectoryId>[] = [
+  {
+    displayPath: rootDirectoryName,
+    directoryId: {
+      type: "topMyItems",
+    },
+  },
+  {
+    displayPath: rootSharedDirectoryName,
+    directoryId: {
+      type: "topShared",
+    },
+  },
+];
