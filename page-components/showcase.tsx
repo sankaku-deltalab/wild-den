@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { List, ListItem, ListItemButton, Button, Input } from "@mui/material";
 import {
   AuthenticatedTemplate,
@@ -5,11 +6,11 @@ import {
   useMsal,
 } from "@azure/msal-react";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
-import { scanBooks, readBook } from "../redux-state/slices/showcase-slice";
-import { msGraphScopes } from "../src";
-import { useState } from "react";
-
-const redirectLoginRequest = { scopes: msGraphScopes };
+import {
+  scanBooksThunk,
+  readBookThunk,
+} from "../redux-state/slices/showcase-slice";
+import { loginToOneDrive } from "../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
@@ -28,14 +29,8 @@ const Showcase: React.FC<{}> = () => {
           <h5 className="card-title">
             Please sign-in to see your profile information.
           </h5>
-          <Button
-            onClick={() => msalInstance.loginRedirect(redirectLoginRequest)}
-          >
-            Login with redirect
-          </Button>
-          <Button onClick={() => msalInstance.loginPopup(redirectLoginRequest)}>
-            Login with Popup
-          </Button>
+          {/* TODO: Login with slice */}
+          <Button onClick={() => loginToOneDrive.run()}>Login</Button>
         </UnauthenticatedTemplate>
         <AuthenticatedTemplate>
           <div>{JSON.stringify(accounts)}</div>
@@ -48,13 +43,13 @@ const Showcase: React.FC<{}> = () => {
         </AuthenticatedTemplate>
       </div>
       books
-      <Button onClick={() => dispatch(scanBooks())}>Scan</Button>
+      <Button onClick={() => dispatch(scanBooksThunk())}>Scan</Button>
       <List>
         {Object.entries(books).map(([idStr, props]) => (
           <ListItem key={idStr}>
             <ListItemButton
               onClick={() => {
-                dispatch(readBook({ id: props.id }));
+                dispatch(readBookThunk({ id: props.id }));
               }}
             >
               {props.title}
