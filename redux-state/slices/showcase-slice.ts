@@ -1,47 +1,43 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { Result, ok, err } from "../../src/results";
 import {
-  BookFileBlob,
-  BookFileThumbnail,
-  BookIdStr,
-  BookProps,
-  BookSource,
-  BookCacheRepository,
-  GetCachedBooks,
-  LoadBookBlob,
-  DateUtilImpl,
+  BookContentProps,
   BookId,
+  BookIdStr,
   bookIdToStr,
-  ScanBooks,
+  BookProps,
+  BookRecord,
+  DataUri,
+  LocalRepositoryConnectionError,
+  OnlineBookAndSourceError,
   SourceId,
-  Result,
-  ok,
-  err,
-} from "../../src";
+} from "../../src/core";
 import type { RootState } from "../store";
-import { selectBookSources, selectCache } from "./common-data-slice";
 import {
-  loadBookBlob,
-  getCachedBooksUc,
-  cache,
-  scanBooksUC,
-} from "./injection";
+  getAvailableSourceIds,
+  loadBookContent,
+  loadLocalBookProps,
+  scanBooksFromAvailableSources,
+} from "../../src/use-cases-injection/common-use-cases-injection";
 
 type ShowcaseState = {
-  status: "showing" | "blob loading" | "reading" | "scanning";
+  status: "showing" | "content loading" | "reading" | "scanning";
   bookProps: Record<BookIdStr, BookProps>;
-  blobLoadedBooks: Record<BookIdStr, true>;
-  loadingBlobs: Record<BookIdStr, true>;
+  availableSources: SourceId[];
+  contentLoadState: BookRecord<{ elapsed: number; total: number }>;
   readingBook?: {
+    id: BookId;
     props: BookProps;
-    blob: BookFileBlob;
+    contentProps: BookContentProps;
+    contentData: DataUri;
   };
 };
 
 const initialState: ShowcaseState = {
   status: "showing",
-  bookProps: getCachedBooksUc.run(cache),
-  blobLoadedBooks: {},
-  loadingBlobs: {},
+  availableSources: [],
+  bookProps: {},
+  contentLoadState: {},
   readingBook: undefined,
 };
 
@@ -53,73 +49,112 @@ export const showcaseSlice = createSlice({
       state.status = "showing";
       state.readingBook = undefined;
     },
+    updateContentLoading: (
+      state,
+      action: PayloadAction<{ id: BookId; elapsed: number; total: number }>
+    ) => {
+      const { id, elapsed, total } = action.payload;
+      const progress = {
+        elapsed,
+        total,
+      };
+      state.contentLoadState[bookIdToStr(id)] = progress;
+    },
   },
   extraReducers: (builder) => {
+    builder.addCase(loadInitialBookPropsThunk.fulfilled, (state, action) => {
+      const r = action.payload;
+      if (r.err) {
+        console.warn(r.val);
+        return;
+      }
+      const [sources, props] = r.val;
+      state.bookProps = props;
+      state.availableSources = sources;
+    });
+
     builder
-      .addCase(readBook.pending, (state, action) => {
-        state.status = "blob loading";
+      .addCase(readBookThunk.pending, (state, action) => {
+        const { id } = action.meta.arg;
+        delete state.contentLoadState[bookIdToStr(id)];
+        state.status = "content loading";
       })
-      .addCase(readBook.fulfilled, (state, action) => {
+      .addCase(readBookThunk.fulfilled, (state, action) => {
+        const { id } = action.meta.arg;
+        delete state.contentLoadState[bookIdToStr(id)];
         if (action.payload.err) {
           // TODO: show error
           state.status = "showing";
           return;
         }
+        const { props, contentProps, contentData } = action.payload.val;
         state.status = "reading";
-        state.blobLoadedBooks[bookIdToStr(action.meta.arg.id)] = true;
         state.readingBook = {
-          props: action.payload.val.props,
-          blob: action.payload.val.blob,
+          id: props.id,
+          props,
+          contentProps,
+          contentData,
         };
       });
     builder
-      .addCase(scanBooks.pending, (state, action) => {
+      .addCase(scanBooksThunk.pending, (state, action) => {
         state.status = "scanning";
       })
-      .addCase(scanBooks.fulfilled, (state, action) => {
+      .addCase(scanBooksThunk.fulfilled, (state, action) => {
         state.status = "showing";
         state.bookProps = action.payload;
       })
-      .addCase(scanBooks.rejected, (state, action) => {
+      .addCase(scanBooksThunk.rejected, (state, action) => {
         state.status = "showing";
       });
   },
 });
 
-export const readBook = createAsyncThunk<
+export const loadInitialBookPropsThunk = createAsyncThunk<
+  Result<[SourceId[], BookRecord<BookProps>], LocalRepositoryConnectionError>,
+  {},
+  { state: RootState }
+>("showcase/loadInitialBookPropsThunk", async ({}, thunkApi) => {
+  const sources = await getAvailableSourceIds.run();
+  const props = await loadLocalBookProps.run();
+  if (props.err) return props;
+  return ok([sources, props.val]);
+});
+
+export const readBookThunk = createAsyncThunk<
   Result<
-    { props: BookProps; blob: BookFileBlob },
-    "offline" | "not exists" | "source not found"
+    { props: BookProps; contentProps: BookContentProps; contentData: DataUri },
+    OnlineBookAndSourceError | LocalRepositoryConnectionError
   >,
   { id: BookId },
   { state: RootState }
->("showcase/readBook", async ({ id }, thunkApi) => {
+>("showcase/readBookThunk", async ({ id }, thunkApi) => {
   const state = thunkApi.getState();
-  const sources = selectBookSources(state);
-  const cache = selectCache(state);
   const props = selectBookProps(state)[bookIdToStr(id)];
-  const blob = await loadBookBlob.run(sources, cache, id);
-  if (blob.err) return blob;
+  const loadedContent = await loadBookContent.run(id, (elapsed, total) => {
+    thunkApi.dispatch(updateContentLoading({ id, elapsed, total }));
+  });
+  if (loadedContent.err) return loadedContent;
   return ok({
     props,
-    blob: blob.val,
+    contentProps: loadedContent.val.props,
+    contentData: loadedContent.val.data,
   });
 });
 
-export const scanBooks = createAsyncThunk<
+export const scanBooksThunk = createAsyncThunk<
   Record<BookIdStr, BookProps>,
   void,
   { state: RootState }
->("showcase/scanBooks", async (_, thunkApi) => {
-  const state = thunkApi.getState();
-  const sources = selectBookSources(state);
-  const cache = selectCache(state);
-  const r = await Promise.all(sources.map((s) => scanBooksUC.run(s, cache)));
-  const r2: Record<BookIdStr, BookProps>[] = r.map((r) => (r.err ? {} : r.val));
-  return Object.assign({}, ...r2);
+>("showcase/scanBooksThunk", async (_, thunkApi) => {
+  const r = await scanBooksFromAvailableSources.run();
+  if (r.err) {
+    return {};
+  }
+  return r.val;
 });
 
-export const { closeBook } = showcaseSlice.actions;
+export const { closeBook, updateContentLoading } = showcaseSlice.actions;
 
 export const selectBookProps = (
   state: RootState
@@ -129,7 +164,15 @@ export const selectBookProps = (
 
 export const selectReadingBook = (
   state: RootState
-): Result<{ props: BookProps; blob: BookFileBlob }, "not reading"> => {
+): Result<
+  {
+    id: BookId;
+    props: BookProps;
+    contentProps: BookContentProps;
+    contentData: DataUri;
+  },
+  "not reading"
+> => {
   const val = state.showcase.readingBook;
   if (val === undefined) return err("not reading");
   return ok(val);
