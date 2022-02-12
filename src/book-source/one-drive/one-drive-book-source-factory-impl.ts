@@ -22,6 +22,7 @@ import {
 } from "./interfaces";
 import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
 import { OneDriveBookSource } from "./one-drive-book-source";
+import { msalInstanceAccountToSourceId } from "./util";
 
 @singleton()
 @injectable()
@@ -39,21 +40,11 @@ export class OneDriveBookSourceFactoryImpl
     private readonly clientUtil: MsGraphClientUtil
   ) {}
 
-  async getAllAvailableBookSources(): Promise<Record<SourceIdStr, BookSource>> {
+  async getAllAvailableBookSourceIds(): Promise<SourceId[]> {
     const msalInstance = this.msalInstanceRepository.get();
-    const wrappers = this.clientWrapperFactory.getClientWrappers(msalInstance);
-
-    const sourcePromises = Object.entries(wrappers).map(([s, client]) =>
-      this.getSource(sourceIdStrToId(s), client)
-    );
-
-    const sources = (await Promise.all(sourcePromises)).filter(isOk);
-    return Object.fromEntries(
-      sources.map((s) => {
-        const sidStr = sourceIdToStr(s.val.getSourceId());
-        return [sidStr, s.val];
-      })
-    );
+    return msalInstance
+      .getAllAccounts()
+      .map((a) => msalInstanceAccountToSourceId(a));
   }
 
   async getBookSource(

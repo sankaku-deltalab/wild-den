@@ -51,12 +51,10 @@ export class ScanBooksFromSingleSourceImpl
   ) {}
 
   async run(sourceId: SourceId) {
-    const source = await this.bookSourceFactory.getBookSource(sourceId);
-    if (source.err) return source;
-
     return scanBookOnSingleSource(
-      source.val,
+      sourceId,
       this.date,
+      this.bookSourceFactory,
       this.onlineBookRepoFactory,
       this.localRepo
     );
@@ -64,8 +62,9 @@ export class ScanBooksFromSingleSourceImpl
 }
 
 export const scanBookOnSingleSource = async (
-  source: BookSource,
+  sourceId: SourceId,
   date: DateUtil,
+  bookSourceFactory: BookSourceFactory,
   onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
   localRepo: LocalBookRepository
 ): Promise<
@@ -74,13 +73,14 @@ export const scanBookOnSingleSource = async (
     OnlineSourceError | LocalRepositoryConnectionError
   >
 > => {
-  const sourceId = source.getSourceId();
-  const onlineDataRepo = await onlineBookRepoFactory.getRepository(sourceId);
+  const source = await bookSourceFactory.getBookSource(sourceId);
+  if (source.err) return source;
 
+  const onlineDataRepo = await onlineBookRepoFactory.getRepository(sourceId);
   if (onlineDataRepo.err) return onlineDataRepo;
 
   const [onlineFiles, localProps] = await Promise.all([
-    source.scanAllFiles(),
+    source.val.scanAllFiles(),
     localRepo.loadAllBookProps(),
   ]);
   if (onlineFiles.err) return onlineFiles;

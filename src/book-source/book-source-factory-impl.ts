@@ -19,8 +19,8 @@ export class BookSourceFactoryImpl implements BookSourceFactory {
     private readonly oneDriveSourceFactory: OneDriveBookSourceFactory
   ) {}
 
-  async getAllAvailableBookSources(): Promise<Record<SourceIdStr, BookSource>> {
-    return await this.oneDriveSourceFactory.getAllAvailableBookSources();
+  async getAllAvailableBookSourceIds(): Promise<SourceId[]> {
+    return await this.oneDriveSourceFactory.getAllAvailableBookSourceIds();
   }
 
   async getBookSource(
