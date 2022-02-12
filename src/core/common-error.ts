@@ -6,6 +6,7 @@ export type ErrorBase<Type extends string, Payload extends Object> = {
 };
 
 export type CommonOnlineError = OfflineError | NotLoggedInError;
+
 export type OnlineBookError =
   | OfflineError
   | NotLoggedInError
@@ -15,6 +16,13 @@ export type OnlineBookError =
 export type OnlineSourceError =
   | OfflineError
   | NotLoggedInError
+  | SourceNotAvailableError;
+
+export type OnlineBookAndSourceError =
+  | OfflineError
+  | NotLoggedInError
+  | BookNotExistsInSourceError
+  | SomethingWrongError
   | SourceNotAvailableError;
 
 export type LocalRepositoryBookError =

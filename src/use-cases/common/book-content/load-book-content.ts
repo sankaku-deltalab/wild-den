@@ -9,6 +9,8 @@ import {
   BookContentProps,
   LocalRepositoryBookError,
   bookNotExistsInSourceError,
+  OnlineSourceError,
+  OnlineBookAndSourceError,
 } from "../../../core";
 import {
   LocalBookRepository,
@@ -18,15 +20,15 @@ import {
 } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateTime, DateUtil } from "../../../util";
+import { BookSourceFactory } from "../interfaces";
 
 type LoadBookContentType = (
   id: BookId,
-  bookSources: BookSource[],
   loadProgressCallback?: LoadProgressCallback
 ) => Promise<
   Result<
     { props: BookContentProps; data: DataUri },
-    OnlineBookError | LocalRepositoryBookError
+    OnlineBookAndSourceError | LocalRepositoryConnectionError
   >
 >;
 
@@ -43,18 +45,19 @@ export class LoadBookContentImpl implements LoadBookContent {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
+    @inject(it.BookSourceFactory)
+    private readonly sourceFactory: BookSourceFactory,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
   async run(
     id: BookId,
-    bookSources: BookSource[],
     loadProgressCallback?: LoadProgressCallback
   ): Promise<
     Result<
       { props: BookContentProps; data: DataUri },
-      OnlineBookError | LocalRepositoryConnectionError
+      OnlineBookAndSourceError | LocalRepositoryConnectionError
     >
   > {
     const localLoad = await this.loadLocalContent(id);
@@ -62,7 +65,6 @@ export class LoadBookContentImpl implements LoadBookContent {
 
     const onlineLoad = await this.loadOnlineContent(
       id,
-      bookSources,
       loadProgressCallback ?? (() => {})
     );
     if (onlineLoad.err) return onlineLoad;
@@ -92,17 +94,15 @@ export class LoadBookContentImpl implements LoadBookContent {
 
   private async loadOnlineContent(
     id: BookId,
-    bookSources: BookSource[],
     loadProgressCallback: LoadProgressCallback
   ): Promise<
-    Result<{ props: BookContentProps; data: DataUri }, OnlineBookError>
+    Result<{ props: BookContentProps; data: DataUri }, OnlineBookAndSourceError>
   > {
-    const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
-    const source = sources[0];
+    const source = await this.sourceFactory.getBookSource(id.source);
+    if (source.err) return source;
 
     const now = this.date.now();
-    const loadedContent = await source.loadContent(
+    const loadedContent = await source.val.loadContent(
       id.file,
       loadProgressCallback
     );
