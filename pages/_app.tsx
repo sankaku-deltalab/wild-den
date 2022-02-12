@@ -1,5 +1,3 @@
-console.log("_app");
-
 import "isomorphic-fetch"; // used for `@microsoft/microsoft-graph-client` see: https://www.npmjs.com/package/@microsoft/microsoft-graph-client
 import "reflect-metadata";
 import "../styles/globals.css";

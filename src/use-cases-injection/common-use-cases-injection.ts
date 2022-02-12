@@ -32,42 +32,48 @@ import {
   StoreBookSourceConfigImpl,
 } from "../use-cases/common/book-source-config/store-book-source-config";
 
-export const getAvailableSourceIds: GetAvailableSourceIds = container.resolve(
+export const getAvailableSourceIds = container.resolve<GetAvailableSourceIds>(
   GetAvailableSourceIdsImpl
 );
-export const loadLocalBookProps: LoadLocalBookProps = container.resolve(
+export const loadLocalBookProps = container.resolve<LoadLocalBookProps>(
   LoadLocalBookPropsImpl
 );
-export const scanBooksFromSingleSource: ScanBooksFromSingleSource =
-  container.resolve(ScanBooksFromSingleSourceImpl);
-export const scanBooksFromAvailableSources: ScanBooksFromAvailableSources =
-  container.resolve(ScanBooksFromAvailableSourcesImpl);
-export const scanBookProps: SyncBookProps =
-  container.resolve(SyncBookPropsImpl);
-export const updateBookProps: UpdateBookProps =
-  container.resolve(UpdateBookPropsImpl);
+export const scanBooksFromSingleSource =
+  container.resolve<ScanBooksFromSingleSource>(ScanBooksFromSingleSourceImpl);
+export const scanBooksFromAvailableSources =
+  container.resolve<ScanBooksFromAvailableSources>(
+    ScanBooksFromAvailableSourcesImpl
+  );
+export const scanBookProps =
+  container.resolve<SyncBookProps>(SyncBookPropsImpl);
+export const updateBookProps =
+  container.resolve<UpdateBookProps>(UpdateBookPropsImpl);
 
 // book-content
-export const deleteBookContentFromLocal: DeleteBookContentFromLocal =
-  container.resolve(DeleteBookContentFromLocalImpl);
-export const loadBookContent: LoadBookContent =
-  container.resolve(LoadBookContentImpl);
-export const loadLocalBookContentProps: LoadLocalBookContentProps =
-  container.resolve(LoadLocalBookContentPropsImpl);
+export const deleteBookContentFromLocal =
+  container.resolve<DeleteBookContentFromLocal>(DeleteBookContentFromLocalImpl);
+export const loadBookContent =
+  container.resolve<LoadBookContent>(LoadBookContentImpl);
+export const loadLocalBookContentProps =
+  container.resolve<LoadLocalBookContentProps>(LoadLocalBookContentPropsImpl);
 
 // book-source-config
-export const loadBookSourceConfig: LoadBookSourceConfig = container.resolve(
+export const loadBookSourceConfig = container.resolve<LoadBookSourceConfig>(
   LoadBookSourceConfigImpl
 );
-export const storeBookSourceConfig: StoreBookSourceConfig = container.resolve(
+export const storeBookSourceConfig = container.resolve<StoreBookSourceConfig>(
   StoreBookSourceConfigImpl
 );
 
 // book-content
-export const deleteBookThumbnailFromLocal: DeleteBookThumbnailFromLocal =
-  container.resolve(DeleteBookThumbnailFromLocalImpl);
-export const loadBookThumbnail: LoadBookThumbnail = container.resolve(
+export const deleteBookThumbnailFromLocal =
+  container.resolve<DeleteBookThumbnailFromLocal>(
+    DeleteBookThumbnailFromLocalImpl
+  );
+export const loadBookThumbnail = container.resolve<LoadBookThumbnail>(
   LoadBookThumbnailImpl
 );
-export const loadLocalBookThumbnailProps: LoadLocalBookThumbnailProps =
-  container.resolve(LoadLocalBookThumbnailPropsImpl);
+export const loadLocalBookThumbnailProps =
+  container.resolve<LoadLocalBookThumbnailProps>(
+    LoadLocalBookThumbnailPropsImpl
+  );
