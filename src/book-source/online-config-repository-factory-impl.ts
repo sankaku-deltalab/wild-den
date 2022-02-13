@@ -16,10 +16,10 @@ export class OnlineConfigRepositoryFactoryImpl
     private readonly oneDrive: OneDriveOnlineConfigRepositoryFactory
   ) {}
 
-  async getRepository<DirId extends DirectoryId>(
+  async getRepository(
     sourceId: SourceId
   ): Promise<
-    Result<OnlineBookSourceConfigRepository<DirId>, OnlineSourceError>
+    Result<OnlineBookSourceConfigRepository<DirectoryId>, OnlineSourceError>
   > {
     return await this.oneDrive.getRepository(sourceId);
   }

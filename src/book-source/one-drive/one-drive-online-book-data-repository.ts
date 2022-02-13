@@ -6,7 +6,9 @@ import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import { MsGraphClientWrapper } from "./interfaces";
 
 // TODO: impl this.
-export class OneDriveOnlineRepository implements OnlineBookDataRepository {
+export class OneDriveOnlineBookDataRepository
+  implements OnlineBookDataRepository
+{
   constructor(
     private readonly sourceId: SourceId,
     private readonly client: MsGraphClientWrapper,

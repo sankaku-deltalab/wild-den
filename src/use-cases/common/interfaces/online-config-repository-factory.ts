@@ -3,9 +3,9 @@ import { SourceId, DirectoryId, OnlineSourceError } from "../../../core";
 import { OnlineBookSourceConfigRepository } from "../../../core/interfaces";
 
 export interface OnlineConfigRepositoryFactory {
-  getRepository<DirId extends DirectoryId>(
+  getRepository(
     sourceId: SourceId
   ): Promise<
-    Result<OnlineBookSourceConfigRepository<DirId>, OnlineSourceError>
+    Result<OnlineBookSourceConfigRepository<DirectoryId>, OnlineSourceError>
   >;
 }

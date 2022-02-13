@@ -24,9 +24,10 @@ export class LoadBookSourceConfigImpl implements LoadBookSourceConfig {
     private readonly onlineConfigRepositoryFactory: OnlineConfigRepositoryFactory
   ) {}
 
-  async run<DirId extends DirectoryId>(sourceId: SourceId) {
-    const configRepo =
-      await this.onlineConfigRepositoryFactory.getRepository<DirId>(sourceId);
+  async run(sourceId: SourceId) {
+    const configRepo = await this.onlineConfigRepositoryFactory.getRepository(
+      sourceId
+    );
     if (configRepo.err) return configRepo;
     return await configRepo.val.loadConfig();
   }

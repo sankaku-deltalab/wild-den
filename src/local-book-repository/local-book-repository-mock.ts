@@ -1,3 +1,4 @@
+import { injectable, singleton } from "tsyringe";
 import { Result, ok, err } from "../results";
 import {
   BookProps,
@@ -15,6 +16,8 @@ import {
 } from "../core";
 import { LocalBookRepository } from "../core/interfaces";
 
+@singleton()
+@injectable()
 export class LocalBookRepositoryMock implements LocalBookRepository {
   private bookProps: BookRecord<BookProps> = {};
   private bookContentProps: BookRecord<BookContentProps> = {};

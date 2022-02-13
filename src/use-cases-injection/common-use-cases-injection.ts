@@ -1,4 +1,5 @@
 import { container } from "tsyringe";
+import "../injection";
 import {
   DeleteBookContentFromLocal,
   DeleteBookContentFromLocalImpl,

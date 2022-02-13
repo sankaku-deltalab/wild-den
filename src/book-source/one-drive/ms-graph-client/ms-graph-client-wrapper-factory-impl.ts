@@ -1,5 +1,12 @@
+import { injectable, singleton } from "tsyringe";
 import { AccountInfo } from "@azure/msal-browser";
-import { SourceIdStr, sourceIdToStr } from "../../../core";
+import {
+  SourceId,
+  SourceIdStr,
+  sourceIdToStr,
+  sourceNotAvailableError,
+  SourceNotAvailableError,
+} from "../../../core";
 import { MsalInstanceType } from "../../../use-cases/book-sources/one-drive";
 import { MsGraphClientWrapperImpl } from "./ms-graph-client-wrapper-impl";
 import { getMsGraphClient } from "./get-ms-graph-client";
@@ -8,9 +15,12 @@ import {
   MsGraphClientWrapperFactory,
 } from "../interfaces";
 import { msalInstanceAccountToSourceId } from "../util";
+import { err, Result, ok } from "../../../results";
 
 const msGraphScopes = ["Files.Read.All", "Files.ReadWrite.AppFolder"];
 
+@singleton()
+@injectable()
 export class MsGraphClientWrapperFactoryImpl
   implements MsGraphClientWrapperFactory
 {
@@ -21,12 +31,23 @@ export class MsGraphClientWrapperFactoryImpl
     return Object.fromEntries(
       accounts.map((a) => [
         sourceIdToStr(msalInstanceAccountToSourceId(a)),
-        this.getClientWrapper(a, msalInstance),
+        this.getClientWrapperRaw(a, msalInstance),
       ])
     );
   }
 
-  private getClientWrapper(
+  getClientWrapper(
+    sourceId: SourceId,
+    msalInstance: MsalInstanceType
+  ): Result<MsGraphClientWrapper, SourceNotAvailableError> {
+    const wrappers = this.getClientWrappers(msalInstance);
+
+    const sidStr = sourceIdToStr(sourceId);
+    if (!(sidStr in wrappers)) return err(sourceNotAvailableError(sourceId));
+    return ok(wrappers[sidStr]);
+  }
+
+  private getClientWrapperRaw(
     account: AccountInfo,
     msalInstance: MsalInstanceType
   ): MsGraphClientWrapper {

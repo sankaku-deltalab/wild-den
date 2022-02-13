@@ -1,16 +1,8 @@
 import { inject, injectable, singleton } from "tsyringe";
-import { Result, ok, err, isOk } from "../../results";
+import { Result, ok } from "../../results";
 import { injectTokens as it } from "../../inject-tokens";
-import {
-  OnlineSourceError,
-  SourceId,
-  SourceIdStr,
-  sourceIdStrToId,
-  sourceIdToStr,
-  sourceNotAvailableError,
-} from "../../core";
+import { OnlineSourceError, SourceId } from "../../core";
 import { BookSource } from "../../core/interfaces";
-import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import {
   OneDriveBookSourceFactory,
@@ -51,20 +43,20 @@ export class OneDriveBookSourceFactoryImpl
     sourceId: SourceId
   ): Promise<Result<BookSource, OnlineSourceError>> {
     const msalInstance = this.msalInstanceRepository.get();
-    const wrappers = this.clientWrapperFactory.getClientWrappers(msalInstance);
+    const wrapper = this.clientWrapperFactory.getClientWrapper(
+      sourceId,
+      msalInstance
+    );
+    if (wrapper.err) return wrapper;
 
-    const sidStr = sourceIdToStr(sourceId);
-    if (!(sidStr in wrappers)) return err(sourceNotAvailableError(sourceId));
-
-    return await this.getSource(sourceId, wrappers[sidStr]);
+    return await this.getSource(sourceId, wrapper.val);
   }
 
   private async getSource(
     sourceId: SourceId,
     client: MsGraphClientWrapper
   ): Promise<Result<OneDriveBookSource, OnlineSourceError>> {
-    const configRepo =
-      await this.configRepository.getRepository<OneDriveDirectoryId>(sourceId);
+    const configRepo = await this.configRepository.getRepository(sourceId);
     if (configRepo.err) return configRepo;
 
     return ok(
