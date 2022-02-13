@@ -26,8 +26,6 @@ const BookReader: React.FC<{}> = () => {
 
   return (
     <>
-      <div>reading...</div>
-      <div>{JSON.stringify(pdfProps, null, 4)}</div>
       <div>
         <Document
           file={fileDataUri}
@@ -50,6 +48,8 @@ const BookReader: React.FC<{}> = () => {
           Prev page
         </Button>
       </div>
+
+      <div>{JSON.stringify(pdfProps, null, 4)}</div>
       <Button onClick={() => dispatch(closeBook())}>Close</Button>
     </>
   );

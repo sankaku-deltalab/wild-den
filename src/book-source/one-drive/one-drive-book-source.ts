@@ -22,13 +22,18 @@ import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
 import {
   epubMimeType,
+  getDriveId,
+  getItemId,
   isFile,
   isFolder,
   pdfMimeType,
   rootDirectoryName,
   rootSharedDirectoryName,
 } from "./util";
-import { fileIdToDriveItemId } from "./ms-graph-client/file-id-and-drive-item-id-converter";
+import {
+  driveItemIdToFileId,
+  fileIdToDriveItemId,
+} from "./ms-graph-client/file-id-and-drive-item-id-converter";
 import { MsGraphClientWrapper } from "./interfaces";
 import { OneDriveItemNotExistsError } from "./one-drive-error";
 
@@ -85,7 +90,10 @@ export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
       (f) => f.file.mimeType === pdfMimeType
     );
     const pdfFileProps: FileProps[] = scannedFilesPdf.map((f) => ({
-      id: { source: this.sourceId, file: f.id },
+      id: {
+        source: this.sourceId,
+        file: driveItemIdToFileId(getDriveId(f), getItemId(f)),
+      },
       type: "pdf",
       title: undefined,
       author: undefined,
@@ -100,7 +108,10 @@ export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
       (f) => f.file.mimeType === epubMimeType
     );
     const epubFileProps: FileProps[] = scannedFilesEpub.map((f) => ({
-      id: { source: this.sourceId, file: f.id },
+      id: {
+        source: this.sourceId,
+        file: driveItemIdToFileId(getDriveId(f), getItemId(f)),
+      },
       type: "epub",
       title: undefined,
       author: undefined,
@@ -111,7 +122,6 @@ export class OneDriveBookSource implements BookSource<OneDriveDirectoryId> {
     }));
 
     const fileProps = [...pdfFileProps, ...epubFileProps];
-
     return ok(Object.fromEntries(fileProps.map((f) => [bookIdToStr(f.id), f])));
   }
 

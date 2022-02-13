@@ -10,7 +10,7 @@ export const filterObj = <V>(
 export const mapObj = <V, V2>(
   obj: Record<string, V>,
   converter: (key: string, value: V) => V2
-) => {
+): Record<string, V2> => {
   return Object.fromEntries(
     Object.entries(obj).map(([key, value]) => [key, converter(key, value)])
   );

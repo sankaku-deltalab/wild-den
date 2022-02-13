@@ -5,7 +5,7 @@ export const filePropsToBookProps = (
   now: string,
   file: FileProps
 ): BookProps => {
-  const title = file.title ?? "no title";
+  const title = file.title ?? file.fileName ?? "no title";
   const author = file.author ?? "";
   const tagsByPath = file.path ? file.path.split("/") : [];
   const tags = [...file.givenTags, ...tagsByPath];

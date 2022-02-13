@@ -18,7 +18,6 @@ export const getFolderChildrenRaw = async (
     while (true) {
       const r: FolderChildrenResult = await client.api(scanApi).get();
       values.push(...r.value);
-      console.log(r);
       if (!r["@odata.nextLink"]) break;
       scanApi = r["@odata.nextLink"];
     }

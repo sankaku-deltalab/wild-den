@@ -2,6 +2,7 @@ import { inject, injectable, singleton } from "tsyringe";
 import {
   BookProps,
   BookRecord,
+  filePropsToBookProps,
   LocalRepositoryConnectionError,
   OnlineSourceError,
   SourceId,
@@ -9,7 +10,7 @@ import {
 import { BookSource, LocalBookRepository } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
-import { DateUtil } from "../../util";
+import { DateUtil, mapObj } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
 import {
   BookSourceFactory,
@@ -88,7 +89,9 @@ export const scanBookOnSingleSource = async (
 
   // TODO: merge file (impl at core)
   const now = date.now();
-  const books = localProps.val;
+  const books = mapObj(onlineFiles.val, (key, f) =>
+    filePropsToBookProps(now, f)
+  );
 
   const [storeOnline, storeLocal] = await Promise.all([
     onlineDataRepo.val.storeBookProps(books),
