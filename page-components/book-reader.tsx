@@ -24,6 +24,8 @@ const modalStyle = {
   p: 4,
 };
 
+type Size2d = { height: number; width: number };
+
 const BookReader: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const readingBook = useAppSelector(selectReadingBook);
@@ -34,10 +36,9 @@ const BookReader: React.FC<{}> = () => {
   );
   const [menuOpened, setMenuOpened] = useState(false);
   const windowSize = useWindowSize();
-  const [originalPageSize, setOriginalPageSize] = useState({
-    height: 0,
-    width: 0,
-  });
+  const [originalPageSizes, setOriginalPageSizes] = useState<
+    Record<number, Size2d>
+  >({});
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -65,7 +66,9 @@ const BookReader: React.FC<{}> = () => {
     setPageNumber((v) => Math.max(v - 1, 1));
   };
 
-  const pageHeight = (): number => {
+  const pageHeight = (page: number): number => {
+    const originalPageSize = originalPageSizes[page];
+    if (originalPageSize === undefined) return 0;
     const vScale = windowSize.height / originalPageSize.height;
     const hScale = windowSize.width / originalPageSize.width;
     const scale = Math.min(vScale, hScale);
@@ -74,6 +77,8 @@ const BookReader: React.FC<{}> = () => {
 
   const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
   const bookProps = readingBook.err ? "" : readingBook.val.props;
+
+  const pages = [pageNumber - 1, pageNumber, pageNumber + 1];
 
   return (
     <>
@@ -94,16 +99,31 @@ const BookReader: React.FC<{}> = () => {
             cMapPacked: true,
           }}
         >
-          <Page
-            pageNumber={pageNumber}
-            height={pageHeight()}
-            onLoadSuccess={(p) =>
-              setOriginalPageSize({
-                height: p.originalHeight,
-                width: p.originalWidth,
-              })
-            }
-          />
+          {pages.map((i) => (
+            <span
+              key={i.toString()}
+              style={{
+                opacity: i === pageNumber ? 1 : 0,
+                position: "fixed",
+                transform: "translate(-50%, 0%)",
+              }}
+            >
+              <Page
+                key={i.toString()}
+                pageNumber={i}
+                height={pageHeight(i)}
+                onLoadSuccess={(p) => {
+                  setOriginalPageSizes((v) => ({
+                    [i]: {
+                      height: p.originalHeight,
+                      width: p.originalWidth,
+                    },
+                    ...v,
+                  }));
+                }}
+              />
+            </span>
+          ))}
         </Document>
       </div>
       <Grid
