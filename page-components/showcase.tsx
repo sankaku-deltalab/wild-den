@@ -16,15 +16,10 @@ const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const books = useAppSelector((state) => state.showcase.bookProps);
   const { accounts, instance: msalInstance } = useMsal();
-  const [testStr, setTestStr] = useState("not set");
 
   return (
     <>
       <div>
-        <Input
-          value={testStr}
-          onChange={(e) => setTestStr(e.target.value)}
-        ></Input>
         <UnauthenticatedTemplate>
           <h5 className="card-title">
             Please sign-in to see your profile information.
@@ -33,7 +28,9 @@ const Showcase: React.FC<{}> = () => {
           <Button onClick={() => loginToOneDrive.run()}>Login</Button>
         </UnauthenticatedTemplate>
         <AuthenticatedTemplate>
-          <div>{JSON.stringify(accounts)}</div>
+          <div>{`OneDrive Accounts: ${JSON.stringify(
+            accounts.map((a) => a.name)
+          )}`}</div>
 
           <div>
             <Button onClick={() => msalInstance.logoutRedirect()}>

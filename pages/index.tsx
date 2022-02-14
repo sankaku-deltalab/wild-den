@@ -21,7 +21,6 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <Link href={"/source/onedrive"}>Go OneDrive edit</Link>
         {isReading ? <BookReader /> : <Showcase />}
       </main>
     </div>
