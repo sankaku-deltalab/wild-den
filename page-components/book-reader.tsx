@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Grid, Modal, Box } from "@mui/material";
 import { pdfjs, Document, Page } from "react-pdf";
+import { useWindowSize } from "usehooks-ts";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   closeBook,
@@ -31,7 +32,12 @@ const BookReader: React.FC<{}> = () => {
   const [readDirection, setReadDirection] = useState<"toLeft" | "toRight">(
     "toRight"
   );
-  const [menuOpened, setMenuOpened] = useState(true);
+  const [menuOpened, setMenuOpened] = useState(false);
+  const windowSize = useWindowSize();
+  const [originalPageSize, setOriginalPageSize] = useState({
+    height: 0,
+    width: 0,
+  });
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -59,12 +65,26 @@ const BookReader: React.FC<{}> = () => {
     setPageNumber((v) => Math.max(v - 1, 1));
   };
 
+  const pageHeight = (): number => {
+    const vScale = windowSize.height / originalPageSize.height;
+    const hScale = windowSize.width / originalPageSize.width;
+    const scale = Math.min(vScale, hScale);
+    return Math.floor(originalPageSize.height * scale);
+  };
+
   const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
   const bookProps = readingBook.err ? "" : readingBook.val.props;
 
   return (
     <>
-      <div style={{ position: "fixed" }}>
+      <div
+        style={{
+          position: "fixed",
+          top: "0px",
+          left: "50%",
+          transform: "translate(-50%, 0%)",
+        }}
+      >
         <Document
           file={fileDataUri}
           onLoadSuccess={onDocumentLoadSuccess}
@@ -74,7 +94,16 @@ const BookReader: React.FC<{}> = () => {
             cMapPacked: true,
           }}
         >
-          <Page pageNumber={pageNumber} />
+          <Page
+            pageNumber={pageNumber}
+            height={pageHeight()}
+            onLoadSuccess={(p) =>
+              setOriginalPageSize({
+                height: p.originalHeight,
+                width: p.originalWidth,
+              })
+            }
+          />
         </Document>
       </div>
       <Grid
