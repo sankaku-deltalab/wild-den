@@ -75,6 +75,8 @@ const BookReader: React.FC<{}> = () => {
   const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
   const bookProps = readingBook.err ? "" : readingBook.val.props;
 
+  const pages = [pageNumber - 1, pageNumber, pageNumber + 1];
+
   return (
     <>
       <div
@@ -94,16 +96,29 @@ const BookReader: React.FC<{}> = () => {
             cMapPacked: true,
           }}
         >
-          <Page
-            pageNumber={pageNumber}
-            height={pageHeight()}
-            onLoadSuccess={(p) =>
-              setOriginalPageSize({
-                height: p.originalHeight,
-                width: p.originalWidth,
-              })
-            }
-          />
+          {pages.map((i) => (
+            <span
+              key={i.toString()}
+              style={{
+                opacity: i === pageNumber ? 1 : 0,
+                position: "fixed",
+                transform: "translate(-50%, 0%)",
+              }}
+            >
+              <Page
+                key={i.toString()}
+                pageNumber={i}
+                height={pageHeight()}
+                onLoadSuccess={(p) => {
+                  if (i !== pageNumber) return;
+                  setOriginalPageSize({
+                    height: p.originalHeight,
+                    width: p.originalWidth,
+                  });
+                }}
+              />
+            </span>
+          ))}
         </Document>
       </div>
       <Grid
