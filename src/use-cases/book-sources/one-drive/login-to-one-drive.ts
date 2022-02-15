@@ -20,6 +20,7 @@ export class LoginToOneDriveImpl implements LoginToOneDrive {
   async run(redirectUrl: string): Promise<AccountInfo[]> {
     const msalInstance = this.msalRepo.get();
     await msalInstance.loginRedirect({
+      redirectUri: redirectUrl,
       redirectStartPage: redirectUrl,
       scopes: msGraphScopes,
     });
