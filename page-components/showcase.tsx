@@ -25,7 +25,9 @@ const Showcase: React.FC<{}> = () => {
             Please sign-in to see your profile information.
           </h5>
           {/* TODO: Login with slice */}
-          <Button onClick={() => loginToOneDrive.run()}>Login</Button>
+          <Button onClick={() => loginToOneDrive.run(window.location.href)}>
+            Login
+          </Button>
         </UnauthenticatedTemplate>
         <AuthenticatedTemplate>
           <div>{`OneDrive Accounts: ${JSON.stringify(

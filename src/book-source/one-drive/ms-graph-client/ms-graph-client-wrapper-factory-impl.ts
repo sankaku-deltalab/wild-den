@@ -7,7 +7,10 @@ import {
   sourceNotAvailableError,
   SourceNotAvailableError,
 } from "../../../core";
-import { MsalInstanceType } from "../../../use-cases/book-sources/one-drive";
+import {
+  MsalInstanceType,
+  msGraphScopes,
+} from "../../../use-cases/book-sources/one-drive";
 import { MsGraphClientWrapperImpl } from "./ms-graph-client-wrapper-impl";
 import { getMsGraphClient } from "./get-ms-graph-client";
 import {
@@ -16,8 +19,6 @@ import {
 } from "../interfaces";
 import { msalInstanceAccountToSourceId } from "../util";
 import { err, Result, ok } from "../../../results";
-
-const msGraphScopes = ["Files.Read.All", "Files.ReadWrite.AppFolder"];
 
 @singleton()
 @injectable()

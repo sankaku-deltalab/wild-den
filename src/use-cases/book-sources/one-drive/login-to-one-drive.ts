@@ -3,8 +3,9 @@ import { AccountInfo } from "@azure/msal-browser";
 import type { FunctionClass } from "../../../function-class";
 import { injectTokens as it } from "../../../inject-tokens";
 import { MsalInstanceRepository } from "./interfaces/msal-instance-repository";
+import { msGraphScopes } from "./ms-graph-scopes";
 
-type LoginToOneDriveType = () => Promise<AccountInfo[]>;
+type LoginToOneDriveType = (redirectUrl: string) => Promise<AccountInfo[]>;
 
 export interface LoginToOneDrive extends FunctionClass<LoginToOneDriveType> {}
 
@@ -16,9 +17,12 @@ export class LoginToOneDriveImpl implements LoginToOneDrive {
     private readonly msalRepo: MsalInstanceRepository
   ) {}
 
-  async run(): Promise<AccountInfo[]> {
+  async run(redirectUrl: string): Promise<AccountInfo[]> {
     const msalInstance = this.msalRepo.get();
-    await msalInstance.loginPopup();
+    await msalInstance.loginRedirect({
+      redirectStartPage: redirectUrl,
+      scopes: msGraphScopes,
+    });
     return msalInstance.getAllAccounts();
   }
 }
