@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Button, Grid, Modal, Box } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Modal,
+  Box,
+  ToggleButtonGroup,
+  ToggleButton,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { pdfjs, Document, Page } from "react-pdf";
 import { useWindowSize } from "usehooks-ts";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
@@ -56,6 +64,10 @@ const BookReader: React.FC<{}> = () => {
   const goToLeft = () => {
     if (readDirection === "toLeft") goToNextPage();
     else goToPrevPage();
+  };
+
+  const toggleReadDirection = () => {
+    setReadDirection((prev) => (prev === "toLeft" ? "toRight" : "toLeft"));
   };
 
   const goToNextPage = () => {
@@ -139,6 +151,24 @@ const BookReader: React.FC<{}> = () => {
       <Modal open={menuOpened} onClose={() => setMenuOpened(false)}>
         <Box sx={modalStyle}>
           <div>{readingBook.err ? "" : readingBook.val.props.title}</div>
+          <div>
+            Direction:
+            <ToggleButtonGroup
+              size="small"
+              value={readDirection}
+              exclusive
+              onChange={(e, next) =>
+                next === null ? {} : setReadDirection(next)
+              }
+            >
+              <ToggleButton value="toLeft">
+                <ChevronLeft fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="toRight">
+                <ChevronRight fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </div>
           <div>
             Progress: {pageNumber} / {numPages}
           </div>
