@@ -76,7 +76,7 @@ export const showcaseSlice = createSlice({
     builder
       .addCase(readBookThunk.pending, (state, action) => {
         const { id } = action.meta.arg;
-        delete state.contentLoadState[bookIdToStr(id)];
+        state.contentLoadState[bookIdToStr(id)] = { elapsed: 0, total: 1 };
         state.status = "content loading";
       })
       .addCase(readBookThunk.fulfilled, (state, action) => {
