@@ -20,7 +20,6 @@ import {
 } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 import { DateTime, DateUtil } from "../../../util";
-import { BookSourceFactory } from "../interfaces";
 
 type LoadBookContentType = (
   id: BookId,
@@ -45,8 +44,8 @@ export class LoadBookContentImpl implements LoadBookContent {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
-    @inject(it.BookSourceFactory)
-    private readonly sourceFactory: BookSourceFactory,
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
@@ -98,12 +97,9 @@ export class LoadBookContentImpl implements LoadBookContent {
   ): Promise<
     Result<{ props: BookContentProps; data: DataUri }, OnlineBookAndSourceError>
   > {
-    const source = await this.sourceFactory.getBookSource(id.source);
-    if (source.err) return source;
-
     const now = this.date.now();
-    const loadedContent = await source.val.loadContent(
-      id.file,
+    const loadedContent = await this.bookSource.loadContent(
+      id,
       loadProgressCallback
     );
     if (loadedContent.err) return loadedContent;

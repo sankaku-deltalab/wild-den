@@ -1,9 +1,9 @@
 import { container } from "tsyringe";
-import { BookSourceFactoryImpl } from "./book-source/book-source-factory-impl";
+import { BookSourceImpl } from "./book-source/book-source-impl";
 import { MsGraphClientUtilImpl } from "./book-source/one-drive/ms-graph-client-util-impl";
 import { MsGraphClientWrapperFactoryImpl } from "./book-source/one-drive/ms-graph-client/ms-graph-client-wrapper-factory-impl";
 import { MsalInstanceRepositoryImpl } from "./book-source/one-drive/msal-instance-repository-impl";
-import { OneDriveBookSourceFactoryImpl } from "./book-source/one-drive/one-drive-book-source-factory-impl";
+import { OneDriveBookSourceImpl } from "./book-source/one-drive/one-drive-book-source-impl";
 import { OneDriveOnlineBookDataRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-factory-impl";
 import { OneDriveOnlineConfigRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-config-repository-factory-impl";
 import { OnlineBookDataRepositoryFactoryImpl } from "./book-source/online-book-data-repository-factory-impl";
@@ -23,8 +23,8 @@ export const injectionPairs: Record<string, ClassObject> = {
   [it.MsalInstanceRepository]: MsalInstanceRepositoryImpl,
   [it.MsGraphClientUtil]: MsGraphClientUtilImpl,
   [it.OnlineBookDataRepositoryFactory]: OnlineBookDataRepositoryFactoryImpl,
-  [it.BookSourceFactory]: BookSourceFactoryImpl,
-  [it.OneDriveBookSourceFactory]: OneDriveBookSourceFactoryImpl,
+  [it.BookSource]: BookSourceImpl,
+  [it.OneDriveBookSource]: OneDriveBookSourceImpl,
   [it.OnlineConfigRepositoryFactory]: OnlineConfigRepositoryFactoryImpl,
   [it.OneDriveOnlineBookDataRepository]:
     OneDriveOnlineBookDataRepositoryFactoryImpl,

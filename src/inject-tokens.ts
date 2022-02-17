@@ -5,8 +5,8 @@ export const injectTokens = {
   MsalInstanceRepository: "MsalInstanceRepository",
   MsGraphClientUtil: "MsGraphClientUtil",
   OnlineBookDataRepositoryFactory: "OnlineBookDataRepositoryFactory",
-  BookSourceFactory: "BookSourceFactory",
-  OneDriveBookSourceFactory: "OneDriveBookSourceFactory",
+  BookSource: "BookSource",
+  OneDriveBookSource: "OneDriveBookSource",
   OnlineConfigRepositoryFactory: "OnlineConfigRepositoryFactory",
   OneDriveOnlineBookDataRepository: "OneDriveOnlineBookDataRepository",
   OneDriveOnlineConfigRepositoryFactory:

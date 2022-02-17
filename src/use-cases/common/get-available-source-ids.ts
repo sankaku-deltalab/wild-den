@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from "tsyringe";
 import type { FunctionClass } from "../../function-class";
 import { SourceId } from "../../core";
 import { injectTokens as it } from "../../inject-tokens";
-import { BookSourceFactory } from "./interfaces";
+import { BookSource } from "../../core/interfaces";
 
 type GetAvailableSourceIdsType = () => Promise<SourceId[]>;
 
@@ -13,11 +13,11 @@ export interface GetAvailableSourceIds
 @injectable()
 export class GetAvailableSourceIdsImpl implements GetAvailableSourceIds {
   constructor(
-    @inject(it.BookSourceFactory)
-    private readonly bookSourceFactory: BookSourceFactory
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource
   ) {}
 
   async run() {
-    return await this.bookSourceFactory.getAllAvailableBookSourceIds();
+    return await this.bookSource.getAllAvailableBookSourceIds();
   }
 }

@@ -7,7 +7,6 @@ import {
   OnlineBookError,
   BookThumbnailProps,
   LocalRepositoryBookError,
-  bookNotExistsInSourceError,
 } from "../../../core";
 import { LocalBookRepository, BookSource } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
@@ -15,8 +14,7 @@ import { DateTime, DateUtil } from "../../../util";
 import { FileThumbnail } from "../../../core/interfaces";
 
 type LoadBookThumbnailType = (
-  id: BookId,
-  bookSources: BookSource[]
+  id: BookId
 ) => Promise<
   Result<
     { props: BookThumbnailProps; data: DataUri },
@@ -38,13 +36,14 @@ export class LoadBookThumbnailImpl implements LoadBookThumbnail {
   constructor(
     @inject(it.DateUtil)
     private readonly date: DateUtil,
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
   async run(
-    id: BookId,
-    bookSources: BookSource[]
+    id: BookId
   ): Promise<
     Result<
       { props: BookThumbnailProps; data: DataUri },
@@ -54,7 +53,7 @@ export class LoadBookThumbnailImpl implements LoadBookThumbnail {
     const localLoad = await this.loadLocalThumbnail(id);
     if (localLoad.ok) return localLoad;
 
-    const onlineLoad = await this.loadOnlineThumbnail(id, bookSources);
+    const onlineLoad = await this.loadOnlineThumbnail(id);
     if (onlineLoad.err) return onlineLoad;
 
     const storeToLocal = await this.localRepo.storeThumbnail(
@@ -84,17 +83,12 @@ export class LoadBookThumbnailImpl implements LoadBookThumbnail {
   }
 
   private async loadOnlineThumbnail(
-    id: BookId,
-    bookSources: BookSource[]
+    id: BookId
   ): Promise<
     Result<{ props: BookThumbnailProps; data: DataUri }, OnlineBookError>
   > {
-    const sources = bookSources.filter((s) => s.getSourceId() === id.source);
-    if (sources.length < 1) return err(bookNotExistsInSourceError(id));
-    const source = sources[0];
-
     const now = this.date.now();
-    const loadedThumbnail = await source.loadThumbnail(id.file);
+    const loadedThumbnail = await this.bookSource.loadThumbnail(id);
     if (loadedThumbnail.err) return loadedThumbnail;
 
     return ok(fileThumbnailToBookThumbnail(loadedThumbnail.val, now));

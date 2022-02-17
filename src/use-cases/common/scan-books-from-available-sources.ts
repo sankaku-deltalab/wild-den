@@ -5,16 +5,13 @@ import {
   LocalRepositoryConnectionError,
   OnlineSourceError,
 } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
+import { BookSource, LocalBookRepository } from "../../core/interfaces";
 import { Result, ok, isOk } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import {
-  BookSourceFactory,
-  OnlineBookDataRepositoryFactory,
-} from "./interfaces";
-import { scanBookOnSingleSource } from ".";
+import { OnlineBookDataRepositoryFactory } from "./interfaces";
+import { scanBookOnSingleSource } from "./scan-books-from-single-source";
 
 type ScanBooksFromSingleSourceType = () => Promise<
   Result<
@@ -44,19 +41,19 @@ export class ScanBooksFromAvailableSourcesImpl
     private readonly localRepo: LocalBookRepository,
     @inject(it.OnlineBookDataRepositoryFactory)
     private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
-    @inject(it.BookSourceFactory)
-    private readonly bookSourceFactory: BookSourceFactory
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource
   ) {}
 
   async run() {
-    const sources = await this.bookSourceFactory.getAllAvailableBookSourceIds();
+    const sources = await this.bookSource.getAllAvailableBookSourceIds();
 
     const booksArray = await Promise.all(
       sources.map((s) =>
         scanBookOnSingleSource(
           s,
           this.date,
-          this.bookSourceFactory,
+          this.bookSource,
           this.onlineBookRepoFactory,
           this.localRepo
         )
