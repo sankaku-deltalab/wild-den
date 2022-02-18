@@ -1,13 +1,14 @@
 import { container } from "tsyringe";
-import { BookSourceFactoryImpl } from "./book-source/book-source-factory-impl";
+import { BookSourceImpl } from "./book-source/book-source-impl";
 import { MsGraphClientUtilImpl } from "./book-source/one-drive/ms-graph-client-util-impl";
 import { MsGraphClientWrapperFactoryImpl } from "./book-source/one-drive/ms-graph-client/ms-graph-client-wrapper-factory-impl";
 import { MsalInstanceRepositoryImpl } from "./book-source/one-drive/msal-instance-repository-impl";
-import { OneDriveBookSourceFactoryImpl } from "./book-source/one-drive/one-drive-book-source-factory-impl";
-import { OneDriveOnlineBookDataRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-factory-impl";
-import { OneDriveOnlineConfigRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-config-repository-factory-impl";
-import { OnlineBookDataRepositoryFactoryImpl } from "./book-source/online-book-data-repository-factory-impl";
-import { OnlineConfigRepositoryFactoryImpl } from "./book-source/online-config-repository-factory-impl";
+import { OneDriveBookSourceImpl } from "./book-source/one-drive/one-drive-book-source-impl";
+import { OneDriveOnlineBookDataRepositoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-impl";
+import { OneDriveOnlineConfigRepositoryMock } from "./book-source/one-drive/one-drive-online-config-repository-mock";
+import { OnlineBookDataRepositoryImpl } from "./book-source/online-book-data-repository-impl";
+import { OnlineConfigRepositoryImpl } from "./book-source/online-config-repository-impl";
+
 import { injectTokens as it } from "./inject-tokens";
 import { LocalBookRepositoryMock } from "./local-book-repository";
 import { DateUtilImpl } from "./util";
@@ -22,14 +23,12 @@ export const injectionPairs: Record<string, ClassObject> = {
   [it.MsGraphClientWrapperFactory]: MsGraphClientWrapperFactoryImpl,
   [it.MsalInstanceRepository]: MsalInstanceRepositoryImpl,
   [it.MsGraphClientUtil]: MsGraphClientUtilImpl,
-  [it.OnlineBookDataRepositoryFactory]: OnlineBookDataRepositoryFactoryImpl,
-  [it.BookSourceFactory]: BookSourceFactoryImpl,
-  [it.OneDriveBookSourceFactory]: OneDriveBookSourceFactoryImpl,
-  [it.OnlineConfigRepositoryFactory]: OnlineConfigRepositoryFactoryImpl,
-  [it.OneDriveOnlineBookDataRepository]:
-    OneDriveOnlineBookDataRepositoryFactoryImpl,
-  [it.OneDriveOnlineConfigRepositoryFactory]:
-    OneDriveOnlineConfigRepositoryFactoryImpl,
+  [it.OnlineBookDataRepository]: OnlineBookDataRepositoryImpl,
+  [it.BookSource]: BookSourceImpl,
+  [it.OneDriveBookSource]: OneDriveBookSourceImpl,
+  [it.OnlineConfigRepository]: OnlineConfigRepositoryImpl,
+  [it.OneDriveOnlineBookDataRepository]: OneDriveOnlineBookDataRepositoryImpl,
+  [it.OneDriveOnlineConfigRepository]: OneDriveOnlineConfigRepositoryMock,
 };
 
 Object.entries(injectionPairs).forEach(([token, cls]) => {

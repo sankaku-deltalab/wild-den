@@ -11,7 +11,8 @@ export type OnlineBookError =
   | OfflineError
   | NotLoggedInError
   | BookNotExistsInSourceError
-  | SomethingWrongError;
+  | SomethingWrongError
+  | SourceNotAvailableError;
 
 export type OnlineSourceError =
   | OfflineError

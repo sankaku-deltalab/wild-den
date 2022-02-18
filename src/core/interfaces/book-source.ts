@@ -5,54 +5,59 @@ import {
   SourceId,
   BookId,
   BookType,
-  FileId,
   DataUri,
   BookRecord,
   DirectoryId,
   ScanTargetDirectory,
-  BookContentProps,
-  BookThumbnailProps,
 } from "../core-types";
+import { OnlineSourceError } from "..";
 
 /**
  * Interface of cloud storage like OneDrive, Dropbox and misc.
  * Download file and file props.
  */
-export interface BookSource<DirId extends DirectoryId = {}> {
-  getSourceId(): SourceId;
+export interface BookSource {
+  /**
+   * Get all available sources.
+   */
+  getAllAvailableBookSourceIds(): Promise<SourceId[]>;
 
   /**
    * Scan all target files and deal file props.
    * Contents and thumbnails are not dealt.
+   *
+   * @param source Target source id.
    */
-  scanAllFiles(): Promise<Result<BookRecord<FileProps>, CommonOnlineError>>;
+  scanAllFiles(
+    source: SourceId
+  ): Promise<Result<BookRecord<FileProps>, OnlineSourceError>>;
 
   /**
    * Load file content.
    *
-   * @param fileId Target file id.
+   * @param bookId Target book id.
    * @param loadProgressCallback Emit download progress.
    */
   loadContent(
-    fileId: FileId,
+    bookId: BookId,
     loadProgressCallback: LoadProgressCallback
   ): Promise<Result<FileContent, OnlineBookError>>;
 
   /**
    * Load file thumbnail.
    *
-   * @param fileId Target file id.
+   * @param bookId Target book id.
    */
   loadThumbnail(
-    fileId: FileId
+    bookId: BookId
   ): Promise<Result<FileThumbnail, OnlineBookError>>;
 
   /**
    * Load Top directories.
    */
-  loadTopDirectories(): Promise<
-    Result<ScanTargetDirectory<DirId>[], CommonOnlineError>
-  >;
+  loadTopDirectories(
+    source: SourceId
+  ): Promise<Result<ScanTargetDirectory[], CommonOnlineError>>;
 
   /**
    * Load children directories.
@@ -60,11 +65,13 @@ export interface BookSource<DirId extends DirectoryId = {}> {
    * @param parentDirId Parent directory.
    */
   loadChildrenDirectories(
-    parentDirId: DirId
-  ): Promise<Result<ScanTargetDirectory<DirId>[], OnlineBookError>>;
+    source: SourceId,
+    parentDirId: DirectoryId
+  ): Promise<Result<ScanTargetDirectory[], OnlineBookError>>;
 
   getDirectoryDisplayPath(
-    dirId: DirId
+    source: SourceId,
+    dirId: DirectoryId
   ): Promise<Result<string, OnlineBookError>>;
 }
 

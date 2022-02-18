@@ -5,16 +5,16 @@ import {
   LocalRepositoryConnectionError,
   OnlineSourceError,
 } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
+import {
+  BookSource,
+  LocalBookRepository,
+  OnlineBookDataRepository,
+} from "../../core/interfaces";
 import { Result, ok, isOk } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import {
-  BookSourceFactory,
-  OnlineBookDataRepositoryFactory,
-} from "./interfaces";
-import { scanBookOnSingleSource } from ".";
+import { scanBookOnSingleSource } from "./scan-books-from-single-source";
 
 type ScanBooksFromSingleSourceType = () => Promise<
   Result<
@@ -42,22 +42,22 @@ export class ScanBooksFromAvailableSourcesImpl
     @inject(it.DateUtil) private readonly date: DateUtil,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository,
-    @inject(it.OnlineBookDataRepositoryFactory)
-    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
-    @inject(it.BookSourceFactory)
-    private readonly bookSourceFactory: BookSourceFactory
+    @inject(it.OnlineBookDataRepository)
+    private readonly onlineBookRepository: OnlineBookDataRepository,
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource
   ) {}
 
   async run() {
-    const sources = await this.bookSourceFactory.getAllAvailableBookSourceIds();
+    const sources = await this.bookSource.getAllAvailableBookSourceIds();
 
     const booksArray = await Promise.all(
       sources.map((s) =>
         scanBookOnSingleSource(
           s,
           this.date,
-          this.bookSourceFactory,
-          this.onlineBookRepoFactory,
+          this.bookSource,
+          this.onlineBookRepository,
           this.localRepo
         )
       )

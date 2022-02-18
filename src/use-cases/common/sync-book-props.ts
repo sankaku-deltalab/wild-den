@@ -6,12 +6,14 @@ import {
   OnlineSourceError,
   SourceId,
 } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
+import {
+  LocalBookRepository,
+  OnlineBookDataRepository,
+} from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import { OnlineBookDataRepositoryFactory } from "./interfaces";
 
 type SyncBookPropsType = (
   sourceId: SourceId
@@ -37,18 +39,15 @@ export interface SyncBookProps extends FunctionClass<SyncBookPropsType> {}
 export class SyncBookPropsImpl implements SyncBookProps {
   constructor(
     @inject(it.DateUtil) private readonly date: DateUtil,
-    @inject(it.OnlineBookDataRepositoryFactory)
-    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
+    @inject(it.OnlineBookDataRepository)
+    private readonly onlineBookRepository: OnlineBookDataRepository,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
   async run(sourceId: SourceId) {
-    const onlineRepo = await this.onlineBookRepoFactory.getRepository(sourceId);
-    if (onlineRepo.err) return onlineRepo;
-
     const [onlineProps, localProps] = await Promise.all([
-      onlineRepo.val.loadStoredBookProps(),
+      this.onlineBookRepository.loadStoredBookProps(sourceId),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;

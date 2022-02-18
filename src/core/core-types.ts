@@ -81,7 +81,7 @@ export type BookThumbnailProps = {
 /**
  * Scan target directory for `BookSource`.
  */
-export type ScanTargetDirectory<DirId extends DirectoryId> = {
+export type ScanTargetDirectory<DirId extends DirectoryId = DirectoryId> = {
   displayPath: string;
   directoryId: DirId;
 };

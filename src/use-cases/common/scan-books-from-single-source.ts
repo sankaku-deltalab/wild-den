@@ -7,15 +7,15 @@ import {
   OnlineSourceError,
   SourceId,
 } from "../../core";
-import { BookSource, LocalBookRepository } from "../../core/interfaces";
+import {
+  BookSource,
+  LocalBookRepository,
+  OnlineBookDataRepository,
+} from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil, mapObj } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import {
-  BookSourceFactory,
-  OnlineBookDataRepositoryFactory,
-} from "./interfaces";
 
 type ScanBooksFromSingleSourceType = (
   sourceId: SourceId
@@ -45,18 +45,18 @@ export class ScanBooksFromSingleSourceImpl
     @inject(it.DateUtil) private readonly date: DateUtil,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository,
-    @inject(it.OnlineBookDataRepositoryFactory)
-    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
-    @inject(it.BookSourceFactory)
-    private readonly bookSourceFactory: BookSourceFactory
+    @inject(it.OnlineBookDataRepository)
+    private readonly onlineBookRepository: OnlineBookDataRepository,
+    @inject(it.BookSource)
+    private readonly bookSource: BookSource
   ) {}
 
   async run(sourceId: SourceId) {
     return scanBookOnSingleSource(
       sourceId,
       this.date,
-      this.bookSourceFactory,
-      this.onlineBookRepoFactory,
+      this.bookSource,
+      this.onlineBookRepository,
       this.localRepo
     );
   }
@@ -65,8 +65,8 @@ export class ScanBooksFromSingleSourceImpl
 export const scanBookOnSingleSource = async (
   sourceId: SourceId,
   date: DateUtil,
-  bookSourceFactory: BookSourceFactory,
-  onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
+  bookSource: BookSource,
+  onlineBookRepository: OnlineBookDataRepository,
   localRepo: LocalBookRepository
 ): Promise<
   Result<
@@ -74,14 +74,8 @@ export const scanBookOnSingleSource = async (
     OnlineSourceError | LocalRepositoryConnectionError
   >
 > => {
-  const source = await bookSourceFactory.getBookSource(sourceId);
-  if (source.err) return source;
-
-  const onlineDataRepo = await onlineBookRepoFactory.getRepository(sourceId);
-  if (onlineDataRepo.err) return onlineDataRepo;
-
   const [onlineFiles, localProps] = await Promise.all([
-    source.val.scanAllFiles(),
+    bookSource.scanAllFiles(sourceId),
     localRepo.loadAllBookProps(),
   ]);
   if (onlineFiles.err) return onlineFiles;
@@ -94,7 +88,7 @@ export const scanBookOnSingleSource = async (
   );
 
   const [storeOnline, storeLocal] = await Promise.all([
-    onlineDataRepo.val.storeBookProps(books),
+    onlineBookRepository.storeBookProps(sourceId, books),
     localRepo.resetBookPropsOfSource(sourceId, Object.values(books)),
   ]);
   if (storeOnline.err) return storeOnline;

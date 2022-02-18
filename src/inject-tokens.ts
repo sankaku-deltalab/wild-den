@@ -4,11 +4,10 @@ export const injectTokens = {
   MsGraphClientWrapperFactory: "MsGraphClientWrapperFactory",
   MsalInstanceRepository: "MsalInstanceRepository",
   MsGraphClientUtil: "MsGraphClientUtil",
-  OnlineBookDataRepositoryFactory: "OnlineBookDataRepositoryFactory",
-  BookSourceFactory: "BookSourceFactory",
-  OneDriveBookSourceFactory: "OneDriveBookSourceFactory",
-  OnlineConfigRepositoryFactory: "OnlineConfigRepositoryFactory",
+  OnlineBookDataRepository: "OnlineBookDataRepository",
+  BookSource: "BookSource",
+  OneDriveBookSource: "OneDriveBookSource",
+  OnlineConfigRepository: "OnlineConfigRepositoryFactory",
   OneDriveOnlineBookDataRepository: "OneDriveOnlineBookDataRepository",
-  OneDriveOnlineConfigRepositoryFactory:
-    "OneDriveOnlineConfigRepositoryFactory",
+  OneDriveOnlineConfigRepository: "OneDriveOnlineConfigRepositoryFactory",
 };

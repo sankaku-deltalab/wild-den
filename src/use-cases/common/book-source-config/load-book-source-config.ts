@@ -2,9 +2,11 @@ import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import { DirectoryId, SourceId, OnlineSourceError } from "../../../core";
-import { BookSourceConfig } from "../../../core/interfaces";
+import {
+  BookSourceConfig,
+  OnlineConfigRepository,
+} from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { OnlineConfigRepositoryFactory } from "../interfaces";
 
 type LoadBookSourceConfigType = <DirId extends DirectoryId>(
   sourceId: SourceId
@@ -20,15 +22,11 @@ export interface LoadBookSourceConfig
 @injectable()
 export class LoadBookSourceConfigImpl implements LoadBookSourceConfig {
   constructor(
-    @inject(it.OnlineConfigRepositoryFactory)
-    private readonly onlineConfigRepositoryFactory: OnlineConfigRepositoryFactory
+    @inject(it.OnlineConfigRepository)
+    private readonly onlineConfigRepository: OnlineConfigRepository
   ) {}
 
   async run(sourceId: SourceId) {
-    const configRepo = await this.onlineConfigRepositoryFactory.getRepository(
-      sourceId
-    );
-    if (configRepo.err) return configRepo;
-    return await configRepo.val.loadConfig();
+    return await this.onlineConfigRepository.loadConfig(sourceId);
   }
 }

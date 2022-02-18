@@ -6,12 +6,14 @@ import {
   BookRecord,
   OnlineSourceError,
 } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
+import {
+  LocalBookRepository,
+  OnlineBookDataRepository,
+} from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import { OnlineBookDataRepositoryFactory } from "./interfaces";
 
 type UpdateBookPropsType = (
   newBookProps: BookProps
@@ -32,24 +34,20 @@ export interface UpdateBookProps extends FunctionClass<UpdateBookPropsType> {}
 export class UpdateBookPropsImpl implements UpdateBookProps {
   constructor(
     @inject(it.DateUtil) private readonly date: DateUtil,
-    @inject(it.OnlineBookDataRepositoryFactory)
-    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
+    @inject(it.OnlineBookDataRepository)
+    private readonly onlineBookRepository: OnlineBookDataRepository,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository
   ) {}
 
   async run(newBookProps: BookProps) {
-    const onlineRepository = await this.onlineBookRepoFactory.getRepository(
-      newBookProps.id.source
-    );
-    if (onlineRepository.err) return onlineRepository;
-
+    const source = newBookProps.id.source;
     const newBookPropsObj = {
       [bookIdToStr(newBookProps.id)]: newBookProps,
     };
 
     const [onlineProps, localProps] = await Promise.all([
-      onlineRepository.val.loadStoredBookProps(),
+      this.onlineBookRepository.loadStoredBookProps(source),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;
@@ -57,7 +55,8 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
 
     const updatedLocalProps = Object.assign({}, localProps, newBookPropsObj);
     const [r1, r2] = await Promise.all([
-      onlineRepository.val.storeBookProps(
+      this.onlineBookRepository.storeBookProps(
+        source,
         Object.assign({}, onlineProps, newBookPropsObj)
       ),
       this.localRepo.storeAllBookProps(updatedLocalProps),
