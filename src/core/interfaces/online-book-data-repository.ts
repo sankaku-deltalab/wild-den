@@ -9,12 +9,12 @@ import { SourceId, BookProps, BookRecord } from "../core-types";
  * Prerequisite: Multiple device not store props at the same time.
  */
 export interface OnlineBookDataRepository {
-  getSourceId(): SourceId;
+  loadStoredBookProps(
+    source: SourceId
+  ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>>;
 
-  loadStoredBookProps(): Promise<
-    Result<BookRecord<BookProps>, CommonOnlineError>
-  >;
   storeBookProps(
+    source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>>;
 }

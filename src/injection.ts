@@ -4,10 +4,11 @@ import { MsGraphClientUtilImpl } from "./book-source/one-drive/ms-graph-client-u
 import { MsGraphClientWrapperFactoryImpl } from "./book-source/one-drive/ms-graph-client/ms-graph-client-wrapper-factory-impl";
 import { MsalInstanceRepositoryImpl } from "./book-source/one-drive/msal-instance-repository-impl";
 import { OneDriveBookSourceImpl } from "./book-source/one-drive/one-drive-book-source-impl";
-import { OneDriveOnlineBookDataRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-factory-impl";
+import { OneDriveOnlineBookDataRepositoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-impl";
 import { OneDriveOnlineConfigRepositoryFactoryImpl } from "./book-source/one-drive/one-drive-online-config-repository-factory-impl";
-import { OnlineBookDataRepositoryFactoryImpl } from "./book-source/online-book-data-repository-factory-impl";
+import { OnlineBookDataRepositoryImpl } from "./book-source/online-book-data-repository-impl";
 import { OnlineConfigRepositoryFactoryImpl } from "./book-source/online-config-repository-factory-impl";
+
 import { injectTokens as it } from "./inject-tokens";
 import { LocalBookRepositoryMock } from "./local-book-repository";
 import { DateUtilImpl } from "./util";
@@ -22,12 +23,11 @@ export const injectionPairs: Record<string, ClassObject> = {
   [it.MsGraphClientWrapperFactory]: MsGraphClientWrapperFactoryImpl,
   [it.MsalInstanceRepository]: MsalInstanceRepositoryImpl,
   [it.MsGraphClientUtil]: MsGraphClientUtilImpl,
-  [it.OnlineBookDataRepositoryFactory]: OnlineBookDataRepositoryFactoryImpl,
+  [it.OnlineBookDataRepository]: OnlineBookDataRepositoryImpl,
   [it.BookSource]: BookSourceImpl,
   [it.OneDriveBookSource]: OneDriveBookSourceImpl,
   [it.OnlineConfigRepositoryFactory]: OnlineConfigRepositoryFactoryImpl,
-  [it.OneDriveOnlineBookDataRepository]:
-    OneDriveOnlineBookDataRepositoryFactoryImpl,
+  [it.OneDriveOnlineBookDataRepository]: OneDriveOnlineBookDataRepositoryImpl,
   [it.OneDriveOnlineConfigRepositoryFactory]:
     OneDriveOnlineConfigRepositoryFactoryImpl,
 };

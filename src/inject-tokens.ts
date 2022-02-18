@@ -4,7 +4,7 @@ export const injectTokens = {
   MsGraphClientWrapperFactory: "MsGraphClientWrapperFactory",
   MsalInstanceRepository: "MsalInstanceRepository",
   MsGraphClientUtil: "MsGraphClientUtil",
-  OnlineBookDataRepositoryFactory: "OnlineBookDataRepositoryFactory",
+  OnlineBookDataRepository: "OnlineBookDataRepository",
   BookSource: "BookSource",
   OneDriveBookSource: "OneDriveBookSource",
   OnlineConfigRepositoryFactory: "OnlineConfigRepositoryFactory",

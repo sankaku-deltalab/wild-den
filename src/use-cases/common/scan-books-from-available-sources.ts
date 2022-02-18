@@ -5,12 +5,15 @@ import {
   LocalRepositoryConnectionError,
   OnlineSourceError,
 } from "../../core";
-import { BookSource, LocalBookRepository } from "../../core/interfaces";
+import {
+  BookSource,
+  LocalBookRepository,
+  OnlineBookDataRepository,
+} from "../../core/interfaces";
 import { Result, ok, isOk } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
-import { OnlineBookDataRepositoryFactory } from "./interfaces";
 import { scanBookOnSingleSource } from "./scan-books-from-single-source";
 
 type ScanBooksFromSingleSourceType = () => Promise<
@@ -39,8 +42,8 @@ export class ScanBooksFromAvailableSourcesImpl
     @inject(it.DateUtil) private readonly date: DateUtil,
     @inject(it.LocalBookRepository)
     private readonly localRepo: LocalBookRepository,
-    @inject(it.OnlineBookDataRepositoryFactory)
-    private readonly onlineBookRepoFactory: OnlineBookDataRepositoryFactory,
+    @inject(it.OnlineBookDataRepository)
+    private readonly onlineBookRepository: OnlineBookDataRepository,
     @inject(it.BookSource)
     private readonly bookSource: BookSource
   ) {}
@@ -54,7 +57,7 @@ export class ScanBooksFromAvailableSourcesImpl
           s,
           this.date,
           this.bookSource,
-          this.onlineBookRepoFactory,
+          this.onlineBookRepository,
           this.localRepo
         )
       )
