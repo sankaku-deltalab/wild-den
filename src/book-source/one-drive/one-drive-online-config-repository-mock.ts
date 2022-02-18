@@ -1,19 +1,23 @@
 import { Result, ok } from "../../results";
+import { injectTokens as it } from "../../inject-tokens";
 import { CommonOnlineError, SourceId } from "../../core";
 import {
   BookSourceConfig,
-  OnlineBookSourceConfigRepository,
+  OnlineConfigRepository,
 } from "../../core/interfaces";
 import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { DateUtil } from "../../util";
+import { inject, injectable, singleton } from "tsyringe";
 
+@singleton()
+@injectable()
 export class OneDriveOnlineConfigRepositoryMock
-  implements OnlineBookSourceConfigRepository<OneDriveDirectoryId>
+  implements OnlineConfigRepository
 {
   private config: BookSourceConfig<OneDriveDirectoryId>;
 
   constructor(
-    private readonly sourceId: SourceId,
+    @inject(it.DateUtil)
     private readonly date: DateUtil
   ) {
     this.config = {
@@ -23,17 +27,14 @@ export class OneDriveOnlineConfigRepositoryMock
     };
   }
 
-  getSourceId(): SourceId {
-    return this.sourceId;
-  }
-
-  async loadConfig(): Promise<
-    Result<BookSourceConfig<OneDriveDirectoryId>, CommonOnlineError>
-  > {
+  async loadConfig(
+    source: SourceId
+  ): Promise<Result<BookSourceConfig<OneDriveDirectoryId>, CommonOnlineError>> {
     return ok(this.config);
   }
 
   async storeConfig(
+    source: SourceId,
     config: BookSourceConfig<OneDriveDirectoryId>
   ): Promise<Result<void, CommonOnlineError>> {
     this.config = config;

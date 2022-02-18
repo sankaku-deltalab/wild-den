@@ -18,7 +18,7 @@ import {
   FileProps,
   FileThumbnail,
   LoadProgressCallback,
-  OnlineBookSourceConfigRepository,
+  OnlineConfigRepository,
 } from "../../core/interfaces";
 import {
   MsalInstanceType,
@@ -58,7 +58,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     private readonly clientUtil: MsGraphClientUtil,
     @inject(it.MsalInstanceRepository)
     msalRepo: MsalInstanceRepository,
-    private readonly configRepo: OnlineBookSourceConfigRepository<OneDriveDirectoryId>
+    private readonly configRepo: OnlineConfigRepository
   ) {
     this.msalInstance = msalRepo.get();
   }
@@ -87,7 +87,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     );
     if (client.err) return client;
 
-    const config = await this.configRepo.loadConfig();
+    const config = await this.configRepo.loadConfig(source);
     if (config.err) return config;
 
     const ignoreFolderNameSet = new Set(
@@ -107,7 +107,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
       scanRootDirectories.map(async (d) => {
         const r = await this.clientUtil.scanItemsUnderFolder(
           client.val,
-          d.directoryId,
+          d.directoryId as OneDriveDirectoryId,
           folderNameFilter
         );
         if (r.err) return [];
@@ -264,7 +264,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     );
     if (client.err) return client;
 
-    const config = await this.configRepo.loadConfig();
+    const config = await this.configRepo.loadConfig(source);
     if (config.err) return config;
 
     const ignoreFolderNameSet = new Set(

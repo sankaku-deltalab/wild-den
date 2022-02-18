@@ -1,9 +1,9 @@
+import { OnlineSourceError } from "..";
 import { Result } from "../../results";
 import { DateTime } from "../../util";
-import { CommonOnlineError } from "../common-error";
 import { SourceId, DirectoryId, ScanTargetDirectory } from "../core-types";
 
-export type BookSourceConfig<DirId extends DirectoryId> = {
+export type BookSourceConfig<DirId extends DirectoryId = DirectoryId> = {
   lastModifiedDate: DateTime;
   targetRootDirectories: ScanTargetDirectory<DirId>[];
   ignoreFolderNames: string[];
@@ -15,11 +15,13 @@ export type BookSourceConfig<DirId extends DirectoryId> = {
  *
  * Prerequisite: Multiple device not store props at the same time.
  */
-export interface OnlineBookSourceConfigRepository<DirId extends DirectoryId> {
-  getSourceId(): SourceId;
+export interface OnlineConfigRepository {
+  loadConfig(
+    source: SourceId
+  ): Promise<Result<BookSourceConfig, OnlineSourceError>>;
 
-  loadConfig(): Promise<Result<BookSourceConfig<DirId>, CommonOnlineError>>;
   storeConfig(
-    config: BookSourceConfig<DirId>
-  ): Promise<Result<void, CommonOnlineError>>;
+    source: SourceId,
+    config: BookSourceConfig
+  ): Promise<Result<void, OnlineSourceError>>;
 }
