@@ -53,11 +53,13 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
   private readonly msalInstance: MsalInstanceType;
 
   constructor(
+    @inject(it.MsGraphClientWrapperFactory)
     private readonly clientFactory: MsGraphClientWrapperFactory,
     @inject(it.MsGraphClientUtil)
     private readonly clientUtil: MsGraphClientUtil,
     @inject(it.MsalInstanceRepository)
     msalRepo: MsalInstanceRepository,
+    @inject(it.OnlineConfigRepository)
     private readonly configRepo: OnlineConfigRepository
   ) {
     this.msalInstance = msalRepo.get();
