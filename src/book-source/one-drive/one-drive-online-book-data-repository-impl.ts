@@ -33,7 +33,9 @@ export class OneDriveOnlineBookDataRepositoryImpl
     return ok(undefined);
   }
 
-  async storeBookProps(book: BookId): Promise<Result<void, OnlineBookError>> {
+  async storeBookProps(
+    props: BookProps
+  ): Promise<Result<void, OnlineBookError>> {
     return err(offlineError());
   }
 }
