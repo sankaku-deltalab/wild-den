@@ -10,7 +10,7 @@ import { OnlineBookDataRepositoryImpl } from "./book-source/online-book-data-rep
 import { OnlineConfigRepositoryImpl } from "./book-source/online-config-repository-impl";
 
 import { injectTokens as it } from "./inject-tokens";
-import { LocalBookRepositoryMock } from "./local-book-repository";
+import { DexieLocalBookRepository } from "./local-book-repository";
 import { DateUtilImpl } from "./util";
 
 type ClassObject = {
@@ -18,7 +18,7 @@ type ClassObject = {
 };
 
 export const injectionPairs: Record<string, ClassObject> = {
-  [it.LocalBookRepository]: LocalBookRepositoryMock,
+  [it.LocalBookRepository]: DexieLocalBookRepository,
   [it.DateUtil]: DateUtilImpl,
   [it.MsGraphClientWrapperFactory]: MsGraphClientWrapperFactoryImpl,
   [it.MsalInstanceRepository]: MsalInstanceRepositoryImpl,
