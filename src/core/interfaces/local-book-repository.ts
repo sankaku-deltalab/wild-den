@@ -43,6 +43,9 @@ export interface LocalBookRepository {
   storeAllBookProps(
     props: BookRecord<BookProps>
   ): Promise<Result<void, LocalRepositoryConnectionError>>;
+  storeBookProps(
+    props: BookProps
+  ): Promise<Result<void, LocalRepositoryConnectionError>>;
 
   loadAllContentProps(): Promise<
     Result<BookRecord<BookContentProps>, LocalRepositoryConnectionError>
