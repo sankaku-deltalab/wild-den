@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { List, ListItem, ListItemButton, Button, Input } from "@mui/material";
+import { useEffect } from "react";
+import { List, ListItem, ListItemButton, Button } from "@mui/material";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -7,6 +7,7 @@ import {
 } from "@azure/msal-react";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
+  loadInitialBookPropsThunk,
   scanBooksThunk,
   readBookThunk,
 } from "../redux-state/slices/showcase-slice";
@@ -19,6 +20,15 @@ const Showcase: React.FC<{}> = () => {
     (state) => state.showcase.contentLoadState
   );
   const { accounts, instance: msalInstance } = useMsal();
+
+  // run only first time
+  useEffect(() => {
+    const f = async () => {
+      dispatch(loadInitialBookPropsThunk({}));
+    };
+    f();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
