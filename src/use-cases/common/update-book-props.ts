@@ -47,7 +47,7 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
     };
 
     const [onlineProps, localProps] = await Promise.all([
-      this.onlineBookRepository.loadStoredBookProps(source),
+      this.onlineBookRepository.loadAllStoredBookProps(source),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;
@@ -55,7 +55,7 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
 
     const updatedLocalProps = Object.assign({}, localProps, newBookPropsObj);
     const [r1, r2] = await Promise.all([
-      this.onlineBookRepository.storeBookProps(
+      this.onlineBookRepository.resetBookPropsOfSource(
         source,
         Object.assign({}, onlineProps, newBookPropsObj)
       ),

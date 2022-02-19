@@ -88,7 +88,7 @@ export const scanBookOnSingleSource = async (
   );
 
   const [storeOnline, storeLocal] = await Promise.all([
-    onlineBookRepository.storeBookProps(sourceId, books),
+    onlineBookRepository.resetBookPropsOfSource(sourceId, books),
     localRepo.resetBookPropsOfSource(sourceId, Object.values(books)),
   ]);
   if (storeOnline.err) return storeOnline;

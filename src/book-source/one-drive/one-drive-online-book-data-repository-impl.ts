@@ -6,13 +6,13 @@ import { OnlineBookDataRepository } from "../../core/interfaces";
 export class OneDriveOnlineBookDataRepositoryImpl
   implements OnlineBookDataRepository
 {
-  async loadStoredBookProps(
+  async loadAllStoredBookProps(
     source: SourceId
   ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>> {
     return ok({});
   }
 
-  async storeBookProps(
+  async resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>> {

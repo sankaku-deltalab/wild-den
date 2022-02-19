@@ -13,16 +13,16 @@ export class OnlineBookDataRepositoryImpl implements OnlineBookDataRepository {
     private readonly oneDrive: OneDriveOnlineBookDataRepository
   ) {}
 
-  loadStoredBookProps(
+  loadAllStoredBookProps(
     source: SourceId
   ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>> {
-    return this.oneDrive.loadStoredBookProps(source);
+    return this.oneDrive.loadAllStoredBookProps(source);
   }
 
-  async storeBookProps(
+  async resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>> {
-    return this.oneDrive.storeBookProps(source, props);
+    return this.oneDrive.resetBookPropsOfSource(source, props);
   }
 }
