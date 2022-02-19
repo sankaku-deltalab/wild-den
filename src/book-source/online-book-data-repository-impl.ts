@@ -39,7 +39,7 @@ export class OnlineBookDataRepositoryImpl implements OnlineBookDataRepository {
     return this.oneDrive.resetBookPropsOfSource(source, props);
   }
 
-  storeBookProps(book: BookId): Promise<Result<void, OnlineBookError>> {
-    return this.oneDrive.storeBookProps(book);
+  storeBookProps(props: BookProps): Promise<Result<void, OnlineBookError>> {
+    return this.oneDrive.storeBookProps(props);
   }
 }

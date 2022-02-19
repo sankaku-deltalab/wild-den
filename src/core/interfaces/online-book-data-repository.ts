@@ -23,5 +23,5 @@ export interface OnlineBookDataRepository {
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>>;
 
-  storeBookProps(book: BookId): Promise<Result<void, OnlineBookError>>;
+  storeBookProps(props: BookProps): Promise<Result<void, OnlineBookError>>;
 }
