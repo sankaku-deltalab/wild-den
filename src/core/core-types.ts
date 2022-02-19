@@ -42,12 +42,22 @@ export type BookProps = {
   type: BookType;
   title: string;
   author: string;
+  autoTags: BookAutoTag[];
   editableTags: string[];
+  hiddenAutoTagNames: string[];
   hidden: boolean;
   lastReadDate: string;
   readingState: ReadingState;
   lastReadPage: number;
+  readDirection: ReadDirection;
 };
+
+export type BookAutoTag = {
+  type: string;
+  name: string;
+};
+
+export type ReadDirection = "toLeft" | "toRight";
 
 /**
  * Content of book like pdf.

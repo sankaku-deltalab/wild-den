@@ -1,3 +1,4 @@
+import { BookAutoTag } from ".";
 import { BookProps } from "./core-types";
 import { FileProps } from "./interfaces";
 
@@ -8,7 +9,10 @@ export const filePropsToBookProps = (
   const title = file.title ?? file.fileName ?? "no title";
   const author = file.author ?? "";
   const tagsByPath = file.path ? file.path.split("/") : [];
-  const tags = [...file.givenTags, ...tagsByPath];
+  const autoTags: BookAutoTag[] = file.givenTags.map((t) => ({
+    type: "fileGiven",
+    name: t,
+  }));
   return {
     id: file.id,
     lastModifiedDate: now,
@@ -16,10 +20,13 @@ export const filePropsToBookProps = (
     type: file.type,
     title,
     author,
-    editableTags: tags,
+    autoTags,
+    editableTags: tagsByPath,
+    hiddenAutoTagNames: [],
     hidden: false,
     lastReadDate: "",
     readingState: "new",
     lastReadPage: 1,
+    readDirection: "toRight",
   };
 };
