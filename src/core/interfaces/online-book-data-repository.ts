@@ -1,3 +1,4 @@
+import { BookId, OnlineBookError } from "..";
 import { Result } from "../../results";
 import { CommonOnlineError } from "../common-error";
 import { SourceId, BookProps, BookRecord } from "../core-types";
@@ -13,8 +14,14 @@ export interface OnlineBookDataRepository {
     source: SourceId
   ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>>;
 
+  loadStoredBookProps(
+    book: BookId
+  ): Promise<Result<BookProps, OnlineBookError>>;
+
   resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>>;
+
+  storeBookProps(book: BookId): Promise<Result<void, OnlineBookError>>;
 }

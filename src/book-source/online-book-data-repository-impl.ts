@@ -1,7 +1,14 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../inject-tokens";
 import { Result } from "../results";
-import { BookProps, BookRecord, CommonOnlineError, SourceId } from "../core";
+import {
+  BookId,
+  BookProps,
+  BookRecord,
+  CommonOnlineError,
+  OnlineBookError,
+  SourceId,
+} from "../core";
 import { OnlineBookDataRepository } from "../core/interfaces";
 import { OneDriveOnlineBookDataRepository } from "./interfaces";
 
@@ -19,10 +26,20 @@ export class OnlineBookDataRepositoryImpl implements OnlineBookDataRepository {
     return this.oneDrive.loadAllStoredBookProps(source);
   }
 
-  async resetBookPropsOfSource(
+  loadStoredBookProps(
+    book: BookId
+  ): Promise<Result<BookProps, OnlineBookError>> {
+    return this.oneDrive.loadStoredBookProps(book);
+  }
+
+  resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>> {
     return this.oneDrive.resetBookPropsOfSource(source, props);
+  }
+
+  storeBookProps(book: BookId): Promise<Result<void, OnlineBookError>> {
+    return this.oneDrive.storeBookProps(book);
   }
 }
