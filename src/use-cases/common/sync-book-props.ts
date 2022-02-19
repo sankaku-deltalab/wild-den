@@ -47,7 +47,7 @@ export class SyncBookPropsImpl implements SyncBookProps {
 
   async run(sourceId: SourceId) {
     const [onlineProps, localProps] = await Promise.all([
-      this.onlineBookRepository.loadStoredBookProps(sourceId),
+      this.onlineBookRepository.loadAllStoredBookProps(sourceId),
       this.localRepo.loadAllBookProps(),
     ]);
     if (onlineProps.err) return onlineProps;

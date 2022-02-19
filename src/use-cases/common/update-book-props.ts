@@ -1,10 +1,9 @@
 import { inject, injectable, singleton } from "tsyringe";
 import {
   BookProps,
-  LocalRepositoryConnectionError,
   bookIdToStr,
-  BookRecord,
-  OnlineSourceError,
+  OnlineBookError,
+  LocalRepositoryBookError,
 } from "../../core";
 import {
   LocalBookRepository,
@@ -17,12 +16,7 @@ import { injectTokens as it } from "../../inject-tokens";
 
 type UpdateBookPropsType = (
   newBookProps: BookProps
-) => Promise<
-  Result<
-    BookRecord<BookProps>,
-    OnlineSourceError | LocalRepositoryConnectionError
-  >
->;
+) => Promise<Result<BookProps, OnlineBookError | LocalRepositoryBookError>>;
 
 /**
  * Update book props and store it.
@@ -41,30 +35,29 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
   ) {}
 
   async run(newBookProps: BookProps) {
-    const source = newBookProps.id.source;
-    const newBookPropsObj = {
-      [bookIdToStr(newBookProps.id)]: newBookProps,
+    const book = newBookProps.id;
+    const props = {
+      date: this.date.now(),
+      ...newBookProps,
     };
 
     const [onlineProps, localProps] = await Promise.all([
-      this.onlineBookRepository.loadStoredBookProps(source),
-      this.localRepo.loadAllBookProps(),
+      this.onlineBookRepository.loadStoredBookProps(book),
+      this.localRepo.loadBookProps(book),
     ]);
     if (onlineProps.err) return onlineProps;
     if (localProps.err) return localProps;
 
-    const updatedLocalProps = Object.assign({}, localProps, newBookPropsObj);
     const [r1, r2] = await Promise.all([
-      this.onlineBookRepository.storeBookProps(
-        source,
-        Object.assign({}, onlineProps, newBookPropsObj)
-      ),
-      this.localRepo.storeAllBookProps(updatedLocalProps),
+      this.onlineBookRepository.storeBookProps(props),
+      this.localRepo.storeMultipleBookProps({
+        [bookIdToStr(book)]: props,
+      }),
     ]);
 
     if (r1.err) return r1;
     if (r2.err) return r2;
 
-    return ok(updatedLocalProps);
+    return ok(props);
   }
 }

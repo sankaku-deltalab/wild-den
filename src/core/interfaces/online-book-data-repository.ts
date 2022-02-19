@@ -1,3 +1,4 @@
+import { BookId, OnlineBookError } from "..";
 import { Result } from "../../results";
 import { CommonOnlineError } from "../common-error";
 import { SourceId, BookProps, BookRecord } from "../core-types";
@@ -9,12 +10,18 @@ import { SourceId, BookProps, BookRecord } from "../core-types";
  * Prerequisite: Multiple device not store props at the same time.
  */
 export interface OnlineBookDataRepository {
-  loadStoredBookProps(
+  loadAllStoredBookProps(
     source: SourceId
   ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>>;
 
-  storeBookProps(
+  loadStoredBookProps(
+    book: BookId
+  ): Promise<Result<BookProps, OnlineBookError>>;
+
+  resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
   ): Promise<Result<void, CommonOnlineError>>;
+
+  storeBookProps(props: BookProps): Promise<Result<void, OnlineBookError>>;
 }
