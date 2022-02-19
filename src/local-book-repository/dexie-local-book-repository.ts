@@ -155,33 +155,44 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     const props = allProps.filter((p) => sourceIdToStr(p.id.source) === sidStr);
 
     try {
-      await this.db.transaction("rw", this.db.bookProps, async (s) => {
-        const table = bookPropsTable(s);
-        await table.where("sourceIdStr").equals(sidStr).delete();
-        await table.bulkAdd(props.map(thingToRecord));
-        return ok(undefined);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookProps,
+        async (s) => {
+          const table = bookPropsTable(s);
+          await table.where("sourceIdStr").equals(sidStr).delete();
+          await table.bulkAdd(props.map(thingToRecord));
+          return ok(undefined);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadAllBookProps(): Promise<
     Result<BookRecord<BookProps>, LocalRepositoryConnectionError>
   > {
     try {
-      await this.db.transaction("rw", this.db.bookProps, async (s) => {
-        const table = bookPropsTable(s);
-        const records = await table.toArray();
-        return ok(records.map(bookPropsRecordToOriginal));
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookProps,
+        async (s) => {
+          const table = bookPropsTable(s);
+          const records = await table.toArray();
+          const props = records.map(bookPropsRecordToOriginal);
+          return ok(
+            Object.fromEntries(props.map((p) => [bookIdToStr(p.id), p]))
+          );
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadBookProps(
@@ -189,90 +200,116 @@ export class DexieLocalBookRepository implements LocalBookRepository {
   ): Promise<Result<BookProps, LocalRepositoryBookError>> {
     const idStr = bookIdToStr(id);
     try {
-      await this.db.transaction("rw", this.db.bookProps, async (s) => {
-        const table = bookPropsTable(s);
-        const rec = await table.where("idStr").equals(idStr).first();
-        if (rec === undefined)
-          return err(bookNotExistsInLocalRepositoryError(id));
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookProps,
+        async (s) => {
+          const table = bookPropsTable(s);
+          const rec = await table.where("idStr").equals(idStr).first();
+          if (rec === undefined)
+            return err(bookNotExistsInLocalRepositoryError(id));
 
-        return ok(bookPropsRecordToOriginal(rec));
-      });
+          return ok(bookPropsRecordToOriginal(rec));
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async storeMultipleBookProps(
     props: BookRecord<BookProps>
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
     try {
-      await this.db.transaction("rw", this.db.bookProps, async (s) => {
-        const table = bookPropsTable(s);
-        await table.bulkPut(Object.values(props).map(thingToRecord));
-        return ok(undefined);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookProps,
+        async (s) => {
+          const table = bookPropsTable(s);
+          await table.bulkPut(Object.values(props).map(thingToRecord));
+          return ok(undefined);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadAllContentProps(): Promise<
     Result<BookRecord<BookContentProps>, LocalRepositoryConnectionError>
   > {
     try {
-      await this.db.transaction("rw", this.db.bookContentProps, async (s) => {
-        const table = bookContentProps(s);
-        const records = await table.toArray();
-        const r = Object.fromEntries(
-          records.map((r) => [r.idStr, bookContentPropsRecordToOriginal(r)])
-        );
-        return ok(r);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookContentProps,
+        async (s) => {
+          const table = bookContentProps(s);
+          const records = await table.toArray();
+          const r = Object.fromEntries(
+            records.map((r) => [r.idStr, bookContentPropsRecordToOriginal(r)])
+          );
+          return ok(r);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadContentProps(
     id: BookId
   ): Promise<Result<BookContentProps, LocalRepositoryBookError>> {
     try {
-      await this.db.transaction("rw", this.db.bookContentProps, async (s) => {
-        const table = bookContentProps(s);
-        const rec = await table.where("idStr").equals(bookIdToStr(id)).first();
-        if (rec === undefined)
-          return err(bookNotExistsInLocalRepositoryError(id));
-        return ok(bookContentPropsRecordToOriginal(rec));
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookContentProps,
+        async (s) => {
+          const table = bookContentProps(s);
+          const rec = await table
+            .where("idStr")
+            .equals(bookIdToStr(id))
+            .first();
+          if (rec === undefined)
+            return err(bookNotExistsInLocalRepositoryError(id));
+          return ok(bookContentPropsRecordToOriginal(rec));
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadContentData(
     id: BookId
   ): Promise<Result<DataUri, LocalRepositoryBookError>> {
     try {
-      await this.db.transaction("rw", this.db.bookContentData, async (s) => {
-        const table = bookContentData(s);
-        const rec = await table.where("idStr").equals(bookIdToStr(id)).first();
-        if (rec === undefined)
-          return err(bookNotExistsInLocalRepositoryError(id));
-        return ok(rec.data);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookContentData,
+        async (s) => {
+          const table = bookContentData(s);
+          const rec = await table
+            .where("idStr")
+            .equals(bookIdToStr(id))
+            .first();
+          if (rec === undefined)
+            return err(bookNotExistsInLocalRepositoryError(id));
+          return ok(rec.data);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async storeContent(
@@ -280,7 +317,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     data: DataUri
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
     try {
-      await this.db.transaction(
+      const r = await this.db.transaction(
         "rw",
         this.db.bookContentProps,
         this.db.bookContentData,
@@ -295,18 +332,18 @@ export class DexieLocalBookRepository implements LocalBookRepository {
           return ok(undefined);
         }
       );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async deleteContent(
     id: BookId
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
     try {
-      await this.db.transaction(
+      const r = await this.db.transaction(
         "rw",
         this.db.bookContentProps,
         this.db.bookContentData,
@@ -321,66 +358,84 @@ export class DexieLocalBookRepository implements LocalBookRepository {
           return ok(undefined);
         }
       );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadAllThumbnailProps(): Promise<
     Result<BookRecord<BookThumbnailProps>, LocalRepositoryConnectionError>
   > {
     try {
-      await this.db.transaction("rw", this.db.bookThumbnailProps, async (s) => {
-        const table = bookThumbnailProps(s);
-        const records = await table.toArray();
-        const r = Object.fromEntries(
-          records.map((r) => [r.idStr, bookThumbnailPropsRecordToOriginal(r)])
-        );
-        return ok(r);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookThumbnailProps,
+        async (s) => {
+          const table = bookThumbnailProps(s);
+          const records = await table.toArray();
+          const r = Object.fromEntries(
+            records.map((r) => [r.idStr, bookThumbnailPropsRecordToOriginal(r)])
+          );
+          return ok(r);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadThumbnailProps(
     id: BookId
   ): Promise<Result<BookThumbnailProps, LocalRepositoryBookError>> {
     try {
-      await this.db.transaction("rw", this.db.bookThumbnailProps, async (s) => {
-        const table = bookThumbnailProps(s);
-        const rec = await table.where("idStr").equals(bookIdToStr(id)).first();
-        if (rec === undefined)
-          return err(bookNotExistsInLocalRepositoryError(id));
-        return ok(bookThumbnailPropsRecordToOriginal(rec));
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookThumbnailProps,
+        async (s) => {
+          const table = bookThumbnailProps(s);
+          const rec = await table
+            .where("idStr")
+            .equals(bookIdToStr(id))
+            .first();
+          if (rec === undefined)
+            return err(bookNotExistsInLocalRepositoryError(id));
+          return ok(bookThumbnailPropsRecordToOriginal(rec));
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async loadThumbnailData(
     id: BookId
   ): Promise<Result<DataUri, LocalRepositoryBookError>> {
     try {
-      await this.db.transaction("rw", this.db.bookThumbnailData, async (s) => {
-        const table = bookThumbnailData(s);
-        const rec = await table.where("idStr").equals(bookIdToStr(id)).first();
-        if (rec === undefined)
-          return err(bookNotExistsInLocalRepositoryError(id));
-        return ok(rec.data);
-      });
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookThumbnailData,
+        async (s) => {
+          const table = bookThumbnailData(s);
+          const rec = await table
+            .where("idStr")
+            .equals(bookIdToStr(id))
+            .first();
+          if (rec === undefined)
+            return err(bookNotExistsInLocalRepositoryError(id));
+          return ok(rec.data);
+        }
+      );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async storeThumbnail(
@@ -388,7 +443,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     data: DataUri
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
     try {
-      await this.db.transaction(
+      const r = await this.db.transaction(
         "rw",
         this.db.bookThumbnailProps,
         this.db.bookThumbnailData,
@@ -403,18 +458,18 @@ export class DexieLocalBookRepository implements LocalBookRepository {
           return ok(undefined);
         }
       );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 
   async deleteThumbnail(
     id: BookId
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
     try {
-      await this.db.transaction(
+      const r = await this.db.transaction(
         "rw",
         this.db.bookThumbnailProps,
         this.db.bookThumbnailData,
@@ -429,10 +484,10 @@ export class DexieLocalBookRepository implements LocalBookRepository {
           return ok(undefined);
         }
       );
+      return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
     }
-    return err(localRepositoryConnectionError("unknown"));
   }
 }
