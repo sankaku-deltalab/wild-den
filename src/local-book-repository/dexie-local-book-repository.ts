@@ -65,16 +65,16 @@ const bookPropsTable = (s: Transaction) =>
   s.table<BookPropsRecord, string>("bookProps");
 
 const bookContentProps = (s: Transaction) =>
-  s.table<BookContentPropsRecord, string>("bookProps");
+  s.table<BookContentPropsRecord, string>("bookContentProps");
 
 const bookThumbnailProps = (s: Transaction) =>
-  s.table<BookThumbnailPropsRecord, string>("bookProps");
+  s.table<BookThumbnailPropsRecord, string>("bookThumbnailProps");
 
 const bookContentData = (s: Transaction) =>
-  s.table<BookContentData, string>("bookProps");
+  s.table<BookContentData, string>("bookContentData");
 
 const bookThumbnailData = (s: Transaction) =>
-  s.table<BookThumbnailData, string>("bookProps");
+  s.table<BookThumbnailData, string>("bookThumbnailData");
 
 const bookPropsRecordToOriginal = (r: BookPropsRecord): BookProps => {
   return {
