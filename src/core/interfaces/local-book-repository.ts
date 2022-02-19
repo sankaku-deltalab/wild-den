@@ -40,11 +40,8 @@ export interface LocalBookRepository {
   loadBookProps(
     id: BookId
   ): Promise<Result<BookProps, LocalRepositoryBookError>>;
-  storeAllBookProps(
+  storeMultipleBookProps(
     props: BookRecord<BookProps>
-  ): Promise<Result<void, LocalRepositoryConnectionError>>;
-  storeBookProps(
-    props: BookProps
   ): Promise<Result<void, LocalRepositoryConnectionError>>;
 
   loadAllContentProps(): Promise<

@@ -59,7 +59,7 @@ export class UpdateBookPropsImpl implements UpdateBookProps {
         source,
         Object.assign({}, onlineProps, newBookPropsObj)
       ),
-      this.localRepo.storeAllBookProps(updatedLocalProps),
+      this.localRepo.storeMultipleBookProps(updatedLocalProps),
     ]);
 
     if (r1.err) return r1;

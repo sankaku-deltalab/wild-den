@@ -70,17 +70,10 @@ export class LocalBookRepositoryMock implements LocalBookRepository {
     return ok(this.bookProps[idStr]);
   }
 
-  async storeAllBookProps(
+  async storeMultipleBookProps(
     props: BookRecord<BookProps>
   ): Promise<Result<void, LocalRepositoryConnectionError>> {
-    this.bookProps = props;
-    return ok(undefined);
-  }
-
-  async storeBookProps(
-    props: BookProps
-  ): Promise<Result<void, LocalRepositoryConnectionError>> {
-    this.bookProps[bookIdToStr(props.id)] = props;
+    this.bookProps = Object.assign({}, this.bookProps, props);
     return ok(undefined);
   }
 
