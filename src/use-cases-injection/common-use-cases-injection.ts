@@ -1,6 +1,8 @@
 import { container } from "tsyringe";
 import "../injection";
 import {
+  ClearLocalRepository,
+  ClearLocalRepositoryImpl,
   DeleteBookContentFromLocal,
   DeleteBookContentFromLocalImpl,
   DeleteBookThumbnailFromLocal,
@@ -32,6 +34,10 @@ import {
   StoreBookSourceConfig,
   StoreBookSourceConfigImpl,
 } from "../use-cases/common/book-source-config/store-book-source-config";
+
+export const clearLocalRepository = container.resolve<ClearLocalRepository>(
+  ClearLocalRepositoryImpl
+);
 
 export const getAvailableSourceIds = container.resolve<GetAvailableSourceIds>(
   GetAvailableSourceIdsImpl

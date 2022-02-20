@@ -12,6 +12,7 @@ import {
   readBookThunk,
 } from "../redux-state/slices/showcase-slice";
 import { loginToOneDrive } from "../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
+import { clearLocalRepository } from "../src/use-cases-injection/common-use-cases-injection";
 
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
@@ -53,6 +54,12 @@ const Showcase: React.FC<{}> = () => {
             </Button>
           </div>
         </AuthenticatedTemplate>
+      </div>
+      <div>
+        {/* TODO: run with slice */}
+        <Button onClick={() => clearLocalRepository.run()}>
+          Clear local repository
+        </Button>
       </div>
       {[...Object.keys(loadingState)].length === 0 ? undefined : (
         <div>
