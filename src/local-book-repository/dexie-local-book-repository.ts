@@ -316,7 +316,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
         return err(
           localRepositoryConnectionError("content data part is incorrect")
         );
-      const contentData = parts.map((p) => p.dataPart).join();
+      const contentData = parts.map((p) => p.dataPart).join("");
       return ok(contentData);
     };
 
