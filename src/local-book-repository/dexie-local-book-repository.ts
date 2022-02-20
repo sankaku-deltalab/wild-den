@@ -222,7 +222,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookProps, f);
+      const r = await this.db.transaction("r", this.db.bookProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -244,7 +244,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookProps, f);
+      const r = await this.db.transaction("r", this.db.bookProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -283,7 +283,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookContentProps, f);
+      const r = await this.db.transaction("r", this.db.bookContentProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -303,7 +303,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookContentProps, f);
+      const r = await this.db.transaction("r", this.db.bookContentProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -334,7 +334,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
 
     try {
       const r = await this.db.transaction(
-        "rw",
+        "r",
         this.db.bookContentData,
         this.db.bookContentDataPart,
         f
@@ -427,7 +427,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookThumbnailProps, f);
+      const r = await this.db.transaction("r", this.db.bookThumbnailProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -447,7 +447,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookThumbnailProps, f);
+      const r = await this.db.transaction("r", this.db.bookThumbnailProps, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -467,7 +467,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookThumbnailData, f);
+      const r = await this.db.transaction("r", this.db.bookThumbnailData, f);
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
