@@ -178,4 +178,12 @@ export const selectReadingBook = (
   return ok(val);
 };
 
+export const selectSortedBookProps = (
+  state: RootState
+): [BookIdStr, BookProps][] => {
+  return Object.entries(state.showcase.bookProps).sort(([aKey, a], [bKey, b]) =>
+    a.title.localeCompare(b.title)
+  );
+};
+
 export default showcaseSlice.reducer;

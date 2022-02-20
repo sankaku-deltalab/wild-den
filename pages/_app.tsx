@@ -5,6 +5,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { Provider } from "react-redux";
 import { MsalProvider } from "@azure/msal-react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { store } from "../redux-state";
 import "../src/use-cases-injection/common-use-cases-injection";
 import "../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
@@ -12,11 +13,22 @@ import { getMsalInstance } from "../src/use-cases-injection/book-sources/onedriv
 
 const msalInstance = getMsalInstance.run();
 
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#1976d2",
+    },
+  },
+});
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <MsalProvider instance={msalInstance}>
       <Provider store={store}>
-        <Component {...pageProps} />
+        <ThemeProvider theme={darkTheme}>
+          <Component {...pageProps} />
+        </ThemeProvider>
       </Provider>
     </MsalProvider>
   );
