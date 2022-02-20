@@ -1,5 +1,6 @@
 import { injectable, singleton } from "tsyringe";
 import Dexie, { Transaction } from "dexie";
+import { v4 as uuidv4 } from "uuid";
 import { Result, ok, err } from "../results";
 import {
   BookProps,
@@ -39,7 +40,12 @@ const thingToRecord = <T extends { id: BookId }>(v: T): BookIdReplaced<T> => {
 type BookPropsRecord = BookIdReplaced<BookProps>;
 type BookContentPropsRecord = BookIdReplaced<BookContentProps>;
 type BookThumbnailPropsRecord = BookIdReplaced<BookThumbnailProps>;
-type BookContentData = { idStr: BookIdStr; data: DataUri };
+type BookContentData = { idStr: BookIdStr; parts: string[] };
+type BookContentDataPart = {
+  id: string;
+  bookIdStr: BookIdStr;
+  dataPart: DataUri;
+};
 type BookThumbnailData = { idStr: BookIdStr; data: DataUri };
 
 class LocalBookRepositoryDatabase extends Dexie {
@@ -47,15 +53,17 @@ class LocalBookRepositoryDatabase extends Dexie {
   bookContentProps!: Dexie.Table<BookContentPropsRecord, string>;
   bookThumbnailProps!: Dexie.Table<BookThumbnailPropsRecord, string>;
   bookContentData!: Dexie.Table<BookContentData, string>;
+  bookContentDataPart!: Dexie.Table<BookContentDataPart, string>;
   bookThumbnailData!: Dexie.Table<BookThumbnailData, string>;
 
   constructor() {
     super("WildDenDatabase");
-    this.version(1).stores({
+    this.version(2).stores({
       bookProps: "idStr, sourceIdStr",
       bookContentProps: "idStr, sourceIdStr",
       bookThumbnailProps: "idStr, sourceIdStr",
       bookContentData: "idStr, sourceIdStr",
+      bookContentDataPart: "id, bookIdStr",
       bookThumbnailData: "idStr, sourceIdStr",
     });
   }
@@ -72,6 +80,9 @@ const bookThumbnailProps = (s: Transaction) =>
 
 const bookContentData = (s: Transaction) =>
   s.table<BookContentData, string>("bookContentData");
+
+const bookContentDataPart = (s: Transaction) =>
+  s.table<BookContentDataPart, string>("bookContentDataPart");
 
 const bookThumbnailData = (s: Transaction) =>
   s.table<BookThumbnailData, string>("bookThumbnailData");
@@ -116,6 +127,22 @@ const bookThumbnailPropsRecordToOriginal = (
     lastFileModifiedDate: r.lastFileModifiedDate,
     fileSizeByte: r.fileSizeByte,
   };
+};
+
+const splitData = (original: DataUri): string[] => {
+  // https://stackoverflow.com/questions/10474992/split-a-javascript-string-into-fixed-length-pieces
+  const maxDataLen = 2 ** 20; // 1MiB
+  const re = new RegExp(`(.{1,${maxDataLen}})`, "g");
+  const parts = original.match(re);
+  if (parts === null) throw new Error("splitData error");
+  return parts;
+};
+
+const arrayIsNotUndefined = <T>(v: (T | undefined)[]): v is T[] => {
+  for (const e of v) {
+    if (e === undefined) return false;
+  }
+  return true;
 };
 
 @singleton()
@@ -276,15 +303,30 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     id: BookId
   ): Promise<Result<DataUri, LocalRepositoryBookError>> {
     const f = async (s: Transaction) => {
-      const table = bookContentData(s);
-      const rec = await table.where("idStr").equals(bookIdToStr(id)).first();
-      if (rec === undefined)
+      const dataTable = bookContentData(s);
+      const partTable = bookContentDataPart(s);
+      const contentRec = await dataTable
+        .where("idStr")
+        .equals(bookIdToStr(id))
+        .first();
+      if (contentRec === undefined)
         return err(bookNotExistsInLocalRepositoryError(id));
-      return ok(rec.data);
+      const parts = await partTable.bulkGet(contentRec.parts);
+      if (!arrayIsNotUndefined(parts))
+        return err(
+          localRepositoryConnectionError("content data part is incorrect")
+        );
+      const contentData = parts.map((p) => p.dataPart).join();
+      return ok(contentData);
     };
 
     try {
-      const r = await this.db.transaction("rw", this.db.bookContentData, f);
+      const r = await this.db.transaction(
+        "rw",
+        this.db.bookContentData,
+        this.db.bookContentDataPart,
+        f
+      );
       return r;
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
@@ -299,10 +341,20 @@ export class DexieLocalBookRepository implements LocalBookRepository {
     const f = async (s: Transaction) => {
       const propsTable = bookContentProps(s);
       const dataTable = bookContentData(s);
+      const dataPartTable = bookContentDataPart(s);
       const idStr = bookIdToStr(props.id);
+      const dataParts = splitData(data);
+      const dataPartRecords = dataParts.map((p) => ({
+        id: uuidv4(),
+        bookIdStr: idStr,
+        dataPart: p,
+      }));
+      const dataIds = dataPartRecords.map((r) => r.id);
+      await dataPartTable.where("bookIdStr").equals(idStr).delete();
       await Promise.all([
         propsTable.put(thingToRecord(props)),
-        dataTable.put({ idStr, data }),
+        dataTable.put({ idStr, parts: dataIds }),
+        dataPartTable.bulkPut(dataPartRecords),
       ]);
       return ok(undefined);
     };
@@ -312,6 +364,7 @@ export class DexieLocalBookRepository implements LocalBookRepository {
         "rw",
         this.db.bookContentProps,
         this.db.bookContentData,
+        this.db.bookContentDataPart,
         f
       );
       return r;
