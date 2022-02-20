@@ -157,12 +157,24 @@ export class DexieLocalBookRepository implements LocalBookRepository {
         bookContentProps(s).clear(),
         bookThumbnailProps(s).clear(),
         bookContentData(s).clear(),
+        bookContentDataPart(s).clear(),
         bookThumbnailData(s).clear(),
       ]);
     };
 
     try {
-      await this.db.transaction("rw", this.db.bookProps, f);
+      await this.db.transaction(
+        "rw",
+        [
+          this.db.bookProps,
+          this.db.bookContentProps,
+          this.db.bookThumbnailProps,
+          this.db.bookContentData,
+          this.db.bookContentDataPart,
+          this.db.bookThumbnailData,
+        ],
+        f
+      );
     } catch (e) {
       const message = e instanceof Error ? e.message : "unknown dexie error";
       return err(localRepositoryConnectionError(message));
