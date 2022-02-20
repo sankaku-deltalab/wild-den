@@ -6,6 +6,7 @@ import {
   Box,
   ToggleButtonGroup,
   ToggleButton,
+  Card,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { pdfjs, Document, Page } from "react-pdf";
@@ -66,10 +67,6 @@ const BookReader: React.FC<{}> = () => {
     else goToPrevPage();
   };
 
-  const toggleReadDirection = () => {
-    setReadDirection((prev) => (prev === "toLeft" ? "toRight" : "toLeft"));
-  };
-
   const goToNextPage = () => {
     setPageNumber((v) => Math.min(v + 1, numPages));
   };
@@ -90,10 +87,26 @@ const BookReader: React.FC<{}> = () => {
   const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
   const bookProps = readingBook.err ? "" : readingBook.val.props;
 
-  const pages = [pageNumber - 1, pageNumber, pageNumber + 1];
+  const pages = [pageNumber - 1, pageNumber, pageNumber + 1].filter(
+    (v) => 1 <= v && v <= numPages
+  );
+
+  const pageSenderElement = (
+    <Grid
+      style={{ position: "fixed", height: "100vh" }}
+      sx={{ flexGrow: 1 }}
+      container
+      spacing={0}
+    >
+      <Grid item xs={4} onClick={goToLeft}></Grid>
+      <Grid item xs={4} onClick={toggleMenu}></Grid>
+      <Grid item xs={4} onClick={goToRight}></Grid>
+    </Grid>
+  );
 
   return (
     <>
+      <Card sx={{ width: "100vw", height: "100vh" }}></Card>
       <div
         style={{
           position: "fixed",
@@ -138,18 +151,9 @@ const BookReader: React.FC<{}> = () => {
           ))}
         </Document>
       </div>
-      <Grid
-        style={{ position: "fixed", height: "100vh" }}
-        sx={{ flexGrow: 1 }}
-        container
-        spacing={0}
-      >
-        <Grid item xs={4} onClick={goToLeft}></Grid>
-        <Grid item xs={4} onClick={toggleMenu}></Grid>
-        <Grid item xs={4} onClick={goToRight}></Grid>
-      </Grid>
+      {pageSenderElement}
       <Modal open={menuOpened} onClose={() => setMenuOpened(false)}>
-        <Box sx={modalStyle}>
+        <Card sx={modalStyle}>
           <div>{readingBook.err ? "" : readingBook.val.props.title}</div>
           <div>
             Direction:
@@ -173,7 +177,7 @@ const BookReader: React.FC<{}> = () => {
             Progress: {pageNumber} / {numPages}
           </div>
           <Button onClick={() => dispatch(closeBook())}>Close Book</Button>
-        </Box>
+        </Card>
       </Modal>
     </>
   );
