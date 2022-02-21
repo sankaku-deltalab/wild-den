@@ -4,8 +4,10 @@ import {
   BookRecord,
   filePropsToBookProps,
   LocalRepositoryConnectionError,
+  mergeScannedFilesAndLoadedBooks,
   OnlineSourceError,
   SourceId,
+  syncBookProps,
 } from "../../core";
 import {
   BookSource,
@@ -66,7 +68,7 @@ export const scanBookOnSingleSource = async (
   sourceId: SourceId,
   date: DateUtil,
   bookSource: BookSource,
-  onlineBookRepository: OnlineBookDataRepository,
+  onlineRepo: OnlineBookDataRepository,
   localRepo: LocalBookRepository
 ): Promise<
   Result<
@@ -74,21 +76,24 @@ export const scanBookOnSingleSource = async (
     OnlineSourceError | LocalRepositoryConnectionError
   >
 > => {
-  const [onlineFiles, localProps] = await Promise.all([
+  const [onlineFiles, localProps, onlineProps] = await Promise.all([
     bookSource.scanAllFiles(sourceId),
     localRepo.loadAllBookProps(),
+    onlineRepo.loadAllStoredBookProps(sourceId),
   ]);
   if (onlineFiles.err) return onlineFiles;
   if (localProps.err) return localProps;
+  if (onlineProps.err) return onlineProps;
 
-  // TODO: merge file (impl at core)
   const now = date.now();
-  const books = mapObj(onlineFiles.val, (key, f) =>
-    filePropsToBookProps(now, f)
+  const books = mergeScannedFilesAndLoadedBooks(
+    now,
+    onlineFiles.val,
+    syncBookProps(localProps.val, onlineProps.val)
   );
 
   const [storeOnline, storeLocal] = await Promise.all([
-    onlineBookRepository.resetBookPropsOfSource(sourceId, books),
+    onlineRepo.resetBookPropsOfSource(sourceId, books),
     localRepo.resetBookPropsOfSource(sourceId, Object.values(books)),
   ]);
   if (storeOnline.err) return storeOnline;

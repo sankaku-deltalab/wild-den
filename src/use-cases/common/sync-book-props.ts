@@ -5,6 +5,7 @@ import {
   LocalRepositoryConnectionError,
   OnlineSourceError,
   SourceId,
+  syncBookProps,
 } from "../../core";
 import {
   LocalBookRepository,
@@ -53,10 +54,18 @@ export class SyncBookPropsImpl implements SyncBookProps {
     if (onlineProps.err) return onlineProps;
     if (localProps.err) return localProps;
 
-    // TODO: merge props (impl at core)
-    const now = this.date.now();
-    const books = Object.assign({}, localProps.val, onlineProps.val);
+    const syncedBooks = syncBookProps(localProps.val, onlineProps.val);
 
-    return ok(books);
+    const [storeOnline, storeLocal] = await Promise.all([
+      this.onlineBookRepository.resetBookPropsOfSource(sourceId, syncedBooks),
+      this.localRepo.resetBookPropsOfSource(
+        sourceId,
+        Object.values(syncedBooks)
+      ),
+    ]);
+    if (storeOnline.err) return storeOnline;
+    if (storeLocal.err) return storeLocal;
+
+    return ok(syncedBooks);
   }
 }
