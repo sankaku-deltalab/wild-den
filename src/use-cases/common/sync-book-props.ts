@@ -5,6 +5,7 @@ import {
   LocalRepositoryConnectionError,
   OnlineSourceError,
   SourceId,
+  syncBookProps,
 } from "../../core";
 import {
   LocalBookRepository,
@@ -53,10 +54,6 @@ export class SyncBookPropsImpl implements SyncBookProps {
     if (onlineProps.err) return onlineProps;
     if (localProps.err) return localProps;
 
-    // TODO: merge props (impl at core)
-    const now = this.date.now();
-    const books = Object.assign({}, localProps.val, onlineProps.val);
-
-    return ok(books);
+    return ok(syncBookProps(localProps.val, onlineProps.val));
   }
 }
