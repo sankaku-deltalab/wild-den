@@ -54,6 +54,18 @@ export class SyncBookPropsImpl implements SyncBookProps {
     if (onlineProps.err) return onlineProps;
     if (localProps.err) return localProps;
 
-    return ok(syncBookProps(localProps.val, onlineProps.val));
+    const syncedBooks = syncBookProps(localProps.val, onlineProps.val);
+
+    const [storeOnline, storeLocal] = await Promise.all([
+      this.onlineBookRepository.resetBookPropsOfSource(sourceId, syncedBooks),
+      this.localRepo.resetBookPropsOfSource(
+        sourceId,
+        Object.values(syncedBooks)
+      ),
+    ]);
+    if (storeOnline.err) return storeOnline;
+    if (storeLocal.err) return storeLocal;
+
+    return ok(syncedBooks);
   }
 }
