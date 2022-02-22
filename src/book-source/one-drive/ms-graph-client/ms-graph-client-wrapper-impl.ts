@@ -11,6 +11,7 @@ import {
   downloadItemAsDataUri,
   downloadThumbnailAsDataUri,
   getFolderChildren,
+  getFolderChildrenFromAppFolder,
   getItem,
   getTopMyItems,
   getTopSharedItems,
@@ -87,5 +88,12 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     content: string
   ): Promise<Result<DriveItemAsFile, OneDriveItemError>> {
     return await putSmallTextToAppRoot(this.client, folders, fileName, content);
+  }
+
+  async getFolderChildrenFromAppFolder(
+    folders: string[],
+    fileName: string
+  ): Promise<Result<DriveItem[], OneDriveItemError>> {
+    return await getFolderChildrenFromAppFolder(this.client, folders, fileName);
   }
 }
