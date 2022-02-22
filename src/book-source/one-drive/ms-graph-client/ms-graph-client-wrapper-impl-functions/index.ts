@@ -6,3 +6,4 @@ export * from "./get-item";
 export * from "./get-top-my-items";
 export * from "./get-top-shared-items";
 export * from "./post-folder-to-app-root";
+export * from "./put-small-text-to-app-root";

@@ -5,6 +5,7 @@ export type MsGraphClientType = {
 export type GraphRequestType = {
   get<T>(): Promise<T>;
   post<T, C>(content: C): Promise<T>;
+  put<T, C>(content: C): Promise<T>;
 };
 
 export type DriveItem = DriveItemAsFolder | DriveItemAsFile;

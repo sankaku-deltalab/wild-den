@@ -18,6 +18,7 @@ import {
 } from "./ms-graph-client-wrapper-impl-functions";
 import { OneDriveItemError } from "../one-drive-error";
 import { MsGraphClientWrapper } from "../interfaces";
+import { putSmallTextToAppRoot } from "./ms-graph-client-wrapper-impl-functions/put-small-text-to-app-root";
 
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   constructor(private readonly client: MsGraphClientType) {}
@@ -78,5 +79,13 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
     folderName: string
   ): Promise<Result<DriveItemAsFolder, OneDriveItemError>> {
     return await postFolderToAppRoot(this.client, folderName);
+  }
+
+  async putSmallTextToAppRoot(
+    folders: string[],
+    fileName: string,
+    content: string
+  ): Promise<Result<DriveItemAsFile, OneDriveItemError>> {
+    return await putSmallTextToAppRoot(this.client, folders, fileName, content);
   }
 }
