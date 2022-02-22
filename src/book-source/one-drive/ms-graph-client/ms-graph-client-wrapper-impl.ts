@@ -1,7 +1,12 @@
 import { Result } from "../../../results";
 import { CommonOnlineError, DataUri } from "../../../core";
 import { LoadProgressCallback } from "../../../core/interfaces";
-import type { DriveItem, MsGraphClientType, DriveItemAsFile } from "../types";
+import type {
+  DriveItem,
+  MsGraphClientType,
+  DriveItemAsFile,
+  DriveItemAsFolder,
+} from "../types";
 import {
   downloadItemAsDataUri,
   downloadThumbnailAsDataUri,
@@ -9,6 +14,7 @@ import {
   getItem,
   getTopMyItems,
   getTopSharedItems,
+  postFolderToAppRoot,
 } from "./ms-graph-client-wrapper-impl-functions";
 import { OneDriveItemError } from "../one-drive-error";
 import { MsGraphClientWrapper } from "../interfaces";
@@ -66,5 +72,11 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       itemId,
       folderNameFilter
     );
+  }
+
+  async postFolderToAppRoot(
+    folderName: string
+  ): Promise<Result<DriveItemAsFolder, OneDriveItemError>> {
+    return await postFolderToAppRoot(this.client, folderName);
   }
 }
