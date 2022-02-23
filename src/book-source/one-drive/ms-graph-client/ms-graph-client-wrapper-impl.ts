@@ -8,6 +8,7 @@ import type {
   DriveItemAsFolder,
 } from "../types";
 import {
+  downloadAppFolderItemAsDataUri,
   downloadItemAsDataUri,
   downloadThumbnailAsDataUri,
   getFolderChildren,
@@ -98,6 +99,19 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       this.client,
       parentPath,
       folderName
+    );
+  }
+
+  async downloadAppFolderItemAsDataUri(
+    folders: string[],
+    fileName: string,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
+    return await downloadAppFolderItemAsDataUri(
+      this.client,
+      folders,
+      fileName,
+      loadProgressCallback
     );
   }
 }
