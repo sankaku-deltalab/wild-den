@@ -6,9 +6,9 @@ import { appFolderItemByPathApi } from "./api-url";
 
 export const getFolderChildrenFromAppFolder = async (
   client: MsGraphClientType,
-  folders: string[],
-  fileName: string
+  parentPath: string[],
+  folderName: string
 ): Promise<Result<DriveItem[], OneDriveItemError>> => {
-  const api = appFolderItemByPathApi(folders, fileName);
+  const api = appFolderItemByPathApi(parentPath, folderName);
   return await getFolderChildrenRaw(client, api, () => true);
 };

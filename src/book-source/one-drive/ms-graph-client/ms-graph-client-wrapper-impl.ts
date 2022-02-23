@@ -91,9 +91,13 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   }
 
   async getFolderChildrenFromAppFolder(
-    folders: string[],
-    fileName: string
+    parentPath: string[],
+    folderName: string
   ): Promise<Result<DriveItem[], OneDriveItemError>> {
-    return await getFolderChildrenFromAppFolder(this.client, folders, fileName);
+    return await getFolderChildrenFromAppFolder(
+      this.client,
+      parentPath,
+      folderName
+    );
   }
 }
