@@ -12,7 +12,10 @@ import {
   useMsal,
 } from "@azure/msal-react";
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
-import { scanBooksThunk } from "../../redux-state/slices/showcase-slice";
+import {
+  scanBooksThunk,
+  syncBooksThunk,
+} from "../../redux-state/slices/showcase-slice";
 import { loginToOneDrive } from "../../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { clearLocalRepository } from "../../src/use-cases-injection/common-use-cases-injection";
 
@@ -79,6 +82,13 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
           onClick={() => dispatch(scanBooksThunk())}
         >
           Scan
+        </Button>
+        <Button
+          color="inherit"
+          variant="text"
+          onClick={() => dispatch(syncBooksThunk())}
+        >
+          Sync
         </Button>
       </Toolbar>
     </AppBar>
