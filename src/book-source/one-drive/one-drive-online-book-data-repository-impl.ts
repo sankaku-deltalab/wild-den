@@ -23,9 +23,7 @@ import { isFile } from "./util";
 const bookPropsDir = "book-props";
 
 const dataUriToJsonObj = <T>(dataUri: string): T => {
-  const [prefix, ...data] = dataUri.split(",");
-  if (prefix !== "data:application/json;base64")
-    throw new Error(`data is not json ${dataUri}`);
+  const [_prefix, ...data] = dataUri.split(",");
   const b = Buffer.from(data.join(""), "base64");
   return JSON.parse(b.toString());
 };
