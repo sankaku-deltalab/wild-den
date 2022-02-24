@@ -17,10 +17,11 @@ import {
   getTopMyItems,
   getTopSharedItems,
   postFolderToAppRoot,
+  putSmallTextToAppRoot,
+  deleteItemInAppFolder,
 } from "./ms-graph-client-wrapper-impl-functions";
 import { OneDriveItemError } from "../one-drive-error";
 import { MsGraphClientWrapper } from "../interfaces";
-import { putSmallTextToAppRoot } from "./ms-graph-client-wrapper-impl-functions/put-small-text-to-app-root";
 
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   constructor(private readonly client: MsGraphClientType) {}
@@ -113,5 +114,12 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       fileName,
       loadProgressCallback
     );
+  }
+
+  async deleteItemInAppFolder(
+    parentPath: string[],
+    itemName: string
+  ): Promise<Result<void, OneDriveItemError>> {
+    return await deleteItemInAppFolder(this.client, parentPath, itemName);
   }
 }

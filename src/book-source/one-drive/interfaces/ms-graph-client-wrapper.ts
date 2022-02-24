@@ -55,4 +55,9 @@ export interface MsGraphClientWrapper {
     fileName: string,
     loadProgressCallback: LoadProgressCallback
   ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
+
+  deleteItemInAppFolder(
+    parentPath: string[],
+    itemName: string
+  ): Promise<Result<void, OneDriveItemError>>;
 }

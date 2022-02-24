@@ -1,3 +1,4 @@
+export * from "./delete-item-in-app-folder";
 export * from "./download-app-folder-item-as-data-uri";
 export * from "./download-item-as-data-uri";
 export * from "./download-thumbnail-as-data-uri";
