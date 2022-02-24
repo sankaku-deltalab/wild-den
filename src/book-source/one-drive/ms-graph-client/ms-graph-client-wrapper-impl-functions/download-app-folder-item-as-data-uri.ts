@@ -12,7 +12,7 @@ import type {
   MsGraphClientType,
 } from "../../types";
 import { blobToBase64, getDriveId, getItemId, isFile } from "../../util";
-import { appFolderItemContentByPathApi } from "./api-url";
+import { appFolderItemByPathApi } from "./api-url";
 
 export const downloadAppFolderItemAsDataUri = async (
   client: MsGraphClientType,
@@ -20,7 +20,7 @@ export const downloadAppFolderItemAsDataUri = async (
   fileName: string,
   loadProgressCallback: LoadProgressCallback
 ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> => {
-  const api = appFolderItemContentByPathApi(folders, fileName);
+  const api = appFolderItemByPathApi(folders, fileName);
   const item = await client.api(api).get<DriveItem>();
   if (!isFile(item))
     return err(oneDriveItemNotExistsError(getDriveId(item), getItemId(item)));
