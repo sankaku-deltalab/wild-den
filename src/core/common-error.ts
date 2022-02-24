@@ -17,6 +17,7 @@ export type OnlineBookError =
 export type OnlineSourceError =
   | OfflineError
   | NotLoggedInError
+  | SomethingWrongError
   | SourceNotAvailableError;
 
 export type OnlineBookAndSourceError =
