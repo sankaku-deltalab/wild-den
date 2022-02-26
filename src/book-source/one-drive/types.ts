@@ -47,6 +47,9 @@ export type DriveItemCore = {
       };
     };
   };
+  specialFolder?: {
+    name: string;
+  };
 };
 
 export type DriveItemAsFolder = DriveItemCore & {
