@@ -72,8 +72,9 @@ const calcBooksDiff = (
   newBooks: BookRecord<BookProps>,
   oldBooks: BookRecord<BookProps>
 ): BooksDiff => {
+  const allBooks = Object.assign({}, oldBooks, newBooks);
   const how: BookRecord<"add" | "delete" | "update" | "no-change"> = mapObj(
-    oldBooks,
+    allBooks,
     (key, p) => {
       if (newBooks[key] === undefined) return "delete";
       if (oldBooks[key] === undefined) return "add";
