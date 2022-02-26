@@ -18,6 +18,7 @@ import {
   loadBookContent,
   loadLocalBookProps,
   scanBooksFromAvailableSources,
+  syncBookProps,
 } from "../../src/use-cases-injection/common-use-cases-injection";
 
 type ShowcaseState = {
@@ -96,6 +97,11 @@ export const showcaseSlice = createSlice({
           contentData,
         };
       });
+
+    builder.addCase(syncBooksThunk.fulfilled, (state, action) => {
+      state.bookProps = action.payload;
+    });
+
     builder
       .addCase(scanBooksThunk.pending, (state, action) => {
         state.status = "scanning";
@@ -152,6 +158,20 @@ export const scanBooksThunk = createAsyncThunk<
     return {};
   }
   return r.val;
+});
+
+export const syncBooksThunk = createAsyncThunk<
+  BookRecord<BookProps>,
+  void,
+  { state: RootState }
+>("showcase/syncBooksThunk", async (_, thunkApi) => {
+  const sources = await getAvailableSourceIds.run();
+  for (const s of sources) {
+    await syncBookProps.run(s);
+  }
+  const props = await loadLocalBookProps.run();
+  if (props.err) return {};
+  return props.val;
 });
 
 export const { closeBook, updateContentLoading } = showcaseSlice.actions;

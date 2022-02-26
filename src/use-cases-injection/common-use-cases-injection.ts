@@ -51,7 +51,7 @@ export const scanBooksFromAvailableSources =
   container.resolve<ScanBooksFromAvailableSources>(
     ScanBooksFromAvailableSourcesImpl
   );
-export const scanBookProps =
+export const syncBookProps =
   container.resolve<SyncBookProps>(SyncBookPropsImpl);
 export const updateBookProps =
   container.resolve<UpdateBookProps>(UpdateBookPropsImpl);

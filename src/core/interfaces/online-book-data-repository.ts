@@ -1,6 +1,5 @@
-import { BookId, OnlineBookError } from "..";
+import { BookId, BooksDiff, OnlineBookError, OnlineSourceError } from "..";
 import { Result } from "../../results";
-import { CommonOnlineError } from "../common-error";
 import { SourceId, BookProps, BookRecord } from "../core-types";
 
 /**
@@ -12,7 +11,7 @@ import { SourceId, BookProps, BookRecord } from "../core-types";
 export interface OnlineBookDataRepository {
   loadAllStoredBookProps(
     source: SourceId
-  ): Promise<Result<BookRecord<BookProps>, CommonOnlineError>>;
+  ): Promise<Result<BookRecord<BookProps>, OnlineSourceError>>;
 
   loadStoredBookProps(
     book: BookId
@@ -21,7 +20,13 @@ export interface OnlineBookDataRepository {
   resetBookPropsOfSource(
     source: SourceId,
     props: BookRecord<BookProps>
-  ): Promise<Result<void, CommonOnlineError>>;
+  ): Promise<Result<void, OnlineSourceError>>;
+
+  updateBookPropsOfSourceByDiff(
+    source: SourceId,
+    newProps: BookRecord<BookProps>,
+    diff: BooksDiff
+  ): Promise<Result<void, OnlineSourceError>>;
 
   storeBookProps(props: BookProps): Promise<Result<void, OnlineBookError>>;
 }

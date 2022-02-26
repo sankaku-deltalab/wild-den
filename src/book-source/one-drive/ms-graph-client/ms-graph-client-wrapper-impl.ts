@@ -1,14 +1,24 @@
 import { Result } from "../../../results";
 import { CommonOnlineError, DataUri } from "../../../core";
 import { LoadProgressCallback } from "../../../core/interfaces";
-import type { DriveItem, MsGraphClientType, DriveItemAsFile } from "../types";
+import type {
+  DriveItem,
+  MsGraphClientType,
+  DriveItemAsFile,
+  DriveItemAsFolder,
+} from "../types";
 import {
+  downloadAppFolderItemAsDataUri,
   downloadItemAsDataUri,
   downloadThumbnailAsDataUri,
   getFolderChildren,
+  getFolderChildrenFromAppFolder,
   getItem,
   getTopMyItems,
   getTopSharedItems,
+  postFolderToAppRoot,
+  putSmallTextToAppRoot,
+  deleteItemInAppFolder,
 } from "./ms-graph-client-wrapper-impl-functions";
 import { OneDriveItemError } from "../one-drive-error";
 import { MsGraphClientWrapper } from "../interfaces";
@@ -66,5 +76,50 @@ export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
       itemId,
       folderNameFilter
     );
+  }
+
+  async postFolderToAppRoot(
+    folderName: string
+  ): Promise<Result<DriveItemAsFolder, OneDriveItemError>> {
+    return await postFolderToAppRoot(this.client, folderName);
+  }
+
+  async putSmallTextToAppRoot(
+    folders: string[],
+    fileName: string,
+    content: string
+  ): Promise<Result<DriveItemAsFile, OneDriveItemError>> {
+    return await putSmallTextToAppRoot(this.client, folders, fileName, content);
+  }
+
+  async getFolderChildrenFromAppFolder(
+    parentPath: string[],
+    folderName: string
+  ): Promise<Result<DriveItem[], OneDriveItemError>> {
+    return await getFolderChildrenFromAppFolder(
+      this.client,
+      parentPath,
+      folderName
+    );
+  }
+
+  async downloadAppFolderItemAsDataUri(
+    folders: string[],
+    fileName: string,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
+    return await downloadAppFolderItemAsDataUri(
+      this.client,
+      folders,
+      fileName,
+      loadProgressCallback
+    );
+  }
+
+  async deleteItemInAppFolder(
+    parentPath: string[],
+    itemName: string
+  ): Promise<Result<void, OneDriveItemError>> {
+    return await deleteItemInAppFolder(this.client, parentPath, itemName);
   }
 }

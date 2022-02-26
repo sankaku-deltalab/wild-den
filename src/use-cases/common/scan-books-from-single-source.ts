@@ -2,12 +2,10 @@ import { inject, injectable, singleton } from "tsyringe";
 import {
   BookProps,
   BookRecord,
-  filePropsToBookProps,
   LocalRepositoryConnectionError,
   mergeScannedFilesAndLoadedBooks,
   OnlineSourceError,
   SourceId,
-  syncBookProps,
 } from "../../core";
 import {
   BookSource,
@@ -86,14 +84,19 @@ export const scanBookOnSingleSource = async (
   if (onlineProps.err) return onlineProps;
 
   const now = date.now();
-  const books = mergeScannedFilesAndLoadedBooks(
+  const {
+    mergedProps: books,
+    onlinePropsDiff,
+    localPropsDiff,
+  } = mergeScannedFilesAndLoadedBooks(
     now,
     onlineFiles.val,
-    syncBookProps(localProps.val, onlineProps.val)
+    onlineProps.val,
+    localProps.val
   );
 
   const [storeOnline, storeLocal] = await Promise.all([
-    onlineRepo.resetBookPropsOfSource(sourceId, books),
+    onlineRepo.updateBookPropsOfSourceByDiff(sourceId, books, onlinePropsDiff),
     localRepo.resetBookPropsOfSource(sourceId, Object.values(books)),
   ]);
   if (storeOnline.err) return storeOnline;
