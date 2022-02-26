@@ -21,6 +21,10 @@ export const isFolder = (v: DriveItem): v is DriveItemAsFolder => {
   return "folder" in v || ("remoteItem" in v && "folder" in v.remoteItem!);
 };
 
+export const isSpecialFolder = (v: DriveItem): boolean => {
+  return "specialFolder" in v;
+};
+
 export const getDriveId = (v: DriveItem): string => {
   if ("remoteItem" in v) return v.remoteItem!.parentReference.driveId;
   if ("parentReference" in v) return v.parentReference!.driveId;

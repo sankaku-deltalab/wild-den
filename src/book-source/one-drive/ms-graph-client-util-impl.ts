@@ -4,7 +4,7 @@ import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
 import { MsGraphClientUtil, MsGraphClientWrapper } from "./interfaces";
 import { OneDriveItemError } from "./one-drive-error";
 import { DriveItem } from "./types";
-import { getDriveId, getItemId, isFolder } from "./util";
+import { getDriveId, getItemId, isFile } from "./util";
 
 @singleton()
 @injectable()
@@ -93,7 +93,7 @@ const scanDriveItems = async (
   const scanChild = async (
     v: DriveItem
   ): Promise<Result<DriveItem[], OneDriveItemError>> => {
-    if (!isFolder(v)) return ok([]);
+    if (isFile(v)) return ok([]);
     const r = await scanFolderTree(
       client,
       getDriveId(v),

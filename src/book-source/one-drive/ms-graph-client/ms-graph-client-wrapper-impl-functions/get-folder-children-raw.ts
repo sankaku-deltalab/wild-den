@@ -6,7 +6,7 @@ import type {
   FolderChildrenResult,
   MsGraphClientType,
 } from "../../types";
-import { isFile, isFolder } from "../../util";
+import { isFile, isFolder, isSpecialFolder } from "../../util";
 
 export const getFolderChildrenRaw = async (
   client: MsGraphClientType,
@@ -26,9 +26,13 @@ export const getFolderChildrenRaw = async (
     // TODO: check error type
     return err(offlineError());
   }
-  const fileItems = values.filter((v) => isFile(v));
-  const folderItems = values.filter(
+  const valuesNotSpecial = values.filter((v) => !isSpecialFolder(v));
+  const notFileAndNotFolderItem = valuesNotSpecial.filter(
+    (v) => !isFile(v) && !isFolder(v)
+  );
+  const fileItems = valuesNotSpecial.filter((v) => isFile(v));
+  const folderItems = valuesNotSpecial.filter(
     (v) => isFolder(v) && folderNameFilter(v.name)
   );
-  return ok([...fileItems, ...folderItems]);
+  return ok([...notFileAndNotFolderItem, ...fileItems, ...folderItems]);
 };
