@@ -122,8 +122,30 @@ export class OneDriveOnlineBookDataRepositoryImpl
     newProps: BookRecord<BookProps>,
     diff: BooksDiff
   ): Promise<Result<void, OnlineSourceError>> {
-    // TODO:
-    throw new Error("not implemented");
+    const client = this.getClient(source);
+    if (client.err) return client;
+
+    for (const bookId of diff.delete.keys()) {
+      const deleting = await client.val.deleteItemInAppFolder(
+        [bookPropsDir],
+        bookIdToFileName(bookId)
+      );
+      if (deleting.err)
+        return err(somethingWrongError(JSON.stringify(deleting.val)));
+    }
+
+    for (const bookId of [...diff.add.keys(), ...diff.update.keys()]) {
+      const props = newProps[bookIdToStr(bookId)];
+      const putting = await client.val.putSmallTextToAppRoot(
+        [bookPropsDir],
+        bookIdToFileName(bookId),
+        JSON.stringify(props)
+      );
+      if (putting.err)
+        return err(somethingWrongError(JSON.stringify(putting.val)));
+    }
+
+    return ok(undefined);
   }
 
   async storeBookProps(
