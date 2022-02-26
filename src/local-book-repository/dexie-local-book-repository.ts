@@ -58,7 +58,7 @@ class LocalBookRepositoryDatabase extends Dexie {
 
   constructor() {
     super("WildDenDatabase");
-    this.version(2).stores({
+    this.version(3).stores({
       bookProps: "idStr, sourceIdStr",
       bookContentProps: "idStr, sourceIdStr",
       bookThumbnailProps: "idStr, sourceIdStr",
@@ -96,7 +96,7 @@ const bookPropsRecordToOriginal = (r: BookPropsRecord): BookProps => {
     title: r.title,
     author: r.author,
     autoTags: r.autoTags.map((t) => ({ type: t.type, name: t.name })),
-    editableTags: r.editableTags,
+    manualTags: r.manualTags,
     hiddenAutoTagNames: r.hiddenAutoTagNames,
     hidden: r.hidden,
     lastReadDate: r.lastReadDate,

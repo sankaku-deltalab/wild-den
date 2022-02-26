@@ -43,7 +43,7 @@ export type BookProps = {
   title: string;
   author: string;
   autoTags: BookAutoTag[];
-  editableTags: string[];
+  manualTags: string[];
   hiddenAutoTagNames: string[];
   hidden: boolean;
   lastReadDate: string;

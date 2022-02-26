@@ -21,7 +21,7 @@ export const filePropsToBookProps = (
     title,
     author,
     autoTags,
-    editableTags: tagsByPath,
+    manualTags: tagsByPath,
     hiddenAutoTagNames: [],
     hidden: false,
     lastReadDate: "",
