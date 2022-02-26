@@ -26,9 +26,12 @@ export const getFolderChildrenRaw = async (
     // TODO: check error type
     return err(offlineError());
   }
+  const notFileAndNotFolderItem = values.filter(
+    (v) => !isFile(v) && !isFolder(v)
+  );
   const fileItems = values.filter((v) => isFile(v));
   const folderItems = values.filter(
     (v) => isFolder(v) && folderNameFilter(v.name)
   );
-  return ok([...fileItems, ...folderItems]);
+  return ok([...notFileAndNotFolderItem, ...fileItems, ...folderItems]);
 };
