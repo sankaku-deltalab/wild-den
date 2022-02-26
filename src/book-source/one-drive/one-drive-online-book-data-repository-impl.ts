@@ -7,6 +7,7 @@ import {
   bookIdToStr,
   BookProps,
   BookRecord,
+  BooksDiff,
   OnlineBookError,
   OnlineSourceError,
   somethingWrongError,
@@ -114,6 +115,15 @@ export class OneDriveOnlineBookDataRepositoryImpl
     }
 
     return ok(undefined);
+  }
+
+  async updateBookPropsOfSourceByDiff(
+    source: SourceId,
+    newProps: BookRecord<BookProps>,
+    diff: BooksDiff
+  ): Promise<Result<void, OnlineSourceError>> {
+    // TODO:
+    throw new Error("not implemented");
   }
 
   async storeBookProps(

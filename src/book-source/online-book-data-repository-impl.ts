@@ -5,6 +5,7 @@ import {
   BookId,
   BookProps,
   BookRecord,
+  BooksDiff,
   CommonOnlineError,
   OnlineBookError,
   OnlineSourceError,
@@ -38,6 +39,14 @@ export class OnlineBookDataRepositoryImpl implements OnlineBookDataRepository {
     props: BookRecord<BookProps>
   ): Promise<Result<void, OnlineSourceError>> {
     return this.oneDrive.resetBookPropsOfSource(source, props);
+  }
+
+  updateBookPropsOfSourceByDiff(
+    source: SourceId,
+    newProps: BookRecord<BookProps>,
+    diff: BooksDiff
+  ): Promise<Result<void, OnlineSourceError>> {
+    return this.oneDrive.updateBookPropsOfSourceByDiff(source, newProps, diff);
   }
 
   storeBookProps(props: BookProps): Promise<Result<void, OnlineBookError>> {
