@@ -36,35 +36,29 @@ export type AppItemByPath = {
 
 export interface MsGraphClientWrapperRest {
   getItem(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   deleteItem(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId
   ): Promise<Result<void, OneDriveItemError>>;
 
   postItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   patchItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   putItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   getChildren(
-    client: MsGraphClientType,
     itemId: DriveItemId
   ): Promise<Result<DriveItem[], OneDriveItemError>>;
 }

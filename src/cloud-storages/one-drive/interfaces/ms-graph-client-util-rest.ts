@@ -13,14 +13,12 @@ export type DriveItemTree = {
 export interface MsGraphClientUtilRest {
   scanItemsUnderItem(
     client: MsGraphClientWrapperRest,
-    pureClient: MsGraphClientType,
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
   ): Promise<Result<DriveItemTree, OneDriveItemError>>;
 
   getItemChildren(
     client: MsGraphClientWrapperRest,
-    pureClient: MsGraphClientType,
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
   ): Promise<Result<DriveItem[], OneDriveItemError>>;

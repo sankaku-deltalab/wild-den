@@ -1,4 +1,3 @@
-import { singleton, injectable } from "tsyringe";
 import { offlineError } from "../../../core";
 import { ok, err, Result } from "../../../results";
 import {
@@ -57,59 +56,60 @@ const apiWrap = async <T>(
   }
 };
 
-@singleton()
-@injectable()
+/**
+ * Created by MsGraphClientWrapperRestFactory.
+ */
 export class MsGraphClientWrapperRestImpl implements MsGraphClientWrapperRest {
+  constructor(private readonly client: MsGraphClientType) {}
+
   async getItem(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId
   ): Promise<Result<DriveItem, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => client.api(url).get<DriveItem>());
+    return await apiWrap(() => this.client.api(url).get<DriveItem>());
   }
 
   async deleteItem(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId
   ): Promise<Result<void, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => client.api(url).delete());
+    return await apiWrap(() => this.client.api(url).delete());
   }
 
   async postItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => client.api(url).post<DriveItem, T>(content));
+    return await apiWrap(() =>
+      this.client.api(url).post<DriveItem, T>(content)
+    );
   }
 
   async patchItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => client.api(url).patch<DriveItem, T>(content));
+    return await apiWrap(() =>
+      this.client.api(url).patch<DriveItem, T>(content)
+    );
   }
 
   async putItem<T>(
-    client: MsGraphClientType,
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => client.api(url).put<DriveItem, T>(content));
+    return await apiWrap(() => this.client.api(url).put<DriveItem, T>(content));
   }
 
   async getChildren(
-    client: MsGraphClientType,
     itemId: DriveItemId
   ): Promise<Result<DriveItem[], OneDriveItemError>> {
     const url = getChildrenUrl(itemId);
@@ -119,7 +119,7 @@ export class MsGraphClientWrapperRestImpl implements MsGraphClientWrapperRest {
     let nextGetUrl = url;
     while (true) {
       const r = await apiWrap(() =>
-        client.api(nextGetUrl).get<FolderChildrenResult>()
+        this.client.api(nextGetUrl).get<FolderChildrenResult>()
       );
       if (r.err) return r;
 
