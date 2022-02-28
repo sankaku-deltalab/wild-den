@@ -6,6 +6,7 @@ export type GraphRequestType = {
   get<T>(): Promise<T>;
   post<T, C>(content: C): Promise<T>;
   put<T, C>(content: C): Promise<T>;
+  patch<T, C>(content: C): Promise<T>;
   delete(): Promise<void>;
 };
 

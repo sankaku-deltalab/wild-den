@@ -5,6 +5,7 @@ import { DriveItem, MsGraphClientType } from "../types";
 export type DriveItemId =
   | MyRootDriveItemId
   | SharedRootDriveItemId
+  | AppRootDriveItemId
   | DriveItemIdById
   | MyDriveItemIdByPath
   | AppItemByPath;
@@ -15,14 +16,15 @@ export type EditableDriveItemId =
   | AppItemByPath;
 
 export type MyRootDriveItemId = { type: "root" };
-export type SharedRootDriveItemId = { type: "shared" };
+export type SharedRootDriveItemId = { type: "sharedRoot" };
+export type AppRootDriveItemId = { type: "appRoot" };
 export type DriveItemIdById = {
   type: "itemById";
   driveId: string;
   itemId: string;
 };
 export type MyDriveItemIdByPath = {
-  type: "itemByPath";
+  type: "myItemByPath";
   parentPath: string[];
   itemName: string;
 };
@@ -33,10 +35,32 @@ export type AppItemByPath = {
 };
 
 export interface MsGraphClientWrapperRest {
-  accessItem(
+  getItem(
     client: MsGraphClientType,
-    method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
     itemId: EditableDriveItemId
+  ): Promise<Result<DriveItem, OneDriveItemError>>;
+
+  deleteItem(
+    client: MsGraphClientType,
+    itemId: EditableDriveItemId
+  ): Promise<Result<void, OneDriveItemError>>;
+
+  postItem<T>(
+    client: MsGraphClientType,
+    itemId: EditableDriveItemId,
+    content: T
+  ): Promise<Result<DriveItem, OneDriveItemError>>;
+
+  patchItem<T>(
+    client: MsGraphClientType,
+    itemId: EditableDriveItemId,
+    content: T
+  ): Promise<Result<DriveItem, OneDriveItemError>>;
+
+  putItem<T>(
+    client: MsGraphClientType,
+    itemId: EditableDriveItemId,
+    content: T
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   getChildren(
