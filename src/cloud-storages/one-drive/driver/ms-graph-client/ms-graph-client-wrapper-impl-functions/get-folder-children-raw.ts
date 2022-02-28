@@ -1,12 +1,12 @@
-import { offlineError } from "../../../../core";
-import { Result, ok, err } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
+import { offlineError } from "../../../../../core";
+import { Result, ok, err } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
 import type {
   DriveItem,
   FolderChildrenResult,
   MsGraphClientType,
-} from "../../types";
-import { isFile, isFolder, isSpecialFolder } from "../../util";
+} from "../../../types";
+import { isFile, isFolder, isSpecialFolder } from "../../../util";
 
 export const getFolderChildrenRaw = async (
   client: MsGraphClientType,

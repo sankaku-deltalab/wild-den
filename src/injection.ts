@@ -1,11 +1,11 @@
 import { container } from "tsyringe";
 import { BookSourceImpl } from "./book-source/book-source-impl";
-import { MsGraphClientUtilImpl } from "./book-source/one-drive/ms-graph-client-util-impl";
-import { MsGraphClientWrapperFactoryImpl } from "./book-source/one-drive/ms-graph-client/ms-graph-client-wrapper-factory-impl";
-import { MsalInstanceRepositoryImpl } from "./book-source/one-drive/msal-instance-repository-impl";
-import { OneDriveBookSourceImpl } from "./book-source/one-drive/one-drive-book-source-impl";
-import { OneDriveOnlineBookDataRepositoryImpl } from "./book-source/one-drive/one-drive-online-book-data-repository-impl";
-import { OneDriveOnlineConfigRepositoryMock } from "./book-source/one-drive/one-drive-online-config-repository-mock";
+import { MsGraphClientUtilImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-util-impl";
+import { MsGraphClientWrapperFactoryImpl } from "./cloud-storages/one-drive/driver/ms-graph-client/ms-graph-client-wrapper-factory-impl";
+import { MsalInstanceRepositoryImpl } from "./cloud-storages/one-drive/driver/msal-instance-repository-impl";
+import { OneDriveBookSourceImpl } from "./cloud-storages/one-drive/one-drive-book-source-impl";
+import { OneDriveOnlineBookDataRepositoryImpl } from "./cloud-storages/one-drive/one-drive-online-book-data-repository-impl";
+import { OneDriveOnlineConfigRepositoryMock } from "./cloud-storages/one-drive/one-drive-online-config-repository-mock";
 import { OnlineBookDataRepositoryImpl } from "./book-source/online-book-data-repository-impl";
 import { OnlineConfigRepositoryImpl } from "./book-source/online-config-repository-impl";
 

@@ -1,17 +1,17 @@
-import { CommonOnlineError, offlineError } from "../../../../core";
-import { Result, err } from "../../../../results";
-import type { DriveItem, MsGraphClientType } from "../../types";
+import { CommonOnlineError, offlineError } from "../../../../../core";
+import { Result, err } from "../../../../../results";
+import type { DriveItem, MsGraphClientType } from "../../../types";
 import { getFolderChildrenRaw } from "./get-folder-children-raw";
 
-const sharedChildrenAPi = (): string => "/me/drive/sharedWithMe";
+const rootChildrenApi = (): string => "/me/drive/root/children";
 
-export const getTopSharedItems = async (
+export const getTopMyItems = async (
   client: MsGraphClientType,
   folderNameFilter: (name: string) => boolean
 ): Promise<Result<DriveItem[], CommonOnlineError>> => {
   const r = await getFolderChildrenRaw(
     client,
-    sharedChildrenAPi(),
+    rootChildrenApi(),
     folderNameFilter
   );
   if (r.err) return err(offlineError());

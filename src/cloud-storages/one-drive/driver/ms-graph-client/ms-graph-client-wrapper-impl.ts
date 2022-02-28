@@ -1,12 +1,12 @@
-import { Result } from "../../../results";
-import { CommonOnlineError, DataUri } from "../../../core";
-import { LoadProgressCallback } from "../../../core/interfaces";
+import { Result } from "../../../../results";
+import { CommonOnlineError, DataUri } from "../../../../core";
+import { LoadProgressCallback } from "../../../../core/interfaces";
 import type {
   DriveItem,
   MsGraphClientType,
   DriveItemAsFile,
   DriveItemAsFolder,
-} from "../types";
+} from "../../types";
 import {
   downloadAppFolderItemAsDataUri,
   downloadItemAsDataUri,
@@ -20,8 +20,8 @@ import {
   putSmallTextToAppRoot,
   deleteItemInAppFolder,
 } from "./ms-graph-client-wrapper-impl-functions";
-import { OneDriveItemError } from "../one-drive-error";
-import { MsGraphClientWrapper } from "../interfaces";
+import { OneDriveItemError } from "../../one-drive-error";
+import { MsGraphClientWrapper } from "../../interfaces";
 
 export class MsGraphClientWrapperImpl implements MsGraphClientWrapper {
   constructor(private readonly client: MsGraphClientType) {}

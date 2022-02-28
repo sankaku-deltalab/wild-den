@@ -1,6 +1,6 @@
-import { Result, ok } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
-import type { DriveItem, MsGraphClientType } from "../../types";
+import { Result, ok } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
+import type { DriveItem, MsGraphClientType } from "../../../types";
 
 const driveItemApi = (driveId: string, itemId: string): string =>
   `/drives/${driveId}/items/${itemId}`;

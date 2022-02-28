@@ -1,7 +1,7 @@
 import { getFolderChildrenRaw } from ".";
-import { Result } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
-import type { DriveItem, MsGraphClientType } from "../../types";
+import { Result } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
+import type { DriveItem, MsGraphClientType } from "../../../types";
 import { appFolderItemChildrenByPathApi } from "./api-url";
 
 export const getFolderChildrenFromAppFolder = async (

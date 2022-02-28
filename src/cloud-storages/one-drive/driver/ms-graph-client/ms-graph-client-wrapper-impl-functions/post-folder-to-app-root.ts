@@ -1,6 +1,6 @@
-import { Result, ok } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
-import type { DriveItemAsFolder, MsGraphClientType } from "../../types";
+import { Result, ok } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
+import type { DriveItemAsFolder, MsGraphClientType } from "../../../types";
 
 // https://docs.microsoft.com/en-us/onedrive/developer/rest-api/concepts/special-folders-appfolder?view=odsp-graph-online
 const appRootApi = (): string => `/drive/special/approot/children`;

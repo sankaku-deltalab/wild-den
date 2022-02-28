@@ -39,13 +39,13 @@ import {
 import {
   driveItemIdToFileId,
   fileIdToDriveItemId,
-} from "./ms-graph-client/file-id-and-drive-item-id-converter";
+} from "./driver/ms-graph-client/file-id-and-drive-item-id-converter";
 import { MsGraphClientWrapperFactory } from "./interfaces";
 import { OneDriveItemNotExistsError } from "./one-drive-error";
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../../inject-tokens";
 import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
-import { OneDriveBookSource } from "../interfaces";
+import { OneDriveBookSource } from "../../book-source/interfaces";
 
 @singleton()
 @injectable()

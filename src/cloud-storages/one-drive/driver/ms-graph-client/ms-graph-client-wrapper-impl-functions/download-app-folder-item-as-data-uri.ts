@@ -1,17 +1,17 @@
 import ky from "ky";
-import { DataUri } from "../../../../core";
-import { LoadProgressCallback } from "../../../../core/interfaces";
-import { Result, ok, err } from "../../../../results";
+import { DataUri } from "../../../../../core";
+import { LoadProgressCallback } from "../../../../../core/interfaces";
+import { Result, ok, err } from "../../../../../results";
 import {
   OneDriveItemError,
   oneDriveItemNotExistsError,
-} from "../../one-drive-error";
+} from "../../../one-drive-error";
 import type {
   DriveItem,
   DriveItemAsFile,
   MsGraphClientType,
-} from "../../types";
-import { blobToBase64, getDriveId, getItemId, isFile } from "../../util";
+} from "../../../types";
+import { blobToBase64, getDriveId, getItemId, isFile } from "../../../util";
 import { appFolderItemByPathApi } from "./api-url";
 
 export const downloadAppFolderItemAsDataUri = async (

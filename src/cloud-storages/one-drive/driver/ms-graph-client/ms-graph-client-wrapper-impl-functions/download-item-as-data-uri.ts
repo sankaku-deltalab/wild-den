@@ -1,13 +1,13 @@
 import ky from "ky";
-import { DataUri } from "../../../../core";
-import { LoadProgressCallback } from "../../../../core/interfaces";
-import { Result, ok, err } from "../../../../results";
+import { DataUri } from "../../../../../core";
+import { LoadProgressCallback } from "../../../../../core/interfaces";
+import { Result, ok, err } from "../../../../../results";
 import {
   OneDriveItemError,
   oneDriveItemNotExistsError,
-} from "../../one-drive-error";
-import type { DriveItemAsFile, MsGraphClientType } from "../../types";
-import { blobToBase64, isFile } from "../../util";
+} from "../../../one-drive-error";
+import type { DriveItemAsFile, MsGraphClientType } from "../../../types";
+import { blobToBase64, isFile } from "../../../util";
 import { getItem } from "./get-item";
 
 export const downloadItemAsDataUri = async (

@@ -1,10 +1,10 @@
-import { DataUri } from "../../../../core";
-import { Result, err } from "../../../../results";
+import { DataUri } from "../../../../../core";
+import { Result, err } from "../../../../../results";
 import {
   OneDriveItemError,
   oneDriveItemNotExistsError,
-} from "../../one-drive-error";
-import type { DriveItemAsFile, MsGraphClientType } from "../../types";
+} from "../../../one-drive-error";
+import type { DriveItemAsFile, MsGraphClientType } from "../../../types";
 
 type ThumbnailsResult = {
   "@odata.context"?: string;

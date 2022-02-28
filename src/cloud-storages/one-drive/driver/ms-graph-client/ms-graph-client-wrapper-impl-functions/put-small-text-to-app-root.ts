@@ -1,6 +1,6 @@
-import { Result, ok } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
-import type { DriveItemAsFile, MsGraphClientType } from "../../types";
+import { Result, ok } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
+import type { DriveItemAsFile, MsGraphClientType } from "../../../types";
 import { appFolderItemContentByPathApi } from "./api-url";
 
 export const putSmallTextToAppRoot = async (

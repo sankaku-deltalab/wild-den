@@ -1,10 +1,10 @@
 import { injectable, singleton } from "tsyringe";
-import { Result, ok, isOk } from "../../results";
-import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
-import { MsGraphClientUtil, MsGraphClientWrapper } from "./interfaces";
-import { OneDriveItemError } from "./one-drive-error";
-import { DriveItem } from "./types";
-import { getDriveId, getItemId, isFile } from "./util";
+import { Result, ok, isOk } from "../../../results";
+import { OneDriveDirectoryId } from "../../../use-cases/book-sources/one-drive";
+import { MsGraphClientUtil, MsGraphClientWrapper } from "../interfaces";
+import { OneDriveItemError } from "../one-drive-error";
+import { DriveItem } from "../types";
+import { getDriveId, getItemId, isFile } from "../util";
 
 @singleton()
 @injectable()

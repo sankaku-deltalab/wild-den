@@ -1,6 +1,6 @@
-import { Result, ok } from "../../../../results";
-import { OneDriveItemError } from "../../one-drive-error";
-import type { MsGraphClientType } from "../../types";
+import { Result, ok } from "../../../../../results";
+import { OneDriveItemError } from "../../../one-drive-error";
+import type { MsGraphClientType } from "../../../types";
 import { appFolderItemByPathApi } from "./api-url";
 
 export const deleteItemInAppFolder = async (
