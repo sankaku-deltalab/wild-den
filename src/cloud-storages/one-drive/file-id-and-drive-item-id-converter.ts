@@ -1,4 +1,4 @@
-import { FileId } from "../../../../core";
+import { FileId } from "../../core";
 
 export const fileIdToDriveItemId = (fileId: FileId): [string, string] => {
   const [driveId, itemId] = fileId.split(" ");

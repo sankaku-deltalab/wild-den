@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 import { BookSourceImpl } from "./book-source/book-source-impl";
 import { MsGraphClientUtilImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-util-impl";
-import { MsGraphClientWrapperFactoryImpl } from "./cloud-storages/one-drive/driver/ms-graph-client/ms-graph-client-wrapper-factory-impl";
+import { MsGraphClientWrapperFactoryImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-wrapper-factory-impl";
 import { MsalInstanceRepositoryImpl } from "./cloud-storages/one-drive/driver/msal-instance-repository-impl";
 import { OneDriveBookSourceImpl } from "./cloud-storages/one-drive/one-drive-book-source-impl";
 import { OneDriveOnlineBookDataRepositoryImpl } from "./cloud-storages/one-drive/one-drive-online-book-data-repository-impl";

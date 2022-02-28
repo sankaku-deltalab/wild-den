@@ -6,19 +6,19 @@ import {
   sourceIdToStr,
   sourceNotAvailableError,
   SourceNotAvailableError,
-} from "../../../../core";
+} from "../../../core";
 import {
   MsalInstanceType,
   msGraphScopes,
-} from "../../../../use-cases/book-sources/one-drive";
+} from "../../../use-cases/book-sources/one-drive";
 import { MsGraphClientWrapperImpl } from "./ms-graph-client-wrapper-impl";
 import { getMsGraphClient } from "./get-ms-graph-client";
 import {
   MsGraphClientWrapper,
   MsGraphClientWrapperFactory,
-} from "../../interfaces";
-import { msalInstanceAccountToSourceId } from "../../util";
-import { err, Result, ok } from "../../../../results";
+} from "../interfaces";
+import { msalInstanceAccountToSourceId } from "../util";
+import { err, Result, ok } from "../../../results";
 
 @singleton()
 @injectable()

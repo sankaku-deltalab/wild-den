@@ -1,23 +1,23 @@
 import { injectable, singleton } from "tsyringe";
 import { AccountInfo } from "@azure/msal-browser";
-import { err, Result, ok } from "../../../../results";
+import { err, Result, ok } from "../../../results";
 import {
   SourceId,
   SourceIdStr,
   sourceIdToStr,
   sourceNotAvailableError,
   SourceNotAvailableError,
-} from "../../../../core";
+} from "../../../core";
 import {
   MsalInstanceType,
   msGraphScopes,
-} from "../../../../use-cases/book-sources/one-drive";
+} from "../../../use-cases/book-sources/one-drive";
 import { getMsGraphClient } from "./get-ms-graph-client";
-import { msalInstanceAccountToSourceId } from "../../util";
-import { MsGraphClientWrapperRestFactory } from "../../interfaces/ms-graph-client-wrapper-rest-factory";
-import { MsGraphClientWrapperRest } from "../../interfaces/ms-graph-client-wrapper-rest";
-import { MsalInstanceRepository } from "../../../../use-cases/book-sources/one-drive/interfaces";
-import { MsGraphClientWrapperRestImpl } from "../ms-graph-client-wrapper-rest-impl";
+import { msalInstanceAccountToSourceId } from "../util";
+import { MsGraphClientWrapperRestFactory } from "../interfaces/ms-graph-client-wrapper-rest-factory";
+import { MsGraphClientWrapperRest } from "../interfaces/ms-graph-client-wrapper-rest";
+import { MsalInstanceRepository } from "../../../use-cases/book-sources/one-drive/interfaces";
+import { MsGraphClientWrapperRestImpl } from "./ms-graph-client-wrapper-rest-impl";
 
 @singleton()
 @injectable()
