@@ -1,6 +1,6 @@
 import { Result } from "../../../results";
 import { OneDriveItemError } from "../one-drive-error";
-import { DriveItem } from "../types";
+import { DriveItem, MsGraphClientType } from "../types";
 
 export type DriveItemId =
   | MyRootDriveItemId
@@ -34,11 +34,13 @@ export type AppItemByPath = {
 
 export interface MsGraphClientWrapperRest {
   accessItem(
+    client: MsGraphClientType,
     method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT",
     itemId: EditableDriveItemId
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 
   getChildren(
+    client: MsGraphClientType,
     itemId: DriveItemId
   ): Promise<Result<DriveItem[], OneDriveItemError>>;
 }
