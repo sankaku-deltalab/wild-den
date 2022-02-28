@@ -2,7 +2,7 @@ import { injectable, singleton } from "tsyringe";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalInstanceType } from "../../use-cases/book-sources/one-drive";
 import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
-import { msalConfig } from "./ms-graph-client/msal-config";
+import { msalConfig } from "./msal/msal-config";
 
 @singleton()
 @injectable()
