@@ -1,7 +1,12 @@
+import { DataUri } from "../../../core";
+import { LoadProgressCallback } from "../../../core/interfaces";
 import { Result } from "../../../results";
-import { OneDriveDirectoryId } from "../../../use-cases/book-sources/one-drive";
+import {
+  DefaultDirectoryId,
+  OneDriveDirectoryId,
+} from "../../../use-cases/book-sources/one-drive";
 import { OneDriveItemError } from "../one-drive-error";
-import { DriveItem, MsGraphClientType } from "../types";
+import { DriveItem, DriveItemAsFile, MsGraphClientType } from "../types";
 import { MsGraphClientWrapperRest } from "./ms-graph-client-wrapper-rest";
 
 export type DriveItemTree = {
@@ -22,4 +27,17 @@ export interface MsGraphClientUtilRest {
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
   ): Promise<Result<DriveItem[], OneDriveItemError>>;
+
+  downloadItemById(
+    client: MsGraphClientWrapperRest,
+    directoryId: DefaultDirectoryId,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
+
+  downloadItemFromAppFolderByPath(
+    client: MsGraphClientWrapperRest,
+    parentPath: string[],
+    fileName: string,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
 }

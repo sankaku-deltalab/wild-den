@@ -7,7 +7,7 @@ export type OneDriveDirectoryId =
   | TopMyDirectoryId
   | TopSharedDirectoryId;
 
-type DefaultDirectoryId = {
+export type DefaultDirectoryId = {
   type: "folder";
   driveId: string;
   itemId: string;
