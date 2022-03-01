@@ -4,6 +4,7 @@ import {
   bookIdToStr,
   bookNotExistsInSourceError,
   BookRecord,
+  BookType,
   CommonOnlineError,
   DirectoryId,
   FileId,
@@ -24,7 +25,11 @@ import {
   MsalInstanceType,
   OneDriveDirectoryId,
 } from "../../use-cases/book-sources/one-drive";
-import { MsGraphClientUtil } from "./interfaces/ms-graph-client-util";
+import {
+  FlattenDriveItemTreeNode,
+  MsGraphClientUtilRest,
+  MsGraphClientWrapperRestFactory,
+} from "./interfaces";
 import {
   epubMimeType,
   getDriveId,
@@ -40,7 +45,6 @@ import {
   driveItemIdToFileId,
   fileIdToDriveItemId,
 } from "./file-id-and-drive-item-id-converter";
-import { MsGraphClientWrapperFactory } from "./interfaces";
 import {
   OneDriveItemIsNotFileError,
   OneDriveItemNotExistsError,
@@ -56,10 +60,10 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
   private readonly msalInstance: MsalInstanceType;
 
   constructor(
-    @inject(it.MsGraphClientWrapperFactory)
-    private readonly clientFactory: MsGraphClientWrapperFactory,
-    @inject(it.MsGraphClientUtil)
-    private readonly clientUtil: MsGraphClientUtil,
+    @inject(it.MsGraphClientWrapperRestFactory)
+    private readonly clientFactory: MsGraphClientWrapperRestFactory,
+    @inject(it.MsGraphClientUtilRest)
+    private readonly clientUtil: MsGraphClientUtilRest,
     @inject(it.MsalInstanceRepository)
     msalRepo: MsalInstanceRepository,
     @inject(it.OnlineConfigRepository)
@@ -86,10 +90,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
   async scanAllFiles(
     source: SourceId
   ): Promise<Result<BookRecord<FileProps>, OnlineSourceError>> {
-    const client = this.clientFactory.getClientWrapper(
-      source,
-      this.msalInstance
-    );
+    const client = this.clientFactory.getClientWrapper(source);
     if (client.err) return client;
 
     const config = await this.configRepo.loadConfig(source);
@@ -108,54 +109,36 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
       config.val.targetRootDirectories.length === 0
         ? defaultScanRoot
         : config.val.targetRootDirectories;
-    const scannedItemsNested = await Promise.all(
+    const scannedTreeNested = await Promise.all(
       scanRootDirectories.map(async (d) => {
-        const r = await this.clientUtil.scanItemsUnderFolder(
+        const r = await this.clientUtil.scanItemsUnderItem(
           client.val,
           d.directoryId as OneDriveDirectoryId,
           folderNameFilter
         );
-        if (r.err) return [];
+        if (r.err) return undefined;
         return r.val;
       })
     );
-    const scannedFiles = scannedItemsNested.flat().filter(isFile);
 
-    // pdf
-    const scannedFilesPdf = scannedFiles.filter(
-      (f) => f.file.mimeType === pdfMimeType
-    );
-    const pdfFileProps: FileProps[] = scannedFilesPdf.map((f) => ({
-      id: {
-        source,
-        file: driveItemIdToFileId(getDriveId(f), getItemId(f)),
-      },
-      type: "pdf",
-      title: undefined,
-      author: undefined,
-      fileName: f.name,
-      path: (f.parentReference ?? { path: "" }).path,
-      givenTags: [],
-      lastModifiedDate: f.lastModifiedDateTime,
-    }));
+    const scannedItems = scannedTreeNested
+      .filter(isNotUndefined)
+      .map((t) => this.clientUtil.flatScanTree(t))
+      .flat();
 
-    // epub
-    const scannedFilesEpub = scannedFiles.filter(
-      (f) => f.file.mimeType === epubMimeType
+    const pdfFileProps = getFilePropsFromTreeNodes(
+      source,
+      scannedItems,
+      pdfMimeType,
+      "pdf"
     );
-    const epubFileProps: FileProps[] = scannedFilesEpub.map((f) => ({
-      id: {
-        source,
-        file: driveItemIdToFileId(getDriveId(f), getItemId(f)),
-      },
-      type: "epub",
-      title: undefined,
-      author: undefined,
-      fileName: f.name,
-      path: (f.parentReference ?? { path: "" }).path,
-      givenTags: [],
-      lastModifiedDate: f.lastModifiedDateTime,
-    }));
+
+    const epubFileProps = getFilePropsFromTreeNodes(
+      source,
+      scannedItems,
+      epubMimeType,
+      "epub"
+    );
 
     const fileProps = [...pdfFileProps, ...epubFileProps];
     return ok(Object.fromEntries(fileProps.map((f) => [bookIdToStr(f.id), f])));
@@ -172,17 +155,18 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     loadProgressCallback: LoadProgressCallback
   ): Promise<Result<FileContent, OnlineBookError>> {
     const sourceId = bookId.source;
-    const client = this.clientFactory.getClientWrapper(
-      sourceId,
-      this.msalInstance
-    );
+    const client = this.clientFactory.getClientWrapper(sourceId);
     if (client.err) return client;
 
     const fileId = bookId.file;
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
-    const item = await client.val.downloadItemAsDataUri(
-      driveId,
-      itemId,
+    const item = await this.clientUtil.downloadItemById(
+      client.val,
+      {
+        type: "folder",
+        driveId,
+        itemId,
+      },
       loadProgressCallback
     );
     if (item.err) {
@@ -215,15 +199,16 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     bookId: BookId
   ): Promise<Result<FileThumbnail, OnlineBookError>> {
     const sourceId = bookId.source;
-    const client = this.clientFactory.getClientWrapper(
-      sourceId,
-      this.msalInstance
-    );
+    const client = this.clientFactory.getClientWrapper(sourceId);
     if (client.err) return client;
 
     const fileId = bookId.file;
     const [driveId, itemId] = fileIdToDriveItemId(fileId);
-    const item = await client.val.downloadThumbnailAsDataUri(driveId, itemId);
+    const item = await this.clientUtil.downloadThumbnailById(client.val, {
+      type: "folder",
+      driveId,
+      itemId,
+    });
     if (item.err) {
       if (!isOneDriveItemError(item.val)) return err(item.val);
       return err(bookNotExistsInSourceError(bookId));
@@ -263,10 +248,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     source: SourceId,
     parentDirId: DirectoryId
   ): Promise<Result<ScanTargetDirectory[], OnlineBookError>> {
-    const client = this.clientFactory.getClientWrapper(
-      source,
-      this.msalInstance
-    );
+    const client = this.clientFactory.getClientWrapper(source);
     if (client.err) return client;
 
     const config = await this.configRepo.loadConfig(source);
@@ -281,7 +263,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
       return true;
     };
 
-    const children = await this.clientUtil.getFolderChildrenItems(
+    const children = await this.clientUtil.getItemChildren(
       client.val,
       parentDirId as OneDriveDirectoryId,
       folderNameFilter
@@ -310,10 +292,7 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     dirId: DirectoryId
   ): Promise<Result<string, OnlineBookError>> {
     const dirId2 = dirId as OneDriveDirectoryId;
-    const client = this.clientFactory.getClientWrapper(
-      source,
-      this.msalInstance
-    );
+    const client = this.clientFactory.getClientWrapper(source);
     if (client.err) return client;
 
     if (dirId2.type === "topMyItems") {
@@ -322,7 +301,11 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
     if (dirId2.type === "topShared") {
       return ok(rootSharedDirectoryName);
     }
-    const r = await client.val.getItem(dirId2.driveId, dirId2.itemId);
+    const r = await client.val.getItem({
+      type: "itemById",
+      driveId: dirId2.driveId,
+      itemId: dirId2.itemId,
+    });
     if (r.err) {
       if (!isOneDriveItemError(r.val)) return err(r.val);
       return err(somethingWrongError("Bad directory id"));
@@ -354,3 +337,31 @@ const defaultScanRoot: ScanTargetDirectory<OneDriveDirectoryId>[] = [
     },
   },
 ];
+
+const getFilePropsFromTreeNodes = (
+  source: SourceId,
+  nodes: FlattenDriveItemTreeNode[],
+  mimeType: string,
+  bookType: BookType
+): FileProps[] => {
+  const pdfFileProps: (FileProps | undefined)[] = nodes.map((n) => {
+    const f = n.driveItem;
+    if (!(f && isFile(f) && f.file.mimeType === mimeType)) return undefined;
+    return {
+      id: {
+        source,
+        file: driveItemIdToFileId(getDriveId(f), getItemId(f)),
+      },
+      type: bookType,
+      title: undefined,
+      author: undefined,
+      fileName: f.name,
+      path: (f.parentReference ?? { path: "" }).path,
+      givenTags: [],
+      lastModifiedDate: f.lastModifiedDateTime,
+    };
+  });
+  return pdfFileProps.filter(isNotUndefined);
+};
+
+const isNotUndefined = <T>(v: T | undefined): v is T => v !== undefined;

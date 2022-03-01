@@ -15,8 +15,9 @@ import {
 } from "../../core";
 import { OnlineBookDataRepository } from "../../core/interfaces";
 import {
-  MsGraphClientWrapper,
-  MsGraphClientWrapperFactory,
+  MsGraphClientUtilRest,
+  MsGraphClientWrapperRest,
+  MsGraphClientWrapperRestFactory,
 } from "./interfaces";
 import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
 import { isFile } from "./util";
@@ -46,10 +47,10 @@ export class OneDriveOnlineBookDataRepositoryImpl
   implements OnlineBookDataRepository
 {
   constructor(
-    @inject(it.MsGraphClientWrapperFactory)
-    private readonly msGraphClientWrapperFactory: MsGraphClientWrapperFactory,
-    @inject(it.MsalInstanceRepository)
-    private readonly msalInstanceRepository: MsalInstanceRepository
+    @inject(it.MsGraphClientWrapperRestFactory)
+    private readonly msGraphClientWrapperFactory: MsGraphClientWrapperRestFactory,
+    @inject(it.MsGraphClientUtilRest)
+    private readonly clientUtil: MsGraphClientUtilRest
   ) {}
 
   async loadAllStoredBookProps(
@@ -58,11 +59,19 @@ export class OneDriveOnlineBookDataRepositoryImpl
     const client = this.getClient(source);
     if (client.err) return client;
 
-    await client.val.postFolderToAppRoot(bookPropsDir);
-    const items = await client.val.getFolderChildrenFromAppFolder(
-      [],
-      bookPropsDir
+    await client.val.postItem(
+      {
+        type: "appItemByPath",
+        parentPath: [],
+        itemName: bookPropsDir,
+      },
+      ""
     );
+    const items = await client.val.getChildren({
+      type: "appItemByPath",
+      parentPath: [],
+      itemName: bookPropsDir,
+    });
     if (items.err) return err(somethingWrongError(JSON.stringify(items.val)));
 
     const books = (
@@ -70,7 +79,8 @@ export class OneDriveOnlineBookDataRepositoryImpl
         items.val
           .filter(isFile)
           .map((f) =>
-            client.val.downloadAppFolderItemAsDataUri(
+            this.clientUtil.downloadItemFromAppFolderByPath(
+              client.val,
               [bookPropsDir],
               f.name,
               () => {}
@@ -89,7 +99,8 @@ export class OneDriveOnlineBookDataRepositoryImpl
     const client = this.getClient(book.source);
     if (client.err) return client;
 
-    const r = await client.val.downloadAppFolderItemAsDataUri(
+    const r = await this.clientUtil.downloadItemFromAppFolderByPath(
+      client.val,
       [bookPropsDir],
       bookIdToFileName(book),
       () => {}
@@ -106,7 +117,11 @@ export class OneDriveOnlineBookDataRepositoryImpl
     const client = this.getClient(source);
     if (client.err) return client;
 
-    const deleting = await client.val.deleteItemInAppFolder([], bookPropsDir);
+    const deleting = await client.val.deleteItem({
+      type: "appItemByPath",
+      parentPath: [],
+      itemName: bookPropsDir,
+    });
     if (deleting.err)
       return err(somethingWrongError(JSON.stringify(deleting.val)));
 
@@ -126,19 +141,23 @@ export class OneDriveOnlineBookDataRepositoryImpl
     if (client.err) return client;
 
     for (const bookId of diff.delete.keys()) {
-      const deleting = await client.val.deleteItemInAppFolder(
-        [bookPropsDir],
-        bookIdToFileName(bookId)
-      );
+      const deleting = await client.val.deleteItem({
+        type: "appItemByPath",
+        parentPath: [],
+        itemName: bookIdToFileName(bookId),
+      });
       if (deleting.err)
         return err(somethingWrongError(JSON.stringify(deleting.val)));
     }
 
     for (const bookId of [...diff.add.keys(), ...diff.update.keys()]) {
       const props = newProps[bookIdToStr(bookId)];
-      const putting = await client.val.putSmallTextToAppRoot(
-        [bookPropsDir],
-        bookIdToFileName(bookId),
+      const putting = await client.val.putItem(
+        {
+          type: "appItemByPath",
+          parentPath: [bookPropsDir],
+          itemName: bookIdToFileName(bookId),
+        },
         JSON.stringify(props)
       );
       if (putting.err)
@@ -154,9 +173,12 @@ export class OneDriveOnlineBookDataRepositoryImpl
     const client = this.getClient(props.id.source);
     if (client.err) return client;
 
-    const r = await client.val.putSmallTextToAppRoot(
-      [bookPropsDir],
-      bookIdToFileName(props.id),
+    const r = await client.val.putItem(
+      {
+        type: "appItemByPath",
+        parentPath: [bookPropsDir],
+        itemName: bookIdToFileName(props.id),
+      },
       JSON.stringify(props)
     );
     if (r.err) return err(somethingWrongError(JSON.stringify(r.val)));
@@ -166,11 +188,7 @@ export class OneDriveOnlineBookDataRepositoryImpl
 
   private getClient(
     source: SourceId
-  ): Result<MsGraphClientWrapper, OnlineSourceError> {
-    const msalInstance = this.msalInstanceRepository.get();
-    return this.msGraphClientWrapperFactory.getClientWrapper(
-      source,
-      msalInstance
-    );
+  ): Result<MsGraphClientWrapperRest, OnlineSourceError> {
+    return this.msGraphClientWrapperFactory.getClientWrapper(source);
   }
 }

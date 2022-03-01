@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 import { BookSourceImpl } from "./book-source/book-source-impl";
-import { MsGraphClientUtilImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-util-impl";
-import { MsGraphClientWrapperFactoryImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-wrapper-factory-impl";
+import { MsGraphClientUtilRestImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-util-rest-impl";
+import { MsGraphClientWrapperRestFactoryImpl } from "./cloud-storages/one-drive/driver/ms-graph-client-wrapper-factory-rest-impl";
 import { MsalInstanceRepositoryImpl } from "./cloud-storages/one-drive/driver/msal-instance-repository-impl";
 import { OneDriveBookSourceImpl } from "./cloud-storages/one-drive/one-drive-book-source-impl";
 import { OneDriveOnlineBookDataRepositoryImpl } from "./cloud-storages/one-drive/one-drive-online-book-data-repository-impl";
@@ -20,9 +20,9 @@ type ClassObject = {
 export const injectionPairs: Record<string, ClassObject> = {
   [it.LocalBookRepository]: DexieLocalBookRepository,
   [it.DateUtil]: DateUtilImpl,
-  [it.MsGraphClientWrapperFactory]: MsGraphClientWrapperFactoryImpl,
+  [it.MsGraphClientWrapperRestFactory]: MsGraphClientWrapperRestFactoryImpl,
   [it.MsalInstanceRepository]: MsalInstanceRepositoryImpl,
-  [it.MsGraphClientUtil]: MsGraphClientUtilImpl,
+  [it.MsGraphClientUtilRest]: MsGraphClientUtilRestImpl,
   [it.OnlineBookDataRepository]: OnlineBookDataRepositoryImpl,
   [it.BookSource]: BookSourceImpl,
   [it.OneDriveBookSource]: OneDriveBookSourceImpl,

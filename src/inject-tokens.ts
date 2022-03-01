@@ -1,9 +1,9 @@
 export const injectTokens = {
   LocalBookRepository: "LocalBookRepository",
   DateUtil: "DateUtil",
-  MsGraphClientWrapperFactory: "MsGraphClientWrapperFactory",
+  MsGraphClientWrapperRestFactory: "MsGraphClientWrapperRestFactory",
   MsalInstanceRepository: "MsalInstanceRepository",
-  MsGraphClientUtil: "MsGraphClientUtil",
+  MsGraphClientUtilRest: "MsGraphClientUtilRest",
   OnlineBookDataRepository: "OnlineBookDataRepository",
   BookSource: "BookSource",
   OneDriveBookSource: "OneDriveBookSource",
