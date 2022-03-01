@@ -89,11 +89,7 @@ export class MsGraphClientUtilRestImpl implements MsGraphClientUtilRest {
 
     if (item.err) return item;
 
-    return await downloadItemFromDriveItem(
-      client,
-      item.val,
-      loadProgressCallback
-    );
+    return await downloadItemFromDriveItem(item.val, loadProgressCallback);
   }
 
   async downloadItemFromAppFolderByPath(
@@ -110,11 +106,7 @@ export class MsGraphClientUtilRestImpl implements MsGraphClientUtilRest {
 
     if (item.err) return item;
 
-    return await downloadItemFromDriveItem(
-      client,
-      item.val,
-      loadProgressCallback
-    );
+    return await downloadItemFromDriveItem(item.val, loadProgressCallback);
   }
 }
 
@@ -221,7 +213,6 @@ const scanItemsUnderItem = async (
 };
 
 const downloadItemFromDriveItem = async (
-  client: MsGraphClientWrapperRest,
   item: DriveItem,
   loadProgressCallback: LoadProgressCallback
 ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> => {
