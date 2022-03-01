@@ -9,6 +9,7 @@ import {
 } from "../../../use-cases/book-sources/one-drive";
 import {
   DriveItemTree,
+  FlattenDriveItemTreeNode,
   MsGraphClientUtilRest,
 } from "../interfaces/ms-graph-client-util-rest";
 import { MsGraphClientWrapperRest } from "../interfaces/ms-graph-client-wrapper-rest";
@@ -48,6 +49,10 @@ export class MsGraphClientUtilRestImpl implements MsGraphClientUtilRest {
       directoryId.itemId,
       folderNameFilter
     );
+  }
+
+  flatScanTree(tree: DriveItemTree): FlattenDriveItemTreeNode[] {
+    return flatScanTreeNode(tree, []);
   }
 
   async getItemChildren(
@@ -210,6 +215,21 @@ const scanItemsUnderItem = async (
     folderNameFilter
   );
   return r;
+};
+
+const flatScanTreeNode = (
+  currentTree: DriveItemTree,
+  parentPath: string[]
+): FlattenDriveItemTreeNode[] => {
+  const nestedChildren = currentTree.children.map((c) =>
+    flatScanTreeNode(c, [...parentPath, c.name])
+  );
+  const selfNode: FlattenDriveItemTreeNode = {
+    parentPath,
+    name: currentTree.name,
+    driveItem: currentTree.driveItem,
+  };
+  return [selfNode, ...nestedChildren.flat()];
 };
 
 const downloadItemFromDriveItem = async (

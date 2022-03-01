@@ -15,12 +15,20 @@ export type DriveItemTree = {
   children: DriveItemTree[];
 };
 
+export type FlattenDriveItemTreeNode = {
+  parentPath: string[];
+  name: string;
+  driveItem?: DriveItem;
+};
+
 export interface MsGraphClientUtilRest {
   scanItemsUnderItem(
     client: MsGraphClientWrapperRest,
     directoryId: OneDriveDirectoryId,
     folderNameFilter: (name: string) => boolean
   ): Promise<Result<DriveItemTree, OneDriveItemError>>;
+
+  flatScanTree(tree: DriveItemTree): FlattenDriveItemTreeNode[];
 
   getItemChildren(
     client: MsGraphClientWrapperRest,
