@@ -1,14 +1,25 @@
 import { injectable, singleton } from "tsyringe";
-import { Result, ok, isOk } from "../../../results";
-import { OneDriveDirectoryId } from "../../../use-cases/book-sources/one-drive";
+import ky from "ky";
+import { DataUri } from "../../../core";
+import { LoadProgressCallback } from "../../../core/interfaces";
+import { Result, ok, isOk, err } from "../../../results";
+import {
+  DefaultDirectoryId,
+  OneDriveDirectoryId,
+} from "../../../use-cases/book-sources/one-drive";
 import {
   DriveItemTree,
   MsGraphClientUtilRest,
 } from "../interfaces/ms-graph-client-util-rest";
 import { MsGraphClientWrapperRest } from "../interfaces/ms-graph-client-wrapper-rest";
-import { OneDriveItemError } from "../one-drive-error";
-import { DriveItem, MsGraphClientType } from "../types";
 import {
+  OneDriveItemError,
+  oneDriveItemIsNotFileError,
+  oneDriveItemNotExistsError,
+} from "../one-drive-error";
+import { DriveItem, DriveItemAsFile } from "../types";
+import {
+  blobToBase64,
   getDriveId,
   getItemId,
   isFile,
@@ -63,6 +74,47 @@ export class MsGraphClientUtilRestImpl implements MsGraphClientUtilRest {
     const r = await getItemChildrenRaw(client, directoryId);
     if (r.err) return r;
     return ok(filterItems(r.val, folderNameFilter));
+  }
+
+  async downloadItemById(
+    client: MsGraphClientWrapperRest,
+    directoryId: DefaultDirectoryId,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
+    const item = await client.getItem({
+      type: "itemById",
+      driveId: directoryId.driveId,
+      itemId: directoryId.itemId,
+    });
+
+    if (item.err) return item;
+
+    return await downloadItemFromDriveItem(
+      client,
+      item.val,
+      loadProgressCallback
+    );
+  }
+
+  async downloadItemFromAppFolderByPath(
+    client: MsGraphClientWrapperRest,
+    parentPath: string[],
+    fileName: string,
+    loadProgressCallback: LoadProgressCallback
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
+    const item = await client.getItem({
+      type: "appItemByPath",
+      parentPath,
+      itemName: fileName,
+    });
+
+    if (item.err) return item;
+
+    return await downloadItemFromDriveItem(
+      client,
+      item.val,
+      loadProgressCallback
+    );
   }
 }
 
@@ -166,4 +218,23 @@ const scanItemsUnderItem = async (
     folderNameFilter
   );
   return r;
+};
+
+const downloadItemFromDriveItem = async (
+  client: MsGraphClientWrapperRest,
+  item: DriveItem,
+  loadProgressCallback: LoadProgressCallback
+): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> => {
+  if (!isFile(item))
+    return err(oneDriveItemIsNotFileError(getDriveId(item), getItemId(item)));
+
+  const r = await ky.get(item["@microsoft.graph.downloadUrl"], {
+    onDownloadProgress: (progress) =>
+      loadProgressCallback(progress.transferredBytes, progress.totalBytes),
+  });
+  if (r.status !== 200)
+    return err(oneDriveItemNotExistsError(getDriveId(item), getItemId(item)));
+  const file = await r.blob();
+  const base64Item = await blobToBase64(file);
+  return ok([item, base64Item]);
 };
