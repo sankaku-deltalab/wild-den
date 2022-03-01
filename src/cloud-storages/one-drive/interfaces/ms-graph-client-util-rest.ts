@@ -42,6 +42,11 @@ export interface MsGraphClientUtilRest {
     loadProgressCallback: LoadProgressCallback
   ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
 
+  downloadThumbnailById(
+    client: MsGraphClientWrapperRest,
+    directoryId: DefaultDirectoryId
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>>;
+
   downloadItemFromAppFolderByPath(
     client: MsGraphClientWrapperRest,
     parentPath: string[],

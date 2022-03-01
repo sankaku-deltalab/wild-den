@@ -1,6 +1,6 @@
 import { injectable, singleton } from "tsyringe";
 import ky from "ky";
-import { DataUri } from "../../../core";
+import { DataUri, offlineError } from "../../../core";
 import { LoadProgressCallback } from "../../../core/interfaces";
 import { Result, ok, isOk, err } from "../../../results";
 import {
@@ -95,6 +95,14 @@ export class MsGraphClientUtilRestImpl implements MsGraphClientUtilRest {
     if (item.err) return item;
 
     return await downloadItemFromDriveItem(item.val, loadProgressCallback);
+  }
+
+  async downloadThumbnailById(
+    client: MsGraphClientWrapperRest,
+    directoryId: DefaultDirectoryId
+  ): Promise<Result<[DriveItemAsFile, DataUri], OneDriveItemError>> {
+    // TODO: impl this.
+    return err(offlineError());
   }
 
   async downloadItemFromAppFolderByPath(
