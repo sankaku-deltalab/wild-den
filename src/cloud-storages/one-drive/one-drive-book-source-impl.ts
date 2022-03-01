@@ -41,7 +41,10 @@ import {
   fileIdToDriveItemId,
 } from "./file-id-and-drive-item-id-converter";
 import { MsGraphClientWrapperFactory } from "./interfaces";
-import { OneDriveItemNotExistsError } from "./one-drive-error";
+import {
+  OneDriveItemIsNotFileError,
+  OneDriveItemNotExistsError,
+} from "./one-drive-error";
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../../inject-tokens";
 import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
@@ -330,7 +333,12 @@ export class OneDriveBookSourceImpl implements OneDriveBookSource {
 
 const isOneDriveItemError = (v: {
   type: string;
-}): v is OneDriveItemNotExistsError => v.type === "onedrive item not exists";
+}): v is OneDriveItemNotExistsError | OneDriveItemIsNotFileError => {
+  return (
+    v.type === "onedrive item not exists" ||
+    v.type === "onedrive item is not file"
+  );
+};
 
 const defaultScanRoot: ScanTargetDirectory<OneDriveDirectoryId>[] = [
   {
