@@ -44,7 +44,7 @@ export interface MsGraphClientWrapperRest {
   ): Promise<Result<void, OneDriveItemError>>;
 
   postItem<T>(
-    itemId: EditableDriveItemId,
+    itemId: DriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>>;
 

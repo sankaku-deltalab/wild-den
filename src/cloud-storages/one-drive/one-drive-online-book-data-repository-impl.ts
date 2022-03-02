@@ -61,11 +61,9 @@ export class OneDriveOnlineBookDataRepositoryImpl
 
     await client.val.postItem(
       {
-        type: "appItemByPath",
-        parentPath: [],
-        itemName: bookPropsDir,
+        type: "appRoot",
       },
-      ""
+      JSON.stringify({ name: bookPropsDir, folder: {} })
     );
     const items = await client.val.getChildren({
       type: "appItemByPath",

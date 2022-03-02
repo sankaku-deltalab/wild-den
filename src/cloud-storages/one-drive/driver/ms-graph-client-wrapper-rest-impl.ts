@@ -11,7 +11,7 @@ import { isSpecialFolder } from "../util";
 
 const getItemUrl = (itemId: DriveItemId): string | undefined => {
   if (itemId.type === "root") {
-    return "/v1.0/me/drive/root/";
+    return "/me/drive/root/";
   }
   if (itemId.type === "sharedRoot") {
     // NOTE: shared folders root could not access.
@@ -82,10 +82,11 @@ export class MsGraphClientWrapperRestImpl implements MsGraphClientWrapperRest {
     itemId: EditableDriveItemId,
     content: T
   ): Promise<Result<DriveItem, OneDriveItemError>> {
+    // POST means "create child"
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
     return await apiWrap(() =>
-      this.client.api(url).post<DriveItem, T>(content)
+      this.client.api(url + "children").post<DriveItem, T>(content)
     );
   }
 
@@ -106,7 +107,9 @@ export class MsGraphClientWrapperRestImpl implements MsGraphClientWrapperRest {
   ): Promise<Result<DriveItem, OneDriveItemError>> {
     const url = getItemUrl(itemId);
     if (url === undefined) throw new Error("unknown api url");
-    return await apiWrap(() => this.client.api(url).put<DriveItem, T>(content));
+    return await apiWrap(() =>
+      this.client.api(url + "content").put<DriveItem, T>(content)
+    );
   }
 
   async getChildren(
