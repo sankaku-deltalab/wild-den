@@ -1,5 +1,6 @@
-import { injectable, singleton } from "tsyringe";
+import { inject, injectable, singleton } from "tsyringe";
 import { AccountInfo } from "@azure/msal-browser";
+import { injectTokens as it } from "../../../inject-tokens";
 import { err, Result, ok } from "../../../results";
 import {
   SourceId,
@@ -24,7 +25,10 @@ import { MsGraphClientWrapperRestImpl } from "./ms-graph-client-wrapper-rest-imp
 export class MsGraphClientWrapperRestFactoryImpl
   implements MsGraphClientWrapperRestFactory
 {
-  constructor(private readonly msalRepo: MsalInstanceRepository) {}
+  constructor(
+    @inject(it.MsalInstanceRepository)
+    private readonly msalRepo: MsalInstanceRepository
+  ) {}
 
   getClientWrappers(): Record<SourceIdStr, MsGraphClientWrapperRest> {
     const msalInstance = this.msalRepo.get();
