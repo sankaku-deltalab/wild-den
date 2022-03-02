@@ -8,11 +8,14 @@ export const filePropsToBookProps = (
 ): BookProps => {
   const title = file.title ?? file.fileName ?? "no title";
   const author = file.author ?? "";
-  const tagsByPath = file.path ? file.path.split("/") : [];
-  const autoTags: BookAutoTag[] = file.givenTags.map((t) => ({
+  const path = file.path ? file.path.split("/") : [];
+  const tagsByPath = path.map((p) => ({ type: "path", name: p }));
+  const givenTags = file.givenTags.map((t) => ({
     type: "fileGiven",
     name: t,
   }));
+  const autoTags: BookAutoTag[] = [...tagsByPath, ...givenTags];
+
   return {
     id: file.id,
     lastModifiedDate: now,
@@ -21,7 +24,7 @@ export const filePropsToBookProps = (
     title,
     author,
     autoTags,
-    manualTags: tagsByPath,
+    manualTags: [],
     hiddenAutoTagNames: [],
     hidden: false,
     lastReadDate: "",
