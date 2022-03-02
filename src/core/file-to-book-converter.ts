@@ -9,7 +9,9 @@ export const filePropsToBookProps = (
   const title = file.title ?? file.fileName ?? "no title";
   const author = file.author ?? "";
   const path = file.path ? file.path.split("/") : [];
-  const tagsByPath = path.map((p) => ({ type: "path", name: p }));
+  const tagsByPath = [...new Set(path)]
+    .filter((p) => p.length > 0)
+    .map((p) => ({ type: "path", name: p }));
   const givenTags = file.givenTags.map((t) => ({
     type: "fileGiven",
     name: t,
