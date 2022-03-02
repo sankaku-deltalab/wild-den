@@ -356,7 +356,7 @@ const getFilePropsFromTreeNodes = (
       title: undefined,
       author: undefined,
       fileName: f.name,
-      path: (f.parentReference ?? { path: "" }).path,
+      path: n.parentPath.join("/"),
       givenTags: [],
       lastModifiedDate: f.lastModifiedDateTime,
     };

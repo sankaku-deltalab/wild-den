@@ -27,6 +27,7 @@ import {
   isFolder,
   isSpecialFolder,
   rootDirectoryName,
+  rootSharedDirectoryName,
 } from "../util";
 
 @singleton()
@@ -165,7 +166,7 @@ const scanItemsUnderSharedRoot = async (
   if (r.err) return r;
 
   return ok({
-    name: rootDirectoryName,
+    name: rootSharedDirectoryName,
     children: r.val,
   });
 };
@@ -176,20 +177,14 @@ const scanItemsUnderItemById = async (
   itemId: string,
   folderNameFilter: (name: string) => boolean
 ): Promise<Result<DriveItemTree, OneDriveItemError>> => {
-  const children = await client.getChildren({
+  const item = await client.getItem({
     type: "itemById",
     driveId,
     itemId,
   });
-  if (children.err) return children;
+  if (item.err) return item;
 
-  const r = await scanItemsUnderItems(client, children.val, folderNameFilter);
-  if (r.err) return r;
-
-  return ok({
-    name: rootDirectoryName,
-    children: r.val,
-  });
+  return await scanItemsUnderItem(client, item.val, folderNameFilter);
 };
 
 const scanItemsUnderItems = async (
@@ -216,13 +211,21 @@ const scanItemsUnderItem = async (
       children: [],
     });
 
-  const r = await scanItemsUnderItemById(
-    client,
-    getDriveId(driveItem),
-    getItemId(driveItem),
-    folderNameFilter
+  const children = await client.getChildren({
+    type: "itemById",
+    driveId: getDriveId(driveItem),
+    itemId: getItemId(driveItem),
+  });
+  if (children.err) return children;
+
+  const rs = await Promise.all(
+    children.val.map((c) => scanItemsUnderItem(client, c, folderNameFilter))
   );
-  return r;
+  const trees = rs.filter(isOk).map((v) => v.val);
+  return ok({
+    name: driveItem.name,
+    children: trees,
+  });
 };
 
 const flatScanTreeNode = (
@@ -230,7 +233,7 @@ const flatScanTreeNode = (
   parentPath: string[]
 ): FlattenDriveItemTreeNode[] => {
   const nestedChildren = currentTree.children.map((c) =>
-    flatScanTreeNode(c, [...parentPath, c.name])
+    flatScanTreeNode(c, [...parentPath, currentTree.name])
   );
   const selfNode: FlattenDriveItemTreeNode = {
     parentPath,
