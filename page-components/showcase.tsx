@@ -8,6 +8,7 @@ import {
 } from "../redux-state/slices/showcase-slice";
 import NavigationBar from "./showcase-element/NavigationBar";
 import BottomBar from "./showcase-element/BottomBar";
+import { BookProps } from "../src/core";
 
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
@@ -28,20 +29,32 @@ const Showcase: React.FC<{}> = () => {
       <Card sx={{ width: "100%" }}>
         <List>
           {books.map(([idStr, props]) => (
-            <ListItem key={idStr}>
-              <ListItemButton
-                onClick={() => {
-                  dispatch(readBookThunk({ id: props.id }));
-                }}
-              >
-                {props.title}
-              </ListItemButton>
-            </ListItem>
+            <BookItem key={idStr} book={props} />
           ))}
         </List>
       </Card>
       <BottomBar />
     </>
+  );
+};
+
+const BookItem = (props: { book: BookProps }) => {
+  const dispatch = useAppDispatch();
+  const { book } = props;
+
+  const tags = [...book.autoTags.map((t) => t.name), ...book.manualTags];
+  const tagsStr = tags.map((t) => `#${t}`).join(" ");
+
+  return (
+    <ListItem>
+      <ListItemButton
+        onClick={() => {
+          dispatch(readBookThunk({ id: book.id }));
+        }}
+      >
+        {`${book.title} [${tagsStr}]`}
+      </ListItemButton>
+    </ListItem>
   );
 };
 
