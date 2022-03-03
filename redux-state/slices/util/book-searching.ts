@@ -9,6 +9,10 @@ export const searchBooks = (
   searchText: string,
   bookArray: BookProps[]
 ): BookProps[] => {
-  const fuse = new Fuse(bookArray);
+  const options: Fuse.IFuseOptions<BookProps> = {
+    threshold: 0,
+    keys: ["title", "autoTags.name", "manualTags"],
+  };
+  const fuse = new Fuse<BookProps>(bookArray, options);
   return fuse.search(searchText).map((r) => r.item);
 };
