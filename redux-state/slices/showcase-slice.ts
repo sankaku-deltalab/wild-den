@@ -225,6 +225,10 @@ export const selectSearchedBooks = createSelector(
   selectBookProps,
   selectSearchText,
   (bookProps, searchText) => {
+    if (searchText === "")
+      return Object.entries(bookProps).sort(([aKey, a], [bKey, b]) =>
+        a.title.localeCompare(b.title)
+      );
     const searched = searchBooks(searchText, Object.values(bookProps));
     return searched
       .map<[BookIdStr, BookProps]>((b) => [bookIdToStr(b.id), b])

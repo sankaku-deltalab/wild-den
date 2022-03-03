@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { List, ListItem, ListItemButton, Button, Card } from "@mui/material";
+import { List, ListItem, ListItemButton, Card } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   loadInitialBookPropsThunk,
   readBookThunk,
-  selectSortedBookProps,
+  selectSearchedBooks,
 } from "../redux-state/slices/showcase-slice";
 import NavigationBar from "./showcase-element/NavigationBar";
 import BottomBar from "./showcase-element/BottomBar";
@@ -12,7 +12,7 @@ import { BookProps } from "../src/core";
 
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
-  const books = useAppSelector(selectSortedBookProps);
+  const books = useAppSelector(selectSearchedBooks);
 
   // run only first time
   useEffect(() => {
