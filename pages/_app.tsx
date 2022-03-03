@@ -10,6 +10,7 @@ import { store } from "../redux-state";
 import "../src/use-cases-injection/common-use-cases-injection";
 import "../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { getMsalInstance } from "../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
+import { CssBaseline } from "@mui/material";
 
 const msalInstance = getMsalInstance.run();
 
@@ -19,6 +20,10 @@ const darkTheme = createTheme({
     primary: {
       main: "#1976d2",
     },
+    // background: { default: "#1976d2" },
+    background: {
+      default: "#101010",
+    },
   },
 });
 
@@ -27,6 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <MsalProvider instance={msalInstance}>
       <Provider store={store}>
         <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
           <Component {...pageProps} />
         </ThemeProvider>
       </Provider>

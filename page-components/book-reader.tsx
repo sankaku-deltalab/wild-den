@@ -91,19 +91,6 @@ const BookReader: React.FC<{}> = () => {
     (v) => 1 <= v && v <= numPages
   );
 
-  const pageSenderElement = (
-    <Grid
-      style={{ position: "fixed", height: "100vh" }}
-      sx={{ flexGrow: 1 }}
-      container
-      spacing={0}
-    >
-      <Grid item xs={4} onClick={goToLeft}></Grid>
-      <Grid item xs={4} onClick={toggleMenu}></Grid>
-      <Grid item xs={4} onClick={goToRight}></Grid>
-    </Grid>
-  );
-
   return (
     <>
       <Card sx={{ width: "100vw", height: "100vh" }}></Card>
@@ -151,7 +138,11 @@ const BookReader: React.FC<{}> = () => {
           ))}
         </Document>
       </div>
-      {pageSenderElement}
+      <PageSenderElement
+        goToLeft={goToLeft}
+        goToRight={goToRight}
+        toggleMenu={toggleMenu}
+      />
       <Modal open={menuOpened} onClose={() => setMenuOpened(false)}>
         <Card sx={modalStyle}>
           <div>{readingBook.err ? "" : readingBook.val.props.title}</div>
@@ -180,6 +171,33 @@ const BookReader: React.FC<{}> = () => {
         </Card>
       </Modal>
     </>
+  );
+};
+
+const PageSenderElement = (props: {
+  goToLeft: () => void;
+  toggleMenu: () => void;
+  goToRight: () => void;
+}) => {
+  const { goToLeft, toggleMenu, goToRight } = props;
+  return (
+    <Grid
+      style={{
+        position: "fixed",
+        height: "100vh",
+        width: "100vw",
+        left: "0px",
+        top: "0px",
+        flex: 1,
+      }}
+      sx={{ flexGrow: 1 }}
+      container
+      spacing={0}
+    >
+      <Grid item xs={4} onClick={goToLeft}></Grid>
+      <Grid item xs={4} onClick={toggleMenu}></Grid>
+      <Grid item xs={4} onClick={goToRight}></Grid>
+    </Grid>
   );
 };
 

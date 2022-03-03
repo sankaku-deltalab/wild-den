@@ -91,6 +91,12 @@ export const showcaseSlice = createSlice({
         state.contentLoadState[bookIdToStr(id)] = { elapsed: 0, total: 1 };
         state.status = "content loading";
       })
+      .addCase(readBookThunk.rejected, (state, action) => {
+        const { id } = action.meta.arg;
+        delete state.contentLoadState[bookIdToStr(id)];
+        console.warn("readBookThunk rejected", action);
+        state.status = "showing";
+      })
       .addCase(readBookThunk.fulfilled, (state, action) => {
         const { id } = action.meta.arg;
         delete state.contentLoadState[bookIdToStr(id)];

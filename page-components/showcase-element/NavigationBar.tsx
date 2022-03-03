@@ -20,7 +20,7 @@ import {
 } from "../../redux-state/slices/showcase-slice";
 import { loginToOneDrive } from "../../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { clearLocalRepository } from "../../src/use-cases-injection/common-use-cases-injection";
-import { InputBase, TextField, InputAdornment } from "@mui/material";
+import { Box, TextField, InputAdornment } from "@mui/material";
 
 export type NavigationBarProps = {};
 
@@ -58,73 +58,69 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
     </AuthenticatedTemplate>
   );
   return (
-    // <Box sx={{ flexGrow: 1, width: "100%", padding: 0 }}>
-    <AppBar
-      position="sticky"
-      sx={{ flexGrow: 1, width: "100%", padding: 0 }}
-      enableColorOnDark
-    >
-      <Toolbar sx={{ padding: 0 }}>
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <TextField
-          sx={{ flexGrow: 1 }}
-          placeholder={"Search"}
-          value={searchText}
-          variant="standard"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => handleUpdateSearchText("")}
-                  disabled={searchText.length === 0}
-                >
-                  <ClearIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          onChange={(e) => {
-            handleUpdateSearchText(e.target.value);
-          }}
-        />
-        {elementNotLoggedIn} {elementLoggedIn}
-        <Button
-          color="inherit"
-          variant="text"
-          onClick={() => clearLocalRepository.run()}
-        >
-          Clear Local
-        </Button>
-        <Button
-          color="inherit"
-          variant="text"
-          onClick={() => dispatch(scanBooksThunk())}
-        >
-          Scan
-        </Button>
-        <Button
-          color="inherit"
-          variant="text"
-          onClick={() => dispatch(syncBooksThunk())}
-        >
-          Sync
-        </Button>
-      </Toolbar>
-    </AppBar>
-    // </Box>
+    <Box sx={{ flexGrow: 1, width: "100%", padding: 0 }}>
+      <AppBar position="sticky" enableColorOnDark>
+        <Toolbar sx={{ padding: 0 }}>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <TextField
+            sx={{ flexGrow: 1 }}
+            placeholder={"Search"}
+            value={searchText}
+            variant="standard"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => handleUpdateSearchText("")}
+                    disabled={searchText.length === 0}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            onChange={(e) => {
+              handleUpdateSearchText(e.target.value);
+            }}
+          />
+          {elementNotLoggedIn} {elementLoggedIn}
+          <Button
+            color="inherit"
+            variant="text"
+            onClick={() => clearLocalRepository.run()}
+          >
+            Clear Local
+          </Button>
+          <Button
+            color="inherit"
+            variant="text"
+            onClick={() => dispatch(scanBooksThunk())}
+          >
+            Scan
+          </Button>
+          <Button
+            color="inherit"
+            variant="text"
+            onClick={() => dispatch(syncBooksThunk())}
+          >
+            Sync
+          </Button>
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 };
 
