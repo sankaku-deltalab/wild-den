@@ -1,10 +1,6 @@
 import Fuse from "fuse.js";
 import { BookPropsForShowcase } from "./book-props-for-showcase";
 
-export type SearchElement =
-  | { type: "raw-text"; text: string }
-  | { type: "tag"; tag: string };
-
 export const searchBooks = (
   searchText: string,
   bookArray: BookPropsForShowcase[]
