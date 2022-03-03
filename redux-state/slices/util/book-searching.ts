@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import { BookProps } from "../../../src/core";
+import { BookPropsForShowcase } from "./book-props-for-showcase";
 
 export type SearchElement =
   | { type: "raw-text"; text: string }
@@ -7,12 +7,12 @@ export type SearchElement =
 
 export const searchBooks = (
   searchText: string,
-  bookArray: BookProps[]
-): BookProps[] => {
-  const options: Fuse.IFuseOptions<BookProps> = {
+  bookArray: BookPropsForShowcase[]
+): BookPropsForShowcase[] => {
+  const options: Fuse.IFuseOptions<BookPropsForShowcase> = {
     threshold: 0,
-    keys: ["title", "autoTags.name", "manualTags"],
+    keys: ["title", "tags"],
   };
-  const fuse = new Fuse<BookProps>(bookArray, options);
+  const fuse = new Fuse<BookPropsForShowcase>(bookArray, options);
   return fuse.search(searchText).map((r) => r.item);
 };

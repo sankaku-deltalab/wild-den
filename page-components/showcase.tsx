@@ -8,7 +8,7 @@ import {
 } from "../redux-state/slices/showcase-slice";
 import NavigationBar from "./showcase-element/NavigationBar";
 import BottomBar from "./showcase-element/BottomBar";
-import { BookProps } from "../src/core";
+import { BookPropsForShowcase } from "../redux-state/slices/util/book-props-for-showcase";
 
 const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
@@ -38,11 +38,11 @@ const Showcase: React.FC<{}> = () => {
   );
 };
 
-const BookItem = (props: { book: BookProps }) => {
+const BookItem = (props: { book: BookPropsForShowcase }) => {
   const dispatch = useAppDispatch();
   const { book } = props;
 
-  const tags = [...book.autoTags.map((t) => t.name), ...book.manualTags];
+  const tags = book.tags;
   const tagsStr = tags.map((t) => `#${t}`).join(" ");
 
   return (

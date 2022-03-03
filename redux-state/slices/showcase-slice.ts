@@ -26,6 +26,10 @@ import {
   syncBookProps,
 } from "../../src/use-cases-injection/common-use-cases-injection";
 import { searchBooks } from "./util/book-searching";
+import {
+  BookPropsForShowcase,
+  convertBookPropsToShowcaseStyle,
+} from "./util/book-props-for-showcase";
 
 type ShowcaseState = {
   status: "showing" | "content loading" | "reading" | "scanning";
@@ -153,7 +157,7 @@ export const readBookThunk = createAsyncThunk<
   { state: RootState }
 >("showcase/readBookThunk", async ({ id }, thunkApi) => {
   const state = thunkApi.getState();
-  const props = selectBookProps(state)[bookIdToStr(id)];
+  const props = selectRawBookProps(state)[bookIdToStr(id)];
   const loadedContent = await loadBookContent.run(id, (elapsed, total) => {
     thunkApi.dispatch(updateContentLoading({ id, elapsed, total }));
   });
@@ -194,7 +198,7 @@ export const syncBooksThunk = createAsyncThunk<
 export const { closeBook, updateContentLoading, updateSearchText } =
   showcaseSlice.actions;
 
-export const selectBookProps = (
+export const selectRawBookProps = (
   state: RootState
 ): Record<BookIdStr, BookProps> => {
   return state.showcase.bookProps;
@@ -218,26 +222,36 @@ export const selectReadingBook = (
 
 export const selectSortedBookProps = (
   state: RootState
-): [BookIdStr, BookProps][] => {
-  return Object.entries(state.showcase.bookProps).sort(([aKey, a], [bKey, b]) =>
-    a.title.localeCompare(b.title)
-  );
+): [BookIdStr, BookPropsForShowcase][] => {
+  return Object.entries(state.showcase.bookProps)
+    .map<[BookIdStr, BookPropsForShowcase]>(([key, props]) => [
+      key,
+      convertBookPropsToShowcaseStyle(props),
+    ])
+    .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
 };
 
 export const selectSearchText = (state: RootState): string =>
   state.showcase.searchText;
 
 export const selectSearchedBooks = createSelector(
-  selectBookProps,
+  selectRawBookProps,
   selectSearchText,
-  (bookProps, searchText) => {
+  (bookProps, searchText): [BookIdStr, BookPropsForShowcase][] => {
     if (searchText === "")
-      return Object.entries(bookProps).sort(([aKey, a], [bKey, b]) =>
-        a.title.localeCompare(b.title)
-      );
-    const searched = searchBooks(searchText, Object.values(bookProps));
+      return Object.entries(bookProps)
+        .map<[BookIdStr, BookPropsForShowcase]>(([key, props]) => [
+          key,
+          convertBookPropsToShowcaseStyle(props),
+        ])
+        .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
+
+    const searched = searchBooks(
+      searchText,
+      Object.values(bookProps).map((p) => convertBookPropsToShowcaseStyle(p))
+    );
     return searched
-      .map<[BookIdStr, BookProps]>((b) => [bookIdToStr(b.id), b])
+      .map<[BookIdStr, BookPropsForShowcase]>((b) => [bookIdToStr(b.id), b])
       .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
   }
 );
