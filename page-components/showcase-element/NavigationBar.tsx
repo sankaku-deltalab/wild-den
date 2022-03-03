@@ -1,11 +1,11 @@
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -14,16 +14,25 @@ import {
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
 import {
   scanBooksThunk,
+  selectSearchText,
   syncBooksThunk,
+  updateSearchText,
 } from "../../redux-state/slices/showcase-slice";
 import { loginToOneDrive } from "../../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { clearLocalRepository } from "../../src/use-cases-injection/common-use-cases-injection";
+import { InputBase, TextField, InputAdornment } from "@mui/material";
 
 export type NavigationBarProps = {};
 
 const NavigationBar: React.FC<NavigationBarProps> = (props) => {
   const dispatch = useAppDispatch();
   const { accounts, instance: msalInstance } = useMsal();
+
+  const searchText = useAppSelector(selectSearchText);
+
+  const handleUpdateSearchText = (text: string) => {
+    dispatch(updateSearchText({ text }));
+  };
 
   // TODO: use slice dispatcher
   const elementNotLoggedIn = (
@@ -65,9 +74,32 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Wild Den
-        </Typography>
+        <TextField
+          sx={{ flexGrow: 1 }}
+          placeholder={"Search"}
+          value={searchText}
+          variant="standard"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => handleUpdateSearchText("")}
+                  disabled={searchText.length === 0}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          onChange={(e) => {
+            handleUpdateSearchText(e.target.value);
+          }}
+        />
         {elementNotLoggedIn} {elementLoggedIn}
         <Button
           color="inherit"
