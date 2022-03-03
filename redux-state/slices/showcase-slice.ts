@@ -1,4 +1,9 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  PayloadAction,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import { Result, ok, err } from "../../src/results";
 import {
   BookContentProps,
@@ -20,12 +25,14 @@ import {
   scanBooksFromAvailableSources,
   syncBookProps,
 } from "../../src/use-cases-injection/common-use-cases-injection";
+import { searchBooks } from "./util/book-searching";
 
 type ShowcaseState = {
   status: "showing" | "content loading" | "reading" | "scanning";
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
+  searchText: string;
   readingBook?: {
     id: BookId;
     props: BookProps;
@@ -39,6 +46,7 @@ const initialState: ShowcaseState = {
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
+  searchText: "",
   readingBook: undefined,
 };
 
@@ -60,6 +68,9 @@ export const showcaseSlice = createSlice({
         total,
       };
       state.contentLoadState[bookIdToStr(id)] = progress;
+    },
+    updateSearchText: (state, action: PayloadAction<{ text: string }>) => {
+      state.searchText = action.payload.text;
     },
   },
   extraReducers: (builder) => {
@@ -174,7 +185,8 @@ export const syncBooksThunk = createAsyncThunk<
   return props.val;
 });
 
-export const { closeBook, updateContentLoading } = showcaseSlice.actions;
+export const { closeBook, updateContentLoading, updateSearchText } =
+  showcaseSlice.actions;
 
 export const selectBookProps = (
   state: RootState
@@ -205,5 +217,19 @@ export const selectSortedBookProps = (
     a.title.localeCompare(b.title)
   );
 };
+
+export const selectSearchText = (state: RootState): string =>
+  state.showcase.searchText;
+
+export const selectSearchedBooks = createSelector(
+  selectBookProps,
+  selectSearchText,
+  (bookProps, searchText) => {
+    const searched = searchBooks(searchText, Object.values(bookProps));
+    return searched
+      .map<[BookIdStr, BookProps]>((b) => [bookIdToStr(b.id), b])
+      .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
+  }
+);
 
 export default showcaseSlice.reducer;
