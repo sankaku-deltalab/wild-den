@@ -31,21 +31,12 @@ import {
   convertBookPropsToShowcaseStyle,
 } from "./util/book-props-for-showcase";
 import { mapObj } from "../../src/util";
-import {
-  calcTagGroups,
-  TagGroupForShowcase,
-} from "./util/tag-group-for-showcase";
 
-type ShowcaseState = {
+type BookDataState = {
   status: "showing" | "content loading" | "reading" | "scanning";
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
-  tagSearchText: string;
-  taggedBooksShowcase?: {
-    chosenTag: string;
-    searchText: string;
-  };
   searchText: string;
   readingBook?: {
     id: BookId;
@@ -55,19 +46,17 @@ type ShowcaseState = {
   };
 };
 
-const initialState: ShowcaseState = {
+const initialState: BookDataState = {
   status: "showing",
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
-  tagSearchText: "",
-  taggedBooksShowcase: undefined,
   searchText: "",
   readingBook: undefined,
 };
 
-export const showcaseSlice = createSlice({
-  name: "showcase",
+export const bookDataSlice = createSlice({
+  name: "bookData",
   initialState,
   reducers: {
     closeBook: (state) => {
@@ -87,12 +76,6 @@ export const showcaseSlice = createSlice({
     },
     updateSearchText: (state, action: PayloadAction<{ text: string }>) => {
       state.searchText = action.payload.text;
-    },
-    choiceTagOfTagGroup: (state, action: PayloadAction<{ tag: string }>) => {
-      state.taggedBooksShowcase = {
-        chosenTag: action.payload.tag,
-        searchText: "",
-      };
     },
   },
   extraReducers: (builder) => {
@@ -159,7 +142,7 @@ export const loadInitialBookPropsThunk = createAsyncThunk<
   Result<[SourceId[], BookRecord<BookProps>], LocalRepositoryConnectionError>,
   {},
   { state: RootState }
->("showcase/loadInitialBookPropsThunk", async ({}, thunkApi) => {
+>("bookData/loadInitialBookPropsThunk", async ({}, thunkApi) => {
   const sources = await getAvailableSourceIds.run();
   const props = await loadLocalBookProps.run();
   if (props.err) return props;
@@ -173,7 +156,7 @@ export const readBookThunk = createAsyncThunk<
   >,
   { id: BookId },
   { state: RootState }
->("showcase/readBookThunk", async ({ id }, thunkApi) => {
+>("bookData/readBookThunk", async ({ id }, thunkApi) => {
   const state = thunkApi.getState();
   const props = selectRawBookProps(state)[bookIdToStr(id)];
   const loadedContent = await loadBookContent.run(id, (elapsed, total) => {
@@ -191,7 +174,7 @@ export const scanBooksThunk = createAsyncThunk<
   Record<BookIdStr, BookProps>,
   void,
   { state: RootState }
->("showcase/scanBooksThunk", async (_, thunkApi) => {
+>("bookData/scanBooksThunk", async (_, thunkApi) => {
   const r = await scanBooksFromAvailableSources.run();
   if (r.err) {
     return {};
@@ -203,7 +186,7 @@ export const syncBooksThunk = createAsyncThunk<
   BookRecord<BookProps>,
   void,
   { state: RootState }
->("showcase/syncBooksThunk", async (_, thunkApi) => {
+>("bookData/syncBooksThunk", async (_, thunkApi) => {
   const sources = await getAvailableSourceIds.run();
   for (const s of sources) {
     await syncBookProps.run(s);
@@ -213,17 +196,13 @@ export const syncBooksThunk = createAsyncThunk<
   return props.val;
 });
 
-export const {
-  closeBook,
-  updateContentLoading,
-  updateSearchText,
-  choiceTagOfTagGroup,
-} = showcaseSlice.actions;
+export const { closeBook, updateContentLoading, updateSearchText } =
+  bookDataSlice.actions;
 
 export const selectRawBookProps = (
   state: RootState
 ): Record<BookIdStr, BookProps> => {
-  return state.showcase.bookProps;
+  return state.bookData.bookProps;
 };
 
 export const selectReadingBook = (
@@ -237,7 +216,7 @@ export const selectReadingBook = (
   },
   "not reading"
 > => {
-  const val = state.showcase.readingBook;
+  const val = state.bookData.readingBook;
   if (val === undefined) return err("not reading");
   return ok(val);
 };
@@ -249,33 +228,17 @@ export const selectBookPropsForShowcase = createSelector(
   }
 );
 
-export const selectTagGroups = createSelector(
-  selectBookPropsForShowcase,
-  (bookProps): Record<string, TagGroupForShowcase> => {
-    return calcTagGroups(bookProps);
-  }
-);
-
-export const selectSortedTagGroups = createSelector(
-  selectTagGroups,
-  (tagGroups): [string, TagGroupForShowcase][] => {
-    return Object.entries(tagGroups).sort(([tagA], [tagB]) =>
-      tagA.localeCompare(tagB)
-    );
-  }
-);
-
 export const selectShowcaseMode = (
   state: RootState
 ): "main" | "taggedBooks" => {
-  if (state.showcase.taggedBooksShowcase !== undefined) return "taggedBooks";
+  // if (state.bookData.taggedBooksShowcase !== undefined) return "taggedBooks";
   return "main";
 };
 
 export const selectSortedBookProps = (
   state: RootState
 ): [BookIdStr, BookPropsForShowcase][] => {
-  return Object.entries(state.showcase.bookProps)
+  return Object.entries(state.bookData.bookProps)
     .map<[BookIdStr, BookPropsForShowcase]>(([key, props]) => [
       key,
       convertBookPropsToShowcaseStyle(props),
@@ -284,7 +247,7 @@ export const selectSortedBookProps = (
 };
 
 export const selectSearchText = (state: RootState): string =>
-  state.showcase.searchText;
+  state.bookData.searchText;
 
 export const selectSearchedBooks = createSelector(
   selectRawBookProps,
@@ -308,4 +271,4 @@ export const selectSearchedBooks = createSelector(
   }
 );
 
-export default showcaseSlice.reducer;
+export default bookDataSlice.reducer;

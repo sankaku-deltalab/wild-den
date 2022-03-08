@@ -7,7 +7,7 @@ import {
   CardActionArea,
 } from "@mui/material";
 import { useAppDispatch } from "../../redux-state/hooks";
-import { choiceTagOfTagGroup } from "../../redux-state/slices/showcase-slice";
+import { choiceTagOfTagGroup } from "../../redux-state/slices/book-data-slice";
 import { TagGroupForShowcase } from "../../redux-state/slices/util/tag-group-for-showcase";
 
 export type TagGroupContentProps = { group: TagGroupForShowcase };

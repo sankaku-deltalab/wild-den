@@ -6,9 +6,9 @@ export type BottomBarProps = {};
 
 const BottomBar: React.FC<BottomBarProps> = (props) => {
   const dispatch = useAppDispatch();
-  const books = useAppSelector((state) => state.showcase.bookProps);
+  const books = useAppSelector((state) => state.bookData.bookProps);
   const loadingState = useAppSelector(
-    (state) => state.showcase.contentLoadState
+    (state) => state.bookData.contentLoadState
   );
 
   const isLoading = [...Object.keys(loadingState)].length > 0;

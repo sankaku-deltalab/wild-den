@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAppSelector } from "../redux-state/hooks";
 import Showcase from "../page-components/showcase";
 import BookReader from "../page-components/book-reader";
-import { selectReadingBook } from "../redux-state/slices/showcase-slice";
+import { selectReadingBook } from "../redux-state/slices/book-data-slice";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {

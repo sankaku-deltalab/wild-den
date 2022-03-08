@@ -17,7 +17,7 @@ import {
   selectSearchText,
   syncBooksThunk,
   updateSearchText,
-} from "../../redux-state/slices/showcase-slice";
+} from "../../redux-state/slices/book-data-slice";
 import { loginToOneDrive } from "../../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { clearLocalRepository } from "../../src/use-cases-injection/common-use-cases-injection";
 import { Box, TextField, InputAdornment } from "@mui/material";

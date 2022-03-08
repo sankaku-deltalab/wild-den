@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Grid } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
-import { selectSortedTagGroups } from "../../redux-state/slices/showcase-slice";
+import { selectSortedTagGroups } from "../../redux-state/slices/book-data-slice";
 import TagGroupContent from "./TagGroupContent";
 
 export type TagGroupsProps = {};

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ListItem, ListItemButton } from "@mui/material";
 import { useAppDispatch } from "../../redux-state/hooks";
-import { readBookThunk } from "../../redux-state/slices/showcase-slice";
+import { readBookThunk } from "../../redux-state/slices/book-data-slice";
 import { BookPropsForShowcase } from "../../redux-state/slices/util/book-props-for-showcase";
 
 export type BookItemProps = { book: BookPropsForShowcase };

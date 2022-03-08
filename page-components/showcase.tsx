@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   loadInitialBookPropsThunk,
   selectShowcaseMode,
-} from "../redux-state/slices/showcase-slice";
+} from "../redux-state/slices/book-data-slice";
 import NavigationBar from "./showcase-element/NavigationBar";
 import BottomBar from "./showcase-element/BottomBar";
 import TagGroups from "./showcase-element/TagGroups";

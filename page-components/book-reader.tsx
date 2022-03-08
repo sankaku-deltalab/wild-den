@@ -15,7 +15,7 @@ import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   closeBook,
   selectReadingBook,
-} from "../redux-state/slices/showcase-slice";
+} from "../redux-state/slices/book-data-slice";
 
 // TODO: ローカルファイルに依存するようにする
 // https://zenn.dev/kin/articles/658b06a3233e60

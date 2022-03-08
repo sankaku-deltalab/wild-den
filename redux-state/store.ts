@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import showcaseSlice from "./slices/showcase-slice";
+import bookDataSlice from "./slices/book-data-slice";
 
 export const store = configureStore({
   reducer: {
-    showcase: showcaseSlice,
+    bookData: bookDataSlice,
   },
 });
 

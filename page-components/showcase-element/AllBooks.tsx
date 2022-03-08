@@ -1,7 +1,7 @@
 import * as React from "react";
 import { List } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
-import { selectSearchedBooks } from "../../redux-state/slices/showcase-slice";
+import { selectSearchedBooks } from "../../redux-state/slices/book-data-slice";
 import BookListItem from "./BookListItem";
 
 export type AllBooksProps = {};

@@ -5,7 +5,7 @@ import {
   readBookThunk,
   selectSearchedBooks,
   selectSortedTagGroups,
-} from "../../redux-state/slices/showcase-slice";
+} from "../../redux-state/slices/book-data-slice";
 import TagGroupContent from "./TagGroupContent";
 import { BookPropsForShowcase } from "../../redux-state/slices/util/book-props-for-showcase";
 import BookListItem from "./BookListItem";
