@@ -30,12 +30,22 @@ import {
   BookPropsForShowcase,
   convertBookPropsToShowcaseStyle,
 } from "./util/book-props-for-showcase";
+import { mapObj } from "../../src/util";
+import {
+  calcTagGroups,
+  TagGroupForShowcase,
+} from "./util/tag-group-for-showcase";
 
 type ShowcaseState = {
   status: "showing" | "content loading" | "reading" | "scanning";
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
+  tagSearchText: string;
+  taggedBooksShowcase?: {
+    chosenTag: string;
+    searchText: string;
+  };
   searchText: string;
   readingBook?: {
     id: BookId;
@@ -50,6 +60,8 @@ const initialState: ShowcaseState = {
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
+  tagSearchText: "",
+  taggedBooksShowcase: undefined,
   searchText: "",
   readingBook: undefined,
 };
@@ -75,6 +87,12 @@ export const showcaseSlice = createSlice({
     },
     updateSearchText: (state, action: PayloadAction<{ text: string }>) => {
       state.searchText = action.payload.text;
+    },
+    choiceTagOfTagGroup: (state, action: PayloadAction<{ tag: string }>) => {
+      state.taggedBooksShowcase = {
+        chosenTag: action.payload.tag,
+        searchText: "",
+      };
     },
   },
   extraReducers: (builder) => {
@@ -195,8 +213,12 @@ export const syncBooksThunk = createAsyncThunk<
   return props.val;
 });
 
-export const { closeBook, updateContentLoading, updateSearchText } =
-  showcaseSlice.actions;
+export const {
+  closeBook,
+  updateContentLoading,
+  updateSearchText,
+  choiceTagOfTagGroup,
+} = showcaseSlice.actions;
 
 export const selectRawBookProps = (
   state: RootState
@@ -218,6 +240,36 @@ export const selectReadingBook = (
   const val = state.showcase.readingBook;
   if (val === undefined) return err("not reading");
   return ok(val);
+};
+
+export const selectBookPropsForShowcase = createSelector(
+  selectRawBookProps,
+  (bookProps): BookRecord<BookPropsForShowcase> => {
+    return mapObj(bookProps, (key, p) => convertBookPropsToShowcaseStyle(p));
+  }
+);
+
+export const selectTagGroups = createSelector(
+  selectBookPropsForShowcase,
+  (bookProps): Record<string, TagGroupForShowcase> => {
+    return calcTagGroups(bookProps);
+  }
+);
+
+export const selectSortedTagGroups = createSelector(
+  selectTagGroups,
+  (tagGroups): [string, TagGroupForShowcase][] => {
+    return Object.entries(tagGroups).sort(([tagA], [tagB]) =>
+      tagA.localeCompare(tagB)
+    );
+  }
+);
+
+export const selectShowcaseMode = (
+  state: RootState
+): "main" | "taggedBooks" => {
+  if (state.showcase.taggedBooksShowcase !== undefined) return "taggedBooks";
+  return "main";
 };
 
 export const selectSortedBookProps = (
