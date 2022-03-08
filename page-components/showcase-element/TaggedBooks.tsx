@@ -4,7 +4,6 @@ import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
 import {
   readBookThunk,
   selectSearchedBooks,
-  selectSortedTagGroups,
 } from "../../redux-state/slices/book-data-slice";
 import TagGroupContent from "./TagGroupContent";
 import { BookPropsForShowcase } from "../../redux-state/slices/util/book-props-for-showcase";

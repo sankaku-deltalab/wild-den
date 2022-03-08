@@ -6,18 +6,14 @@ import {
   Box,
   CardActionArea,
 } from "@mui/material";
-import { useAppDispatch } from "../../redux-state/hooks";
-import { choiceTagOfTagGroup } from "../../redux-state/slices/book-data-slice";
+import Link from "next/link";
+import { useAppDispatch, useAppSelector } from "../../redux-state/hooks";
 import { TagGroupForShowcase } from "../../redux-state/slices/util/tag-group-for-showcase";
 
 export type TagGroupContentProps = { group: TagGroupForShowcase };
 
 const TagGroupContent: React.FC<TagGroupContentProps> = ({ group }) => {
   const dispatch = useAppDispatch();
-
-  const choiceTag = () => {
-    dispatch(choiceTagOfTagGroup({ tag: group.name }));
-  };
 
   const media =
     group.thumbnail === undefined ? (
@@ -32,28 +28,30 @@ const TagGroupContent: React.FC<TagGroupContentProps> = ({ group }) => {
     );
 
   return (
-    <Card style={{ height: "100%" }} onClick={choiceTag}>
-      <CardActionArea>
-        <Box sx={{ position: "relative" }}>
-          {media}
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              width: "100%",
-              bgcolor: "rgba(0, 0, 0, 0.54)",
-              color: "white",
-              padding: "0px",
-            }}
-          >
-            <Typography variant="body2" component="div" color="text.primary">
-              {group.name}
-            </Typography>
+    <Link passHref href={`/tagged-books/${group.name}`}>
+      <Card style={{ height: "100%" }}>
+        <CardActionArea>
+          <Box sx={{ position: "relative" }}>
+            {media}
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                width: "100%",
+                bgcolor: "rgba(0, 0, 0, 0.54)",
+                color: "white",
+                padding: "0px",
+              }}
+            >
+              <Typography variant="body2" component="div" color="text.primary">
+                {group.name}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      </CardActionArea>
-    </Card>
+        </CardActionArea>
+      </Card>
+    </Link>
   );
 };
 
