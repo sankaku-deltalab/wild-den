@@ -7,16 +7,16 @@ import {
 import { selectBookPropsForShowcase } from "./book-data-slice";
 import { searchTagGroups } from "./util/tag-searching";
 
-type MainShowcaseState = {
+type TagGroupsShowcaseState = {
   tagSearchText: string;
 };
 
-const initialState: MainShowcaseState = {
+const initialState: TagGroupsShowcaseState = {
   tagSearchText: "",
 };
 
-export const mainShowcaseSlice = createSlice({
-  name: "mainShowcase",
+export const tagGroupsShowcaseSlice = createSlice({
+  name: "tagGroups",
   initialState,
   reducers: {
     updateTagSearchText: (state, action: PayloadAction<{ text: string }>) => {
@@ -25,10 +25,10 @@ export const mainShowcaseSlice = createSlice({
   },
 });
 
-export const { updateTagSearchText } = mainShowcaseSlice.actions;
+export const { updateTagSearchText } = tagGroupsShowcaseSlice.actions;
 
 export const selectTagSearchText = (state: RootState) =>
-  state.mainShowcase.tagSearchText;
+  state.tagGroupsShowcase.tagSearchText;
 
 const selectRawTagGroups = createSelector(
   selectBookPropsForShowcase,
@@ -54,4 +54,4 @@ export const selectVisibleTagGroups = createSelector(
   }
 );
 
-export default mainShowcaseSlice.reducer;
+export default tagGroupsShowcaseSlice.reducer;

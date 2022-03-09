@@ -2,7 +2,7 @@ import * as React from "react";
 import { Grid } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
 import TagGroupContent from "./TagGroupContent";
-import { selectVisibleTagGroups } from "../../redux-state/slices/main-showcase-slice";
+import { selectVisibleTagGroups } from "../../redux-state/slices/tag-groups-showcase-slice";
 
 export type TagGroupsProps = {};
 

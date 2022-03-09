@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import bookDataSlice from "./slices/book-data-slice";
-import mainShowcaseSlice from "./slices/main-showcase-slice";
+import tagGroupsShowcaseSlice from "./slices/tag-groups-showcase-slice";
 
 export const store = configureStore({
   reducer: {
     bookData: bookDataSlice,
-    mainShowcase: mainShowcaseSlice,
+    tagGroupsShowcase: tagGroupsShowcaseSlice,
   },
 });
 
