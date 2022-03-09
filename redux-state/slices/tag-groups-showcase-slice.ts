@@ -16,7 +16,7 @@ const initialState: TagGroupsShowcaseState = {
 };
 
 export const tagGroupsShowcaseSlice = createSlice({
-  name: "tagGroups",
+  name: "tagGroupsShowcase",
   initialState,
   reducers: {
     updateTagSearchText: (state, action: PayloadAction<{ text: string }>) => {
