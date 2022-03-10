@@ -34,6 +34,7 @@ import { mapObj } from "../../src/util";
 
 type BookDataState = {
   status: "showing" | "content loading" | "reading" | "scanning";
+  initializeStatus: "not-yet" | "wip" | "completed" | "failed";
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
@@ -48,6 +49,7 @@ type BookDataState = {
 
 const initialState: BookDataState = {
   status: "showing",
+  initializeStatus: "not-yet",
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
@@ -79,16 +81,22 @@ export const bookDataSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loadInitialBookPropsThunk.fulfilled, (state, action) => {
-      const r = action.payload;
-      if (r.err) {
-        console.warn(r.val);
-        return;
-      }
-      const [sources, props] = r.val;
-      state.bookProps = props;
-      state.availableSources = sources;
-    });
+    builder
+      .addCase(loadInitialBookPropsThunk.pending, (state, action) => {
+        state.initializeStatus = "wip";
+      })
+      .addCase(loadInitialBookPropsThunk.fulfilled, (state, action) => {
+        const r = action.payload;
+        if (r.err) {
+          state.initializeStatus = "failed";
+          console.warn(r.val);
+          return;
+        }
+        state.initializeStatus = "completed";
+        const [sources, props] = r.val;
+        state.bookProps = props;
+        state.availableSources = sources;
+      });
 
     builder
       .addCase(readBookThunk.pending, (state, action) => {
@@ -198,6 +206,12 @@ export const syncBooksThunk = createAsyncThunk<
 
 export const { closeBook, updateContentLoading, updateSearchText } =
   bookDataSlice.actions;
+
+export const selectInitializeStatus = (
+  state: RootState
+): "not-yet" | "wip" | "completed" | "failed" => {
+  return state.bookData.initializeStatus;
+};
 
 export const selectRawBookProps = (
   state: RootState

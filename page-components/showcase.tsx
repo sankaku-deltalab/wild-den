@@ -14,15 +14,6 @@ const Showcase: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const mode = useAppSelector(selectShowcaseMode);
 
-  // run only first time
-  useEffect(() => {
-    const f = async () => {
-      dispatch(loadInitialBookPropsThunk({}));
-    };
-    f();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <>
       <NavigationBar />
