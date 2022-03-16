@@ -3,14 +3,12 @@ import Head from "next/head";
 import Link from "next/link";
 import { useAppSelector } from "../redux-state/hooks";
 import Showcase from "../page-components/showcase";
-import BookReader from "../page-components/book-reader";
+import BookReaderComponent from "../page-components/book-reader-component";
 import { selectReadingBook } from "../redux-state/slices/book-data-slice";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   const readingBook = useAppSelector(selectReadingBook);
-
-  const isReading = readingBook.ok;
 
   return (
     <div className={styles.container}>
@@ -21,7 +19,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        {isReading ? <BookReader /> : <Showcase />}
+        <Showcase />
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Grid,
@@ -14,8 +14,14 @@ import { useWindowSize } from "usehooks-ts";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
   closeBook,
+  selectRawBookProps,
   selectReadingBook,
 } from "../redux-state/slices/book-data-slice";
+import { BookId, bookIdToStr, BookProps } from "../src/core";
+import {
+  loadBookForReadThunk,
+  setBookIdOfReader,
+} from "../redux-state/slices/book-reader-slice";
 
 // TODO: ローカルファイルに依存するようにする
 // https://zenn.dev/kin/articles/658b06a3233e60
@@ -35,9 +41,16 @@ const modalStyle = {
 
 type Size2d = { height: number; width: number };
 
-const BookReader: React.FC<{}> = () => {
+const BookReaderComponent: React.FC<{ id: BookId }> = ({ id }) => {
+  // TODO: book-reader slice に依存するように書く
   const dispatch = useAppDispatch();
-  const readingBook = useAppSelector(selectReadingBook);
+  const contentProps = useAppSelector((s) => s.bookReader.contentData);
+  const contentData = useAppSelector((s) => s.bookReader.contentData);
+  const loadProgress = useAppSelector(
+    (s) => s.bookReader.contentLoadingProgress
+  );
+  const books = useAppSelector(selectRawBookProps);
+
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [readDirection, setReadDirection] = useState<"toLeft" | "toRight">(
@@ -48,6 +61,19 @@ const BookReader: React.FC<{}> = () => {
   const [originalPageSizes, setOriginalPageSizes] = useState<
     Record<number, Size2d>
   >({});
+
+  useEffect(() => {
+    dispatch(setBookIdOfReader({ id }));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (contentData === undefined) {
+      dispatch(loadBookForReadThunk({ id }));
+    }
+  }, [contentData, dispatch, id]);
+
+  const book: BookProps | undefined = books[bookIdToStr(id)];
+  const title = book ? book.title : "";
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -84,8 +110,7 @@ const BookReader: React.FC<{}> = () => {
     return Math.floor(originalPageSize.height * scale);
   };
 
-  const fileDataUri = readingBook.err ? "" : `${readingBook.val.contentData}`;
-  const bookProps = readingBook.err ? "" : readingBook.val.props;
+  const fileDataUri = contentData ?? "";
 
   const pages = [pageNumber - 1, pageNumber, pageNumber + 1].filter(
     (v) => 1 <= v && v <= numPages
@@ -145,7 +170,7 @@ const BookReader: React.FC<{}> = () => {
       />
       <Modal open={menuOpened} onClose={() => setMenuOpened(false)}>
         <Card sx={modalStyle}>
-          <div>{readingBook.err ? "" : readingBook.val.props.title}</div>
+          <div>{title}</div>
           <div>
             Direction:
             <ToggleButtonGroup
@@ -201,4 +226,4 @@ const PageSenderElement = (props: {
   );
 };
 
-export default BookReader;
+export default BookReaderComponent;
