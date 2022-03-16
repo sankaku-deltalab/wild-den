@@ -1,15 +1,9 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { useAppSelector } from "../redux-state/hooks";
 import Showcase from "../page-components/showcase";
-import BookReaderComponent from "../page-components/book-reader-component";
-import { selectReadingBook } from "../redux-state/slices/book-data-slice";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
-  const readingBook = useAppSelector(selectReadingBook);
-
   return (
     <div className={styles.container}>
       <Head>

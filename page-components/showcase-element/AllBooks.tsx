@@ -1,14 +1,14 @@
 import * as React from "react";
 import { List } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
-import { selectSearchedBooks } from "../../redux-state/slices/book-data-slice";
+import { selectSortedBookProps } from "../../redux-state/slices/book-data-slice";
 import BookListItem from "./BookListItem";
 
 export type AllBooksProps = {};
 
 const AllBooks: React.FC<AllBooksProps> = (props) => {
   const dispatch = useAppDispatch();
-  const books = useAppSelector(selectSearchedBooks);
+  const books = useAppSelector(selectSortedBookProps);
 
   return (
     <List>

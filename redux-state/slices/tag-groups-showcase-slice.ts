@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import {
   calcTagGroups,
@@ -6,29 +6,19 @@ import {
 } from "./util/tag-group-for-showcase";
 import { selectBookPropsForShowcase } from "./book-data-slice";
 import { searchTagGroups } from "./util/tag-searching";
+import { selectSearchText } from "./showcase-search-input-slice";
 
-type TagGroupsShowcaseState = {
-  tagSearchText: string;
-};
+type TagGroupsShowcaseState = {};
 
-const initialState: TagGroupsShowcaseState = {
-  tagSearchText: "",
-};
+const initialState: TagGroupsShowcaseState = {};
 
 export const tagGroupsShowcaseSlice = createSlice({
   name: "tagGroupsShowcase",
   initialState,
-  reducers: {
-    updateTagSearchText: (state, action: PayloadAction<{ text: string }>) => {
-      state.tagSearchText = action.payload.text;
-    },
-  },
+  reducers: {},
 });
 
-export const { updateTagSearchText } = tagGroupsShowcaseSlice.actions;
-
-export const selectTagSearchText = (state: RootState) =>
-  state.tagGroupsShowcase.tagSearchText;
+export const {} = tagGroupsShowcaseSlice.actions;
 
 const selectRawTagGroups = createSelector(
   selectBookPropsForShowcase,
@@ -47,7 +37,7 @@ const selectSortedRawTagGroups = createSelector(
 );
 
 export const selectVisibleTagGroups = createSelector(
-  selectTagSearchText,
+  selectSearchText,
   selectSortedRawTagGroups,
   (searchText, tagGroups): TagGroupForShowcase[] => {
     return searchTagGroups(searchText, tagGroups);

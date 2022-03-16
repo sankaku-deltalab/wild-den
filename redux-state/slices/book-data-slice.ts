@@ -38,13 +38,6 @@ type BookDataState = {
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
-  searchText: string;
-  readingBook?: {
-    id: BookId;
-    props: BookProps;
-    contentProps: BookContentProps;
-    contentData: DataUri;
-  };
 };
 
 const initialState: BookDataState = {
@@ -53,18 +46,12 @@ const initialState: BookDataState = {
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
-  searchText: "",
-  readingBook: undefined,
 };
 
 export const bookDataSlice = createSlice({
   name: "bookData",
   initialState,
   reducers: {
-    closeBook: (state) => {
-      state.status = "showing";
-      state.readingBook = undefined;
-    },
     updateContentLoading: (
       state,
       action: PayloadAction<{ id: BookId; elapsed: number; total: number }>
@@ -75,9 +62,6 @@ export const bookDataSlice = createSlice({
         total,
       };
       state.contentLoadState[bookIdToStr(id)] = progress;
-    },
-    updateSearchText: (state, action: PayloadAction<{ text: string }>) => {
-      state.searchText = action.payload.text;
     },
   },
   extraReducers: (builder) => {
@@ -99,18 +83,18 @@ export const bookDataSlice = createSlice({
       });
 
     builder
-      .addCase(readBookThunk.pending, (state, action) => {
+      .addCase(loadBookThunk.pending, (state, action) => {
         const { id } = action.meta.arg;
         state.contentLoadState[bookIdToStr(id)] = { elapsed: 0, total: 1 };
         state.status = "content loading";
       })
-      .addCase(readBookThunk.rejected, (state, action) => {
+      .addCase(loadBookThunk.rejected, (state, action) => {
         const { id } = action.meta.arg;
         delete state.contentLoadState[bookIdToStr(id)];
-        console.warn("readBookThunk rejected", action);
+        console.warn("loadBookThunk rejected", action);
         state.status = "showing";
       })
-      .addCase(readBookThunk.fulfilled, (state, action) => {
+      .addCase(loadBookThunk.fulfilled, (state, action) => {
         const { id } = action.meta.arg;
         delete state.contentLoadState[bookIdToStr(id)];
         if (action.payload.err) {
@@ -118,14 +102,6 @@ export const bookDataSlice = createSlice({
           state.status = "showing";
           return;
         }
-        const { props, contentProps, contentData } = action.payload.val;
-        state.status = "reading";
-        state.readingBook = {
-          id: props.id,
-          props,
-          contentProps,
-          contentData,
-        };
       });
 
     builder.addCase(syncBooksThunk.fulfilled, (state, action) => {
@@ -157,14 +133,14 @@ export const loadInitialBookPropsThunk = createAsyncThunk<
   return ok([sources, props.val]);
 });
 
-export const readBookThunk = createAsyncThunk<
+export const loadBookThunk = createAsyncThunk<
   Result<
     { props: BookProps; contentProps: BookContentProps; contentData: DataUri },
     OnlineBookAndSourceError | LocalRepositoryConnectionError
   >,
   { id: BookId },
   { state: RootState }
->("bookData/readBookThunk", async ({ id }, thunkApi) => {
+>("bookData/loadBookThunk", async ({ id }, thunkApi) => {
   const state = thunkApi.getState();
   const props = selectRawBookProps(state)[bookIdToStr(id)];
   const loadedContent = await loadBookContent.run(id, (elapsed, total) => {
@@ -204,8 +180,7 @@ export const syncBooksThunk = createAsyncThunk<
   return props.val;
 });
 
-export const { closeBook, updateContentLoading, updateSearchText } =
-  bookDataSlice.actions;
+export const { updateContentLoading } = bookDataSlice.actions;
 
 export const selectInitializeStatus = (
   state: RootState
@@ -217,22 +192,6 @@ export const selectRawBookProps = (
   state: RootState
 ): Record<BookIdStr, BookProps> => {
   return state.bookData.bookProps;
-};
-
-export const selectReadingBook = (
-  state: RootState
-): Result<
-  {
-    id: BookId;
-    props: BookProps;
-    contentProps: BookContentProps;
-    contentData: DataUri;
-  },
-  "not reading"
-> => {
-  const val = state.bookData.readingBook;
-  if (val === undefined) return err("not reading");
-  return ok(val);
 };
 
 export const selectBookPropsForShowcase = createSelector(
@@ -259,30 +218,5 @@ export const selectSortedBookProps = (
     ])
     .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
 };
-
-export const selectSearchText = (state: RootState): string =>
-  state.bookData.searchText;
-
-export const selectSearchedBooks = createSelector(
-  selectRawBookProps,
-  selectSearchText,
-  (bookProps, searchText): [BookIdStr, BookPropsForShowcase][] => {
-    if (searchText === "")
-      return Object.entries(bookProps)
-        .map<[BookIdStr, BookPropsForShowcase]>(([key, props]) => [
-          key,
-          convertBookPropsToShowcaseStyle(props),
-        ])
-        .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
-
-    const searched = searchBooks(
-      searchText,
-      Object.values(bookProps).map((p) => convertBookPropsToShowcaseStyle(p))
-    );
-    return searched
-      .map<[BookIdStr, BookPropsForShowcase]>((b) => [bookIdToStr(b.id), b])
-      .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
-  }
-);
 
 export default bookDataSlice.reducer;

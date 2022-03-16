@@ -1,19 +1,13 @@
 import * as React from "react";
-import { Grid, List, ListItem, ListItemButton } from "@mui/material";
-import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
-import {
-  readBookThunk,
-  selectSearchedBooks,
-} from "../../redux-state/slices/book-data-slice";
-import TagGroupContent from "./TagGroupContent";
-import { BookPropsForShowcase } from "../../redux-state/slices/util/book-props-for-showcase";
+import { List } from "@mui/material";
+import { useAppSelector } from "../../redux-state/hooks";
+import { selectSearchedTaggedBooks } from "../../redux-state/slices/tagged-books-showcase-slice";
 import BookListItem from "./BookListItem";
 
 export type TaggedBooksProps = {};
 
 const TaggedBooks: React.FC<TaggedBooksProps> = (props) => {
-  const dispatch = useAppDispatch();
-  const books = useAppSelector(selectSearchedBooks);
+  const books = useAppSelector(selectSearchedTaggedBooks);
 
   return (
     <List>

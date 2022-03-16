@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import { Card } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
 import {
+  selectSearchedTaggedBooks,
   setTagOfTaggedBooksShowcase,
-  selectVisibleTaggedBooks,
 } from "../redux-state/slices/tagged-books-showcase-slice";
 import NavigationBar from "./showcase-element/NavigationBar";
 import BottomBar from "./showcase-element/BottomBar";
@@ -13,7 +13,7 @@ import BooksList from "./showcase-element/BooksList";
 const TaggedBooksShowcase: React.FC<{}> = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const books = useAppSelector(selectVisibleTaggedBooks);
+  const books = useAppSelector(selectSearchedTaggedBooks);
 
   const { tag } = router.query;
 

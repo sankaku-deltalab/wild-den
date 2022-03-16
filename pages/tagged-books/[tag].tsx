@@ -1,9 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
 import styles from "../../styles/Home.module.css";
-import { selectVisibleTaggedBooks } from "../../redux-state/slices/tagged-books-showcase-slice";
 import TaggedBooksShowcase from "../../page-components/tagged-books-showcase";
 
 const TaggedBooks: NextPage = () => {

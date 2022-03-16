@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Button,
   Grid,
@@ -12,11 +13,7 @@ import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { pdfjs, Document, Page } from "react-pdf";
 import { useWindowSize } from "usehooks-ts";
 import { useAppSelector, useAppDispatch } from "../redux-state/hooks";
-import {
-  closeBook,
-  selectRawBookProps,
-  selectReadingBook,
-} from "../redux-state/slices/book-data-slice";
+import { selectRawBookProps } from "../redux-state/slices/book-data-slice";
 import { BookId, bookIdToStr, BookProps } from "../src/core";
 import {
   loadBookForReadThunk,
@@ -42,7 +39,7 @@ const modalStyle = {
 type Size2d = { height: number; width: number };
 
 const BookReaderComponent: React.FC<{ id: BookId }> = ({ id }) => {
-  // TODO: book-reader slice に依存するように書く
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const contentProps = useAppSelector((s) => s.bookReader.contentData);
   const contentData = useAppSelector((s) => s.bookReader.contentData);
@@ -81,6 +78,11 @@ const BookReaderComponent: React.FC<{ id: BookId }> = ({ id }) => {
 
   const toggleMenu = () => {
     setMenuOpened((v) => !v);
+  };
+
+  const handleCloseBook = () => {
+    dispatch(setBookIdOfReader({ id: undefined }));
+    router.back();
   };
 
   const goToRight = () => {
@@ -192,7 +194,7 @@ const BookReaderComponent: React.FC<{ id: BookId }> = ({ id }) => {
           <div>
             Progress: {pageNumber} / {numPages}
           </div>
-          <Button onClick={() => dispatch(closeBook())}>Close Book</Button>
+          <Button onClick={handleCloseBook}>Close Book</Button>
         </Card>
       </Modal>
     </>

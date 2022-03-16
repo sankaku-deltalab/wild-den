@@ -14,24 +14,26 @@ import {
 import { useAppSelector, useAppDispatch } from "../../redux-state/hooks";
 import {
   scanBooksThunk,
-  selectSearchText,
   syncBooksThunk,
-  updateSearchText,
 } from "../../redux-state/slices/book-data-slice";
 import { loginToOneDrive } from "../../src/use-cases-injection/book-sources/onedrive-use-cases-injection";
 import { clearLocalRepository } from "../../src/use-cases-injection/common-use-cases-injection";
 import { Box, TextField, InputAdornment } from "@mui/material";
+import {
+  selectSearchText,
+  updateSearchText,
+} from "../../redux-state/slices/showcase-search-input-slice";
 
 export type NavigationBarProps = {};
 
-const NavigationBar: React.FC<NavigationBarProps> = (props) => {
+const NavigationBar: React.FC<NavigationBarProps> = ({}) => {
   const dispatch = useAppDispatch();
   const { accounts, instance: msalInstance } = useMsal();
 
   const searchText = useAppSelector(selectSearchText);
 
-  const handleUpdateSearchText = (text: string) => {
-    dispatch(updateSearchText({ text }));
+  const handleUpdateSearchText = (searchText: string) => {
+    dispatch(updateSearchText({ searchText }));
   };
 
   // TODO: use slice dispatcher
