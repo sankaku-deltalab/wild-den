@@ -36,6 +36,7 @@ type BookDataState = {
   status: "showing" | "content loading" | "reading" | "scanning";
   initializeStatus: "not-yet" | "wip" | "completed" | "failed";
   bookProps: Record<BookIdStr, BookProps>;
+  bookContentProps: Record<BookIdStr, BookContentProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
 };
@@ -45,6 +46,7 @@ const initialState: BookDataState = {
   initializeStatus: "not-yet",
   availableSources: [],
   bookProps: {},
+  bookContentProps: {},
   contentLoadState: {},
 };
 
