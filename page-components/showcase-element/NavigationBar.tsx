@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useRouter } from "next/router";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
@@ -6,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
+import BackIcon from "@mui/icons-material/ArrowBackIosNew";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -27,6 +29,7 @@ import {
 export type NavigationBarProps = {};
 
 const NavigationBar: React.FC<NavigationBarProps> = ({}) => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { accounts, instance: msalInstance } = useMsal();
 
@@ -71,6 +74,18 @@ const NavigationBar: React.FC<NavigationBarProps> = ({}) => {
             sx={{ mr: 2 }}
           >
             <MenuIcon />
+          </IconButton>
+          <IconButton
+            size="small"
+            edge="start"
+            color="inherit"
+            aria-label="back"
+            sx={{ mr: 2 }}
+            onClick={() => {
+              router.back();
+            }}
+          >
+            <BackIcon />
           </IconButton>
           <TextField
             sx={{ flexGrow: 1 }}
