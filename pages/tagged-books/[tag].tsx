@@ -1,9 +1,9 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Showcase from "../page-components/showcase";
-import styles from "../styles/Home.module.css";
+import styles from "../../styles/Home.module.css";
+import TaggedBooksShowcase from "../../page-components/tagged-books-showcase";
 
-const Home: NextPage = () => {
+const TaggedBooks: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -13,10 +13,10 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <Showcase />
+        <TaggedBooksShowcase />
       </main>
     </div>
   );
 };
 
-export default Home;
+export default TaggedBooks;

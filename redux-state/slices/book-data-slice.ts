@@ -1,4 +1,9 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  PayloadAction,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import { Result, ok, err } from "../../src/results";
 import {
   BookContentProps,
@@ -20,36 +25,33 @@ import {
   scanBooksFromAvailableSources,
   syncBookProps,
 } from "../../src/use-cases-injection/common-use-cases-injection";
+import { searchBooks } from "./util/book-searching";
+import {
+  BookPropsForShowcase,
+  convertBookPropsToShowcaseStyle,
+} from "./util/book-props-for-showcase";
+import { mapObj } from "../../src/util";
 
-type ShowcaseState = {
+type BookDataState = {
   status: "showing" | "content loading" | "reading" | "scanning";
+  initializeStatus: "not-yet" | "wip" | "completed" | "failed";
   bookProps: Record<BookIdStr, BookProps>;
   availableSources: SourceId[];
   contentLoadState: BookRecord<{ elapsed: number; total: number }>;
-  readingBook?: {
-    id: BookId;
-    props: BookProps;
-    contentProps: BookContentProps;
-    contentData: DataUri;
-  };
 };
 
-const initialState: ShowcaseState = {
+const initialState: BookDataState = {
   status: "showing",
+  initializeStatus: "not-yet",
   availableSources: [],
   bookProps: {},
   contentLoadState: {},
-  readingBook: undefined,
 };
 
-export const showcaseSlice = createSlice({
-  name: "showcase",
+export const bookDataSlice = createSlice({
+  name: "bookData",
   initialState,
   reducers: {
-    closeBook: (state) => {
-      state.status = "showing";
-      state.readingBook = undefined;
-    },
     updateContentLoading: (
       state,
       action: PayloadAction<{ id: BookId; elapsed: number; total: number }>
@@ -63,24 +65,36 @@ export const showcaseSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loadInitialBookPropsThunk.fulfilled, (state, action) => {
-      const r = action.payload;
-      if (r.err) {
-        console.warn(r.val);
-        return;
-      }
-      const [sources, props] = r.val;
-      state.bookProps = props;
-      state.availableSources = sources;
-    });
+    builder
+      .addCase(loadInitialBookPropsThunk.pending, (state, action) => {
+        state.initializeStatus = "wip";
+      })
+      .addCase(loadInitialBookPropsThunk.fulfilled, (state, action) => {
+        const r = action.payload;
+        if (r.err) {
+          state.initializeStatus = "failed";
+          console.warn(r.val);
+          return;
+        }
+        state.initializeStatus = "completed";
+        const [sources, props] = r.val;
+        state.bookProps = props;
+        state.availableSources = sources;
+      });
 
     builder
-      .addCase(readBookThunk.pending, (state, action) => {
+      .addCase(loadBookThunk.pending, (state, action) => {
         const { id } = action.meta.arg;
         state.contentLoadState[bookIdToStr(id)] = { elapsed: 0, total: 1 };
         state.status = "content loading";
       })
-      .addCase(readBookThunk.fulfilled, (state, action) => {
+      .addCase(loadBookThunk.rejected, (state, action) => {
+        const { id } = action.meta.arg;
+        delete state.contentLoadState[bookIdToStr(id)];
+        console.warn("loadBookThunk rejected", action);
+        state.status = "showing";
+      })
+      .addCase(loadBookThunk.fulfilled, (state, action) => {
         const { id } = action.meta.arg;
         delete state.contentLoadState[bookIdToStr(id)];
         if (action.payload.err) {
@@ -88,14 +102,6 @@ export const showcaseSlice = createSlice({
           state.status = "showing";
           return;
         }
-        const { props, contentProps, contentData } = action.payload.val;
-        state.status = "reading";
-        state.readingBook = {
-          id: props.id,
-          props,
-          contentProps,
-          contentData,
-        };
       });
 
     builder.addCase(syncBooksThunk.fulfilled, (state, action) => {
@@ -120,23 +126,23 @@ export const loadInitialBookPropsThunk = createAsyncThunk<
   Result<[SourceId[], BookRecord<BookProps>], LocalRepositoryConnectionError>,
   {},
   { state: RootState }
->("showcase/loadInitialBookPropsThunk", async ({}, thunkApi) => {
+>("bookData/loadInitialBookPropsThunk", async ({}, thunkApi) => {
   const sources = await getAvailableSourceIds.run();
   const props = await loadLocalBookProps.run();
   if (props.err) return props;
   return ok([sources, props.val]);
 });
 
-export const readBookThunk = createAsyncThunk<
+export const loadBookThunk = createAsyncThunk<
   Result<
     { props: BookProps; contentProps: BookContentProps; contentData: DataUri },
     OnlineBookAndSourceError | LocalRepositoryConnectionError
   >,
   { id: BookId },
   { state: RootState }
->("showcase/readBookThunk", async ({ id }, thunkApi) => {
+>("bookData/loadBookThunk", async ({ id }, thunkApi) => {
   const state = thunkApi.getState();
-  const props = selectBookProps(state)[bookIdToStr(id)];
+  const props = selectRawBookProps(state)[bookIdToStr(id)];
   const loadedContent = await loadBookContent.run(id, (elapsed, total) => {
     thunkApi.dispatch(updateContentLoading({ id, elapsed, total }));
   });
@@ -152,7 +158,7 @@ export const scanBooksThunk = createAsyncThunk<
   Record<BookIdStr, BookProps>,
   void,
   { state: RootState }
->("showcase/scanBooksThunk", async (_, thunkApi) => {
+>("bookData/scanBooksThunk", async (_, thunkApi) => {
   const r = await scanBooksFromAvailableSources.run();
   if (r.err) {
     return {};
@@ -164,7 +170,7 @@ export const syncBooksThunk = createAsyncThunk<
   BookRecord<BookProps>,
   void,
   { state: RootState }
->("showcase/syncBooksThunk", async (_, thunkApi) => {
+>("bookData/syncBooksThunk", async (_, thunkApi) => {
   const sources = await getAvailableSourceIds.run();
   for (const s of sources) {
     await syncBookProps.run(s);
@@ -174,36 +180,43 @@ export const syncBooksThunk = createAsyncThunk<
   return props.val;
 });
 
-export const { closeBook, updateContentLoading } = showcaseSlice.actions;
+export const { updateContentLoading } = bookDataSlice.actions;
 
-export const selectBookProps = (
+export const selectInitializeStatus = (
   state: RootState
-): Record<BookIdStr, BookProps> => {
-  return state.showcase.bookProps;
+): "not-yet" | "wip" | "completed" | "failed" => {
+  return state.bookData.initializeStatus;
 };
 
-export const selectReadingBook = (
+export const selectRawBookProps = (
   state: RootState
-): Result<
-  {
-    id: BookId;
-    props: BookProps;
-    contentProps: BookContentProps;
-    contentData: DataUri;
-  },
-  "not reading"
-> => {
-  const val = state.showcase.readingBook;
-  if (val === undefined) return err("not reading");
-  return ok(val);
+): Record<BookIdStr, BookProps> => {
+  return state.bookData.bookProps;
+};
+
+export const selectBookPropsForShowcase = createSelector(
+  selectRawBookProps,
+  (bookProps): BookRecord<BookPropsForShowcase> => {
+    return mapObj(bookProps, (key, p) => convertBookPropsToShowcaseStyle(p));
+  }
+);
+
+export const selectShowcaseMode = (
+  state: RootState
+): "main" | "taggedBooks" => {
+  // if (state.bookData.taggedBooksShowcase !== undefined) return "taggedBooks";
+  return "main";
 };
 
 export const selectSortedBookProps = (
   state: RootState
-): [BookIdStr, BookProps][] => {
-  return Object.entries(state.showcase.bookProps).sort(([aKey, a], [bKey, b]) =>
-    a.title.localeCompare(b.title)
-  );
+): [BookIdStr, BookPropsForShowcase][] => {
+  return Object.entries(state.bookData.bookProps)
+    .map<[BookIdStr, BookPropsForShowcase]>(([key, props]) => [
+      key,
+      convertBookPropsToShowcaseStyle(props),
+    ])
+    .sort(([aKey, a], [bKey, b]) => a.title.localeCompare(b.title));
 };
 
-export default showcaseSlice.reducer;
+export default bookDataSlice.reducer;
