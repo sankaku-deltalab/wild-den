@@ -1,8 +1,8 @@
 import { inject, injectable, singleton } from "tsyringe";
-import { Result } from "../../../results";
+import type { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
-import { LocalRepositoryConnectionError, BookId } from "../../../core";
-import { LocalBookRepository } from "../../../core/interfaces";
+import type { LocalRepositoryConnectionError, BookId } from "../../../core";
+import type { LocalBookRepository } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
 
 type DeleteBookThumbnailFromLocalType = (

@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
 import { DirectoryId, SourceId, OnlineSourceError } from "../../../core";
-import {
+import type {
   BookSourceConfig,
   OnlineConfigRepository,
 } from "../../../core/interfaces";

@@ -7,13 +7,13 @@ import {
   SourceId,
   syncBookProps,
 } from "../../core";
-import {
+import type {
   LocalBookRepository,
   OnlineBookDataRepository,
 } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
-import { DateUtil } from "../../util";
+import type { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
 
 type SyncBookPropsType = (

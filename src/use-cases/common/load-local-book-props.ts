@@ -1,12 +1,12 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { Result } from "../../results";
 import type { FunctionClass } from "../../function-class";
-import {
+import type {
   BookRecord,
   BookProps,
   LocalRepositoryConnectionError,
 } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
+import type { LocalBookRepository } from "../../core/interfaces";
 import { injectTokens as it } from "../../inject-tokens";
 
 type LoadLocalBookPropsType = () => Promise<

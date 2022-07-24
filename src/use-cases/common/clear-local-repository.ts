@@ -1,7 +1,7 @@
 import { inject, injectable, singleton } from "tsyringe";
-import { LocalRepositoryBookError } from "../../core";
-import { LocalBookRepository } from "../../core/interfaces";
-import { Result } from "../../results";
+import type { LocalRepositoryBookError } from "../../core";
+import type { LocalBookRepository } from "../../core/interfaces";
+import type { Result } from "../../results";
 import type { FunctionClass } from "../../function-class";
 import { injectTokens as it } from "../../inject-tokens";
 

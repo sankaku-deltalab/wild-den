@@ -1,8 +1,8 @@
 import { inject, injectable, singleton } from "tsyringe";
 import type { FunctionClass } from "../../function-class";
-import { SourceId } from "../../core";
+import type { SourceId } from "../../core";
 import { injectTokens as it } from "../../inject-tokens";
-import { BookSource } from "../../core/interfaces";
+import type { BookSource } from "../../core/interfaces";
 
 type GetAvailableSourceIdsType = () => Promise<SourceId[]>;
 

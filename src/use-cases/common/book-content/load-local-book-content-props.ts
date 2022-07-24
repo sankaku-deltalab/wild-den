@@ -6,9 +6,9 @@ import {
   BookContentProps,
   LocalRepositoryBookError,
 } from "../../../core";
-import { LocalBookRepository } from "../../../core/interfaces";
+import type { LocalBookRepository } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import type { DateUtil } from "../../../util";
 
 type LoadLocalBookContentPropsType = (
   id: BookId

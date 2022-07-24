@@ -7,14 +7,14 @@ import {
   OnlineSourceError,
   SourceId,
 } from "../../core";
-import {
+import type {
   BookSource,
   LocalBookRepository,
   OnlineBookDataRepository,
 } from "../../core/interfaces";
 import { Result, ok } from "../../results";
 import type { FunctionClass } from "../../function-class";
-import { DateUtil, mapObj } from "../../util";
+import type { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
 
 type ScanBooksFromSingleSourceType = (

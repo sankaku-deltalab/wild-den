@@ -1,18 +1,18 @@
 import { inject, injectable, singleton } from "tsyringe";
-import {
+import type {
   BookProps,
   BookRecord,
   LocalRepositoryConnectionError,
   OnlineSourceError,
 } from "../../core";
-import {
+import type {
   BookSource,
   LocalBookRepository,
   OnlineBookDataRepository,
 } from "../../core/interfaces";
 import { Result, ok, isOk } from "../../results";
 import type { FunctionClass } from "../../function-class";
-import { DateUtil } from "../../util";
+import type { DateUtil } from "../../util";
 import { injectTokens as it } from "../../inject-tokens";
 import { scanBookOnSingleSource } from "./scan-books-from-single-source";
 

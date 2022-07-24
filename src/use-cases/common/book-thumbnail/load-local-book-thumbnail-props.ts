@@ -1,14 +1,14 @@
 import { inject, injectable, singleton } from "tsyringe";
-import { Result } from "../../../results";
+import type { Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
-import {
+import type {
   BookId,
   BookThumbnailProps,
   LocalRepositoryBookError,
 } from "../../../core";
-import { LocalBookRepository } from "../../../core/interfaces";
+import type { LocalBookRepository } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateUtil } from "../../../util";
+import type { DateUtil } from "../../../util";
 
 type LoadLocalBookThumbnailPropsType = (
   id: BookId

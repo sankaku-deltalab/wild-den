@@ -1,17 +1,17 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { ok, err, Result } from "../../../results";
 import type { FunctionClass } from "../../../function-class";
-import {
+import type {
   BookId,
   DataUri,
   OnlineBookError,
   BookThumbnailProps,
   LocalRepositoryBookError,
 } from "../../../core";
-import { LocalBookRepository, BookSource } from "../../../core/interfaces";
+import type { LocalBookRepository, BookSource } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateTime, DateUtil } from "../../../util";
-import { FileThumbnail } from "../../../core/interfaces";
+import type { DateTime, DateUtil } from "../../../util";
+import type { FileThumbnail } from "../../../core/interfaces";
 
 type LoadBookThumbnailType = (
   id: BookId

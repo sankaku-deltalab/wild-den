@@ -12,14 +12,14 @@ import {
   OnlineSourceError,
   OnlineBookAndSourceError,
 } from "../../../core";
-import {
+import type {
   LocalBookRepository,
   BookSource,
   LoadProgressCallback,
   FileContent,
 } from "../../../core/interfaces";
 import { injectTokens as it } from "../../../inject-tokens";
-import { DateTime, DateUtil } from "../../../util";
+import type { DateTime, DateUtil } from "../../../util";
 
 type LoadBookContentType = (
   id: BookId,
