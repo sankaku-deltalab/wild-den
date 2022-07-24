@@ -2,8 +2,11 @@ import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../inject-tokens";
 import { err, Result } from "../results";
 import { OnlineSourceError, SourceId, sourceNotAvailableError } from "../core";
-import { BookSourceConfig, OnlineConfigRepository } from "../core/interfaces";
-import { OneDriveOnlineConfigRepository } from "./interfaces";
+import type {
+  BookSourceConfig,
+  OnlineConfigRepository,
+} from "../core/interfaces";
+import type { OneDriveOnlineConfigRepository } from "./interfaces";
 
 @singleton()
 @injectable()

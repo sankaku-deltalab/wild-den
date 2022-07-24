@@ -14,7 +14,7 @@ import {
   somethingWrongError,
   SourceId,
 } from "../../core";
-import {
+import type {
   FileContent,
   FileProps,
   FileThumbnail,
@@ -25,7 +25,7 @@ import {
   MsalInstanceType,
   OneDriveDirectoryId,
 } from "../../use-cases/book-sources/one-drive";
-import {
+import type {
   FlattenDriveItemTreeNode,
   MsGraphClientUtilRest,
   MsGraphClientWrapperRestFactory,
@@ -45,14 +45,14 @@ import {
   driveItemIdToFileId,
   fileIdToDriveItemId,
 } from "./file-id-and-drive-item-id-converter";
-import {
+import type {
   OneDriveItemIsNotFileError,
   OneDriveItemNotExistsError,
 } from "./one-drive-error";
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../../inject-tokens";
-import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
-import { OneDriveBookSource } from "../../book-source/interfaces";
+import type { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
+import type { OneDriveBookSource } from "../../book-source/interfaces";
 
 @singleton()
 @injectable()

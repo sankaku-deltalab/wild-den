@@ -13,13 +13,12 @@ import {
   somethingWrongError,
   SourceId,
 } from "../../core";
-import { OnlineBookDataRepository } from "../../core/interfaces";
-import {
+import type { OnlineBookDataRepository } from "../../core/interfaces";
+import type {
   MsGraphClientUtilRest,
   MsGraphClientWrapperRest,
   MsGraphClientWrapperRestFactory,
 } from "./interfaces";
-import { MsalInstanceRepository } from "../../use-cases/book-sources/one-drive/interfaces";
 import { isFile } from "./util";
 
 const bookPropsDir = "book-props";

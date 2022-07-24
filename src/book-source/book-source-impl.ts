@@ -9,7 +9,7 @@ import {
   ScanTargetDirectory,
   SourceId,
 } from "../core";
-import {
+import type {
   BookSource,
   FileContent,
   FileProps,
@@ -18,7 +18,7 @@ import {
 } from "../core/interfaces";
 import { injectTokens as it } from "../inject-tokens";
 import { Result } from "../results";
-import { OneDriveBookSource } from "./interfaces";
+import type { OneDriveBookSource } from "./interfaces";
 
 @singleton()
 @injectable()

@@ -17,7 +17,7 @@ import { getMsGraphClient } from "./get-ms-graph-client";
 import { msalInstanceAccountToSourceId } from "../util";
 import { MsGraphClientWrapperRestFactory } from "../interfaces/ms-graph-client-wrapper-rest-factory";
 import { MsGraphClientWrapperRest } from "../interfaces/ms-graph-client-wrapper-rest";
-import { MsalInstanceRepository } from "../../../use-cases/book-sources/one-drive/interfaces";
+import type { MsalInstanceRepository } from "../../../use-cases/book-sources/one-drive/interfaces";
 import { MsGraphClientWrapperRestImpl } from "./ms-graph-client-wrapper-rest-impl";
 
 @singleton()

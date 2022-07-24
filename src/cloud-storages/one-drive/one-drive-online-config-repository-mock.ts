@@ -1,12 +1,12 @@
 import { Result, ok } from "../../results";
 import { injectTokens as it } from "../../inject-tokens";
-import { CommonOnlineError, SourceId } from "../../core";
-import {
+import type { CommonOnlineError, SourceId } from "../../core";
+import type {
   BookSourceConfig,
   OnlineConfigRepository,
 } from "../../core/interfaces";
-import { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
-import { DateUtil } from "../../util";
+import type { OneDriveDirectoryId } from "../../use-cases/book-sources/one-drive";
+import type { DateUtil } from "../../util";
 import { inject, injectable, singleton } from "tsyringe";
 
 @singleton()

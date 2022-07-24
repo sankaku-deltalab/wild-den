@@ -1,7 +1,7 @@
 import { inject, injectable, singleton } from "tsyringe";
 import { injectTokens as it } from "../inject-tokens";
-import { Result } from "../results";
-import {
+import type { Result } from "../results";
+import type {
   BookId,
   BookProps,
   BookRecord,
@@ -11,8 +11,8 @@ import {
   OnlineSourceError,
   SourceId,
 } from "../core";
-import { OnlineBookDataRepository } from "../core/interfaces";
-import { OneDriveOnlineBookDataRepository } from "./interfaces";
+import type { OnlineBookDataRepository } from "../core/interfaces";
+import type { OneDriveOnlineBookDataRepository } from "./interfaces";
 
 @singleton()
 @injectable()
